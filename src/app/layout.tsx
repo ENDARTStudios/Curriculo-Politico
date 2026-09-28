@@ -22,6 +22,9 @@ export default function RootLayout({
               <a href="/ranking" className="transition hover:text-slate-100">
                 Ranking
               </a>
+              <a href="/partidos" className="transition hover:text-slate-100">
+                Partidos
+              </a>
               <a href="#termometro" className="transition hover:text-slate-100">
                 Termômetro
               </a>

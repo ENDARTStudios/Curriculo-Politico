@@ -28,6 +28,9 @@ jobs:
       - name: Verificação do motor IDIP
         run: npm run verify:scoring
 
+      - name: Verificação do motor de identidade
+        run: npm run verify:identity
+
       - name: Build do Next.js
         run: npm run build
         env:

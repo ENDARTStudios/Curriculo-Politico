@@ -32,6 +32,7 @@ enum ActionType {
 model Person {
   id            String        @id @default(cuid())
   externalId    String?       @unique // ID da Câmara/Senado/TSE
+  tseId         String?       @unique // SQ_CANDIDATO da eleição que elegeu o político
   civilName     String
   politicalName String
   birthYear     Int?
@@ -69,9 +70,26 @@ model Term {
   endYear  Int?
   scores   Score[]
   actions  LegislativeAction[]
+  finances CampaignFinance[]
 
   @@index([personId])
   @@index([officeId])
+}
+
+model CampaignFinance {
+  id            String   @id @default(cuid())
+  termId        String
+  term          Term     @relation(fields: [termId], references: [id])
+  year          Int
+  totalReceived Float
+  totalSpent    Float
+  donorCount    Int
+  topDonors     Json? // Array de {nome, valor}
+  source        String // "TSE_2022"
+  retrievedAt   DateTime @default(now())
+
+  @@unique([termId, year])
+  @@index([termId])
 }
 
 model LegislativeAction {
