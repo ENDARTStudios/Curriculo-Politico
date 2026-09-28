@@ -1,0 +1,23 @@
+# Dependências
+node_modules/
+
+# Next.js
+.next/
+out/
+*.tsbuildinfo
+
+# Ambiente (nunca versionar segredos)
+.env
+.env*.local
+
+# Dados brutos coletados pelo ETL (ficam em storage imutável, não no git)
+data/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Sistema / Deploy
+.DS_Store
+.vercel

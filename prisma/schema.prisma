@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ReliabilityStatus {
+  GREEN
+  YELLOW
+  RED
+  GRAY
+}
+
+enum LegalStatus {
+  INVESTIGATION
+  LAWSUIT
+  CONDEMNATION
+  IMPEACHMENT
+  CLEARED
+}
+
+model Person {
+  id            String        @id @default(cuid())
+  externalId    String?       @unique // ID da Câmara/Senado/TSE
+  civilName     String
+  politicalName String
+  birthYear     Int?
+  photoUrl      String?
+  terms         Term[]
+  legalRecords  LegalRecord[]
+  createdAt     DateTime      @default(now())
+}
+
+model Party {
+  id       String   @id @default(cuid())
+  acronym  String   @unique
+  name     String
+  ideology String?
+  members  Term[]
+}
+
+model Office {
+  id           String @id @default(cuid())
+  type         String // "EXECUTIVE" | "LEGISLATIVE"
+  name         String // "Deputado Federal", "Governador"
+  jurisdiction String // "BR", "SP", "RJ"
+  terms        Term[]
+}
+
+model Term {
+  id       String @id @default(cuid())
+  personId String
+  person   Person @relation(fields: [personId], references: [id])
+  officeId String
+  office   Office @relation(fields: [officeId], references: [id])
+  partyId  String?
+  party    Party?  @relation(fields: [partyId], references: [id])
+  startYear Int
+  endYear  Int?
+  scores   Score[]
+
+  @@index([personId])
+  @@index([officeId])
+}
+
+model LegalRecord {
+  id          String      @id @default(cuid())
+  personId    String
+  person      Person      @relation(fields: [personId], references: [id])
+  type        LegalStatus
+  status      String // "ATIVO", "ARQUIVADO", "TRANSITADO_EM_JULGADO"
+  court       String?
+  sourceUrl   String
+  retrievedAt DateTime    @default(now())
+
+  @@index([personId])
+}
+
+model Score {
+  id                String            @id @default(cuid())
+  termId            String
+  term              Term              @relation(fields: [termId], references: [id])
+  version           String            @default("1.0.0")
+  finalScore        Float
+  confidenceScore   Float
+  reliabilityStatus ReliabilityStatus
+  integrityScore    Float
+  productivityScore Float
+  transparencyScore Float
+  calculatedAt      DateTime          @default(now())
+
+  @@index([termId])
+  @@index([finalScore])
+}
