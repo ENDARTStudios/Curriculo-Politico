@@ -1,1 +1,1 @@
-# Curr-culo-Pol-tico
+# Currículo Político
