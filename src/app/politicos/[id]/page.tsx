@@ -22,6 +22,7 @@ export default async function PoliticoPage({ params }: Props) {
           office: true,
           party: true,
           scores: { orderBy: { calculatedAt: "desc" }, take: 1 },
+          finances: { orderBy: { year: "desc" }, take: 1 },
         },
         orderBy: { startYear: "desc" },
       },
@@ -41,6 +42,8 @@ export default async function PoliticoPage({ params }: Props) {
 
   const currentTerm = politician.terms[0];
   const score = currentTerm?.scores[0];
+  const finance = currentTerm?.finances[0];
+  const topDonors = (finance?.topDonors as Array<{ nome: string; valor: number }> | undefined) ?? [];
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
@@ -112,7 +115,7 @@ export default async function PoliticoPage({ params }: Props) {
         )}
       </div>
 
-      {/* Breakdown e registros jurídicos */}
+      {/* Breakdown, financiamento e registros jurídicos */}
       <div className="grid gap-6 md:grid-cols-2">
         {score ? (
           <ScoreBreakdown score={score} />
@@ -160,6 +163,56 @@ export default async function PoliticoPage({ params }: Props) {
             conformidade LGPD.
           </p>
         </div>
+
+        {/* Financiamento de campanha — só aparece quando há dados (graceful) */}
+        {finance && (
+          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 md:col-span-2">
+            <h2 className="mb-4 text-xl font-bold text-slate-100">
+              Financiamento de Campanha ({finance.year})
+            </h2>
+            <div className="mb-5 grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-sm text-slate-500">Total arrecadado</div>
+                <div className="text-2xl font-bold text-slate-100">
+                  R${" "}
+                  {finance.totalReceived.toLocaleString("pt-BR", {
+                    minimumFractionDigits: 2,
+                  })}
+                </div>
+              </div>
+              <div>
+                <div className="text-sm text-slate-500">Receitas registradas</div>
+                <div className="text-2xl font-bold text-slate-100">
+                  {finance.donorCount}
+                </div>
+              </div>
+            </div>
+            {topDonors.length > 0 && (
+              <div>
+                <h3 className="mb-2 text-sm font-semibold text-slate-300">
+                  Maiores receitas individuais
+                </h3>
+                <ul className="space-y-1">
+                  {topDonors.map((donor, i) => (
+                    <li key={i} className="flex justify-between gap-4 text-sm">
+                      <span className="flex-1 truncate text-slate-400">{donor.nome}</span>
+                      <span className="font-semibold text-slate-200">
+                        R${" "}
+                        {donor.valor.toLocaleString("pt-BR", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <p className="mt-4 text-xs italic text-slate-600">
+              Fonte: TSE — Prestação de Contas {finance.year}. Não inclui
+              fundo eleitoral rateado a futuras prestações.
+            </p>
+          </div>
+        )}
       </div>
     </main>
   );
