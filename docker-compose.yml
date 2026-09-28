@@ -7,7 +7,8 @@ services:
       POSTGRES_PASSWORD: radar_civico
       POSTGRES_DB: radarcivico
     ports:
-      - "5432:5432"
+      # Portas altas: 5432/5433 (Postgres) e 6379/6380 (Redis) já ocupadas nesta máquina
+      - "15432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -20,7 +21,7 @@ services:
     image: redis:7-alpine
     container_name: radarcivico-redis
     ports:
-      - "6379:6379"
+      - "16379:6379"
 
 volumes:
   pgdata:

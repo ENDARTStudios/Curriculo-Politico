@@ -11,12 +11,14 @@ const prisma = new PrismaClient();
 const PARTY = { acronym: "EXM", name: "Partido Exemplo (seed)", ideology: "Nenhuma — dados fictícios" };
 const OFFICE = { id: "dep-federal-br", type: "LEGISLATIVE", name: "Deputado Federal", jurisdiction: "BR" };
 
+type LegalSeed = { type: "INVESTIGATION" | "CONDEMNATION"; status: string; court: string; sourceUrl: string };
+
 type SeedCase = {
   externalId: string;
   civilName: string;
   politicalName: string;
   metrics: LegislativeMetrics;
-  legal?: { type: "CONDEMNATION"; status: string; court: string; sourceUrl: string };
+  legal?: LegalSeed[];
 };
 
 const CASES: SeedCase[] = [
@@ -39,6 +41,15 @@ const CASES: SeedCase[] = [
       presence: 75, transparency: 70, costEfficiency: 65, campaign: 80,
       hasFinalCondemnation: false, hasRejectedAccounts: false, dataCompleteness: 70,
     },
+    // LGPD: inquérito arquivado NÃO deve aparecer na API pública.
+    legal: [
+      {
+        type: "INVESTIGATION",
+        status: "ARQUIVADO",
+        court: "STF (fictício — seed)",
+        sourceUrl: "https://exemplo.invalid/inquerito-arquivado-seed",
+      },
+    ],
   },
   {
     externalId: "seed-0003",
@@ -49,11 +60,24 @@ const CASES: SeedCase[] = [
       presence: 100, transparency: 90, costEfficiency: 85, campaign: 95,
       hasFinalCondemnation: true, hasRejectedAccounts: false, dataCompleteness: 90,
     },
-    legal: {
-      type: "CONDEMNATION",
-      status: "TRANSITADO_EM_JULGADO",
-      court: "STF (fictício — seed)",
-      sourceUrl: "https://exemplo.invalid/decisao-seed",
+    legal: [
+      {
+        type: "CONDEMNATION",
+        status: "TRANSITADO_EM_JULGADO",
+        court: "STF (fictício — seed)",
+        sourceUrl: "https://exemplo.invalid/decisao-seed",
+      },
+    ],
+  },
+  {
+    // Confiança < 60: termômetro GRAY, deve ficar FORA do ranking.
+    externalId: "seed-0004",
+    civilName: "Cidadã Exemplo D (Fictícia)",
+    politicalName: "Exemplo D (Dados Insuficientes)",
+    metrics: {
+      integrity: 100, productivity: 100, approval: 100, oversight: 100,
+      presence: 100, transparency: 100, costEfficiency: 100, campaign: 100,
+      hasFinalCondemnation: false, hasRejectedAccounts: false, dataCompleteness: 55,
     },
   },
 ];
@@ -116,13 +140,15 @@ async function main() {
     }
 
     if (seed.legal) {
-      const existingLegal = await prisma.legalRecord.findFirst({
-        where: { personId: person.id, type: seed.legal.type },
-      });
-      if (!existingLegal) {
-        await prisma.legalRecord.create({
-          data: { personId: person.id, ...seed.legal },
+      for (const legal of seed.legal) {
+        const existingLegal = await prisma.legalRecord.findFirst({
+          where: { personId: person.id, type: legal.type, status: legal.status },
         });
+        if (!existingLegal) {
+          await prisma.legalRecord.create({
+            data: { personId: person.id, ...legal },
+          });
+        }
       }
     }
 
