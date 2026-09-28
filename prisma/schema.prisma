@@ -22,6 +22,13 @@ enum LegalStatus {
   CLEARED
 }
 
+enum ActionType {
+  PROPOSED
+  APPROVED
+  VOTED
+  AUTHORED
+}
+
 model Person {
   id            String        @id @default(cuid())
   externalId    String?       @unique // ID da Câmara/Senado/TSE
@@ -61,9 +68,24 @@ model Term {
   startYear Int
   endYear  Int?
   scores   Score[]
+  actions  LegislativeAction[]
 
   @@index([personId])
   @@index([officeId])
+}
+
+model LegislativeAction {
+  id            String     @id @default(cuid())
+  termId        String
+  term          Term       @relation(fields: [termId], references: [id])
+  actionType    ActionType
+  billId        String?
+  voteDirection String?
+  date          DateTime?
+  createdAt     DateTime   @default(now())
+
+  @@unique([termId, actionType, billId])
+  @@index([termId])
 }
 
 model LegalRecord {

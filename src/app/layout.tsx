@@ -19,6 +19,9 @@ export default function RootLayout({
           <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-4">
             <span className="text-lg font-bold tracking-tight">📡 Radar Cívico</span>
             <nav className="flex gap-6 text-sm text-slate-400">
+              <a href="/ranking" className="transition hover:text-slate-100">
+                Ranking
+              </a>
               <a href="#termometro" className="transition hover:text-slate-100">
                 Termômetro
               </a>
