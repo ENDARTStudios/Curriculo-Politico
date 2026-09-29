@@ -14,6 +14,7 @@ interface PartyRow {
   memberCount: number;
   rankedCount: number;
   avgScore: number | null;
+  partyScore: number | null;
   avgConfidence: number;
   distribution: Record<ReliabilityStatus, number>;
 }
@@ -49,6 +50,8 @@ async function getPartyStats(): Promise<PartyRow[]> {
       const avgScore = ranked.length
         ? ranked.reduce((sum, s) => sum + s!.finalScore, 0) / ranked.length
         : null;
+      // PARTY_SCORING.md: 70% média membros + 30% placeholders (50) até TSE
+      const partyScore = avgScore !== null ? avgScore * 0.7 + 50 * 0.3 : null;
       const avgConfidence = scores.length
         ? scores.reduce((sum, s) => sum + s!.confidenceScore, 0) / scores.length
         : 0;
@@ -62,12 +65,13 @@ async function getPartyStats(): Promise<PartyRow[]> {
         memberCount: party.members.length,
         rankedCount: ranked.length,
         avgScore,
+        partyScore,
         avgConfidence,
         distribution,
       };
     })
     .filter((p) => p.memberCount > 0)
-    .sort((a, b) => (b.avgScore ?? -1) - (a.avgScore ?? -1));
+    .sort((a, b) => (b.partyScore ?? -1) - (a.partyScore ?? -1));
 }
 
 const CHIP = {
@@ -113,7 +117,7 @@ export default async function PartidosPage() {
                 <th className="p-4">Partido</th>
                 <th className="p-4 text-center">Parlamentares</th>
                 <th className="p-4">Ideologia</th>
-                <th className="p-4 text-center">Nota média (ranqueados)</th>
+                <th className="p-4 text-center">Nota do Partido</th>
                 <th className="p-4 text-center">Confiança média</th>
                 <th className="p-4">Distribuição</th>
               </tr>
@@ -140,8 +144,13 @@ export default async function PartidosPage() {
                       <span className="text-xs text-slate-600">—</span>
                     )}
                   </td>
-                  <td className="p-4 text-center text-lg font-bold text-slate-100">
-                    {party.avgScore !== null ? party.avgScore.toFixed(1) : "—"}
+                  <td className="p-4 text-center">
+                    <div className="text-lg font-bold text-slate-100">
+                      {party.partyScore !== null ? party.partyScore.toFixed(1) : "—"}
+                    </div>
+                    <div className="text-xs text-slate-500">
+                      {party.rankedCount}/{party.memberCount} ranqueados
+                    </div>
                   </td>
                   <td className="p-4 text-center text-slate-500">
                     {party.avgConfidence.toFixed(0)}%

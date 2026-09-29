@@ -52,6 +52,7 @@ export default function Home() {
               { href: "/comparar", label: "⚖️ Comparar" },
               { href: "/como-funciona", label: "🏛️ Como Funciona" },
               { href: "/calendario-eleitoral", label: "📅 Calendário" },
+              { href: "/historia", label: "📜 História" },
               { href: "/faq", label: "FAQ" },
             ].map((l) => (
               <a

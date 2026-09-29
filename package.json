@@ -39,7 +39,11 @@
     "tag-bills": "tsx scripts/tag-bills.ts",
     "db:load-legal": "tsx scripts/load-legal-records.ts",
     "apply-integrity-caps": "tsx scripts/apply-integrity-caps.ts",
-    "etl:legal": "python etl/legal_records.py"
+    "etl:legal": "python etl/legal_records.py",
+    "db:seed-historical": "tsx scripts/seed-historical.ts",
+    "review-medium": "tsx scripts/review-medium.ts",
+    "db:load-fact-checking": "tsx scripts/load-fact-checking.ts",
+    "etl:fact-checking": "python etl/fact_checking_rss.py"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

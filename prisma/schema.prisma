@@ -42,6 +42,7 @@ model Person {
   terms         Term[]
   legalRecords  LegalRecord[]
   billAuthorships BillAuthorship[]
+  verifiedClaims VerifiedClaim[]
   createdAt     DateTime      @default(now())
 }
 
@@ -299,4 +300,52 @@ model StfScore {
   calculatedAt      DateTime   @default(now())
 
   @@unique([justiceId, periodStart])
+}
+
+// ─── Ranking Histórico (educacional — critérios adaptados por era, /historia) ───
+
+model HistoricalEra {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  startYear   Int
+  endYear     Int
+  description String?
+  politicians HistoricalPolitician[]
+}
+
+model HistoricalPolitician {
+  id              String        @id @default(cuid())
+  name            String
+  eraId           String
+  era             HistoricalEra @relation(fields: [eraId], references: [id])
+  office          String // "Presidente", "Senador", "Deputado"
+  startYear       Int
+  endYear         Int?
+  party           String?
+  achievements    Json? // fatos documentados
+  controversies   Json? // eventos notórios
+  historicalScore Float?
+  scoreBreakdown  Json?
+  sources         Json? // links para fontes
+  createdAt       DateTime      @default(now())
+
+  @@unique([name, office, startYear])
+}
+
+// ─── Checagens de agências independentes (contexto — nunca altera o IDIP) ───
+
+model VerifiedClaim {
+  id          String    @id @default(cuid())
+  personId    String?
+  person      Person?   @relation(fields: [personId], references: [id])
+  claimText   String    @db.Text
+  verdict     String // "VERDADEIRO", "FALSO", "ENGANOSO", "IMPRECISO"
+  source      String // "Aos Fatos", "Lupa", "Comprova"
+  sourceUrl   String
+  publishedAt DateTime?
+  topic       String?
+  fetchedAt   DateTime  @default(now())
+
+  @@index([personId])
+  @@index([verdict])
 }

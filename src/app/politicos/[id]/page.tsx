@@ -10,6 +10,7 @@ import { Presenca } from "@/components/Presenca";
 import { ProfileNav } from "@/components/ProfileNav";
 import { TimelineChart } from "@/components/TimelineChart";
 import { IdeologyBadge } from "@/components/IdeologyBadge";
+import { VerifiedClaims } from "@/components/VerifiedClaims";
 
 export const dynamic = "force-dynamic";
 
@@ -75,6 +76,13 @@ export default async function PoliticoPage({ params }: Props) {
         prisma.sessionAttendance.count({ where: { termId: currentTerm.id } }),
       ])
     : [0, 0, 0];
+
+  // Checagens de agências independentes (contexto — nunca altera o IDIP)
+  const verifiedClaims = await prisma.verifiedClaim.findMany({
+    where: { personId: politician.id },
+    orderBy: { publishedAt: "desc" },
+    take: 20,
+  });
 
   const navItems = [
     { id: "nota", label: "Nota" },
@@ -278,6 +286,13 @@ export default async function PoliticoPage({ params }: Props) {
       {currentTerm && currentTerm.scoreSnapshots.length > 0 && (
         <div className="mt-6">
           <TimelineChart snapshots={currentTerm.scoreSnapshots} />
+        </div>
+      )}
+
+      {/* Polêmicas verificadas (contexto — não afeta a nota) */}
+      {verifiedClaims.length > 0 && (
+        <div className="mt-6">
+          <VerifiedClaims claims={verifiedClaims} />
         </div>
       )}
     </main>

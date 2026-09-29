@@ -1,0 +1,37 @@
+name: Monthly Score Snapshot
+
+on:
+  schedule:
+    # Dia 1 de cada mês às 03:00 UTC (00:00 BRT)
+    - cron: '0 3 1 * *'
+  workflow_dispatch: # Permite execução manual
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Run snapshot script
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npm run db:snapshot
+
+      - name: Verify snapshot created
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npx tsx scripts/verify-snapshot.ts

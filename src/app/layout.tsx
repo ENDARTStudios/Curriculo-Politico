@@ -37,6 +37,9 @@ export default function RootLayout({
               <a href="/calendario-eleitoral" className="transition hover:text-slate-100">
                 Calendário
               </a>
+              <a href="/historia" className="transition hover:text-slate-100">
+                História
+              </a>
               <a href="/stf" className="transition hover:text-slate-100">
                 STF
               </a>

@@ -7,6 +7,7 @@ import {
   PartyPerformanceChart,
 } from "@/components/PartyPerformanceChart";
 import { PartyMembersChart } from "@/components/PartyMembersChart";
+import { PartyScoreBreakdown } from "@/components/PartyScoreBreakdown";
 
 export const dynamic = "force-dynamic";
 
@@ -77,6 +78,13 @@ export default async function PartidoPage({ params }: Props) {
     reliability: m.score!.reliabilityStatus as string,
   }));
 
+  // PARTY_SCORING.md: 70% média membros ranqueados + 30% placeholders (50)
+  // até a integração TSE (transparência institucional + conformidade)
+  const avgMembersScore = ranked.length
+    ? ranked.reduce((sum, m) => sum + m.score!.finalScore, 0) / ranked.length
+    : 0;
+  const partyScore = avgMembersScore * 0.7 + 50 * 0.2 + 50 * 0.1;
+
   return (
     <main className="mx-auto max-w-6xl px-6 py-12">
       <Link
@@ -126,6 +134,24 @@ export default async function PartidoPage({ params }: Props) {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="mb-6 grid gap-6 lg:grid-cols-2">
+        {ranked.length > 0 ? (
+          <PartyScoreBreakdown
+            avgMembersScore={avgMembersScore}
+            memberCount={members.length}
+            rankedCount={ranked.length}
+            transparencyScore={50}
+            complianceScore={50}
+            finalScore={partyScore}
+          />
+        ) : (
+          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 text-sm text-slate-500">
+            Nenhum membro ranqueado ainda — a nota do partido aparece quando
+            houver membros com confiança ≥ 60%.
+          </div>
+        )}
       </div>
 
       {/* História do partido */}
