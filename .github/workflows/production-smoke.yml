@@ -1,0 +1,42 @@
+name: Production Smoke Test
+
+on:
+  workflow_dispatch:
+  schedule:
+    # A cada 6 horas
+    - cron: '0 */6 * * *'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    env:
+      PROD_URL: ${{ vars.PROD_URL || 'https://curriculopolitico.org' }}
+    steps:
+      - name: Home responde
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$PROD_URL/")
+          echo "home: $code"
+          [ "$code" = "200" ] || (echo "FAIL home" && exit 1)
+
+      - name: Ranking responde
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$PROD_URL/ranking")
+          echo "ranking: $code"
+          [ "$code" = "200" ] || (echo "FAIL ranking" && exit 1)
+
+      - name: API de busca encontra parlamentar
+        run: |
+          total=$(curl -s --max-time 30 "$PROD_URL/api/search?q=lula" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('total', 0))")
+          echo "resultados p/ 'lula': $total"
+          [ "$total" -ge 1 ] || (echo "FAIL busca" && exit 1)
+
+      - name: API de rankings tem dados
+        run: |
+          n=$(curl -s --max-time 30 "$PROD_URL/api/rankings?limit=5" | python3 -c "import json,sys; d=json.load(sys.stdin); print(len(d.get('ranking', [])))")
+          echo "no ranking: $n"
+          [ "$n" -ge 1 ] || (echo "FAIL rankings API" && exit 1)
+
+      - name: Página de status degradada = falha
+        run: |
+          body=$(curl -s --max-time 30 "$PROD_URL/status")
+          echo "$body" | grep -q "Indisponível" && (echo "FAIL status degradado" && exit 1) || echo "status OK"

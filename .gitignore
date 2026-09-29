@@ -21,3 +21,6 @@ __pycache__/
 # Sistema / Deploy
 .DS_Store
 .vercel
+
+.vercel
+.env*
