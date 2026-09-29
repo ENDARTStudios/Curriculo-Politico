@@ -11,6 +11,7 @@ import { ProfileNav } from "@/components/ProfileNav";
 import { TimelineChart } from "@/components/TimelineChart";
 import { IdeologyBadge } from "@/components/IdeologyBadge";
 import { VerifiedClaims } from "@/components/VerifiedClaims";
+import { PoliticianCost } from "@/components/PoliticianCost";
 
 export const dynamic = "force-dynamic";
 
@@ -84,8 +85,28 @@ export default async function PoliticoPage({ params }: Props) {
     take: 20,
   });
 
+  const [custos, beneficiosFixos] = currentTerm
+    ? await Promise.all([
+        prisma.politicianCost.findMany({
+          where: { termId: currentTerm.id },
+          orderBy: { year: "desc" },
+        }),
+        prisma.fixedBenefit.findMany({
+          where: {
+            officeType:
+              currentTerm.office.name === "Senador"
+                ? "SENADOR"
+                : currentTerm.office.name === "Deputado Federal"
+                  ? "DEPUTADO_FEDERAL"
+                  : "PRESIDENTE",
+          },
+        }),
+      ])
+    : [[], []];
+
   const navItems = [
     { id: "nota", label: "Nota" },
+    { id: "custo", label: "Custo" },
     { id: "votos", label: `Votos (${totalVotos})` },
     { id: "proposicoes", label: `Proposições (${totalAutorias})` },
     { id: "presenca", label: `Presença (${totalPresencas})` },
@@ -271,6 +292,20 @@ export default async function PoliticoPage({ params }: Props) {
           </div>
         )}
       </div>
+
+      {/* Custo para o Estado (real ou referência por cargo) */}
+      {currentTerm && (
+        <div id="custo" className="mt-6 scroll-mt-16">
+          <PoliticianCost
+            costs={custos}
+            fixedBenefits={beneficiosFixos.map((b) => ({
+              category: b.category,
+              monthlyValue: b.monthlyValue,
+            }))}
+            productivityScore={score?.productivityScore ?? 50}
+          />
+        </div>
+      )}
 
       {/* Atividade parlamentar */}
       <div id="votos" className="mt-6 grid gap-6 md:grid-cols-2 scroll-mt-16">

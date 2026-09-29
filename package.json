@@ -45,7 +45,13 @@
     "db:load-fact-checking": "tsx scripts/load-fact-checking.ts",
     "etl:fact-checking": "python etl/fact_checking_rss.py",
     "mark-first-terms": "tsx scripts/mark-first-terms.ts",
-    "detect-secret-votes": "tsx scripts/detect-secret-votes.ts"
+    "detect-secret-votes": "tsx scripts/detect-secret-votes.ts",
+    "db:seed-benefits": "tsx scripts/seed-fixed-benefits.ts",
+    "etl:ceap": "python etl/camara_ceap.py",
+    "etl:bens": "python etl/tse_bens.py",
+    "db:load-ceap": "tsx scripts/load-ceap.ts",
+    "db:load-patrimony": "tsx scripts/load-patrimony.ts",
+    "recalculate-cost-scores": "tsx scripts/recalculate-scores.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

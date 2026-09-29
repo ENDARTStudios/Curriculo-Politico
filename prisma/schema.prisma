@@ -84,6 +84,7 @@ model Term {
   finances CampaignFinance[]
   sessionAttendances SessionAttendance[]
   scoreSnapshots ScoreSnapshot[]
+  costs    PoliticianCost[]
 
   @@index([personId])
   @@index([officeId])
@@ -279,10 +280,11 @@ model Score {
   finalScore        Float
   confidenceScore   Float
   reliabilityStatus ReliabilityStatus
-  integrityScore    Float
-  productivityScore Float
-  transparencyScore Float
-  calculatedAt      DateTime          @default(now())
+  integrityScore      Float
+  productivityScore   Float
+  transparencyScore   Float
+  costEfficiencyScore Float?
+  calculatedAt        DateTime          @default(now())
 
   @@index([termId])
   @@index([finalScore])
@@ -390,4 +392,50 @@ model VerifiedClaim {
 
   @@index([personId])
   @@index([verdict])
+}
+
+// ─── Custo Total do Político (Requisito #26) ───
+
+enum CostCategory {
+  SALARY
+  PATRIMONY
+  CEAP
+  CEAPS
+  OFFICE_BUDGET
+  HOUSING
+  RELOCATION
+  HEALTH_PLAN
+  TRANSPORT
+  OTHER_BENEFITS
+}
+
+model PoliticianCost {
+  id          String       @id @default(cuid())
+  termId      String
+  term        Term         @relation(fields: [termId], references: [id], onDelete: Cascade)
+  category    CostCategory
+  year        Int
+  amount      Float // R$
+  description String?
+  source      String // "TSE", "CAMARA", "SENADO", "FIXED"
+  sourceUrl   String?
+  retrievedAt DateTime     @default(now())
+
+  @@unique([termId, category, year, description])
+  @@index([termId, year])
+  @@index([category])
+}
+
+/// Tabela de referência de valores fixos por cargo (subsídios/benefícios públicos)
+model FixedBenefit {
+  id            String       @id @default(cuid())
+  officeType    String // "PRESIDENTE", "SENADOR", "DEPUTADO_FEDERAL"...
+  category      CostCategory
+  monthlyValue  Float
+  description   String
+  effectiveFrom DateTime
+  effectiveTo   DateTime?
+  createdAt     DateTime     @default(now())
+
+  @@unique([officeType, category, effectiveFrom])
 }

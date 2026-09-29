@@ -54,12 +54,12 @@ const PILARES = [
 
 const PESOS_LEGISLATIVO = [
   ["Integridade", "25%"],
-  ["Produção", "20%"],
+  ["Produção", "18%"],
   ["Aprovação", "15%"],
   ["Fiscalização", "10%"],
   ["Presença", "10%"],
   ["Transparência", "10%"],
-  ["Custo/Benefício", "5%"],
+  ["Custo/Benefício", "7%"],
   ["Campanha", "5%"],
 ];
 
@@ -87,7 +87,7 @@ export default function MetodologiaPage() {
   return (
     <main className="mx-auto max-w-4xl px-6 py-12">
       <h1 className="text-3xl font-bold tracking-tight text-slate-100">
-        Metodologia IDIP v1.0
+        Metodologia IDIP v1.1
       </h1>
       <p className="mt-2 max-w-3xl text-slate-400">
         Índice de Desempenho e Integridade Pública: nota de 0 a 100 calculada

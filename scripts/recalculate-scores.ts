@@ -7,7 +7,12 @@
 import { PrismaClient, ReliabilityStatus } from "@prisma/client";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { calculateIDIP, type LegislativeMetrics } from "../src/lib/scoring";
+import {
+  applyCostEfficiency,
+  calculateIDIP,
+  type LegislativeMetrics,
+} from "../src/lib/scoring";
+import { CostCategory } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -39,7 +44,13 @@ async function recalculate() {
     // Seeds são fixtures didáticos (GREEN/RED curados) — o recálculo em massa
     // não pode sobrescrevê-los.
     where: { externalId: { not: { startsWith: "seed-" } } },
-    include: { terms: { orderBy: { startYear: "desc" }, take: 1 } },
+    include: {
+      terms: {
+        orderBy: { startYear: "desc" },
+        take: 1,
+        include: { costs: true },
+      },
+    },
   });
 
   console.log(
@@ -79,6 +90,20 @@ async function recalculate() {
     const presence = Math.min(100, participationRate * 100);
     const productivity = Math.min(100, billsCount * 5);
 
+    // Custo/Benefício (v1.1): real quando há custo anual coletado
+    // (CEAP etc., excluindo PATRIMONY que não é gasto público)
+    const anoAtual = new Date().getFullYear();
+    const mesesDecorridos = new Date().getMonth() + 1;
+    const annualCost = term.costs
+      .filter((cost) => cost.category !== "PATRIMONY")
+      .reduce(
+        (sum, cost) =>
+          sum + cost.amount * (cost.year === anoAtual ? 12 / mesesDecorridos : 1),
+        0,
+      );
+    const costEfficiency =
+      annualCost > 0 ? applyCostEfficiency(annualCost, productivity) : 50;
+
     const metrics: LegislativeMetrics = {
       integrity: 50,
       productivity,
@@ -86,7 +111,7 @@ async function recalculate() {
       oversight: 50,
       presence,
       transparency: 50,
-      costEfficiency: 50,
+      costEfficiency,
       campaign: 50,
       hasFinalCondemnation: false,
       hasRejectedAccounts: false,
@@ -104,17 +129,19 @@ async function recalculate() {
         integrityScore: result.breakdown.integrity.rawValue,
         productivityScore: metrics.productivity,
         transparencyScore: metrics.transparency,
+        costEfficiencyScore: annualCost > 0 ? costEfficiency : null,
       },
       create: {
         id: `score_${term.id}_v1`,
         termId: term.id,
-        version: "1.0.0",
+        version: "1.1.0",
         finalScore: result.finalScore,
         confidenceScore: result.confidence,
         reliabilityStatus: result.reliability,
         integrityScore: result.breakdown.integrity.rawValue,
         productivityScore: metrics.productivity,
         transparencyScore: metrics.transparency,
+        costEfficiencyScore: annualCost > 0 ? costEfficiency : null,
       },
     });
 

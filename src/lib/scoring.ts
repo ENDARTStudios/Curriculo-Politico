@@ -1,6 +1,7 @@
 /**
  * Motor de Pontuação do IDIP — Índice de Desempenho e Integridade Pública (v1.0)
- * Metodologia canônica: 02-architecture-design/SCORING_METHODOLOGY.md
+ * v1.1: pesos do Legislativo ajustados (Produção 18%, Custo/Benefício 7%)
+ * com a chegada de dados reais de CEAP. Metodologia: 02-architecture-design/SCORING_METHODOLOGY.md
  *
  * Princípios:
  * - Sem voto popular: apenas dimensões derivadas de dados públicos auditáveis.
@@ -76,12 +77,12 @@ export interface ScoreResult {
 export const WEIGHTS: Record<Profile, Record<string, number>> = {
   LEGISLATIVE: {
     integrity: 0.25,
-    productivity: 0.2,
+    productivity: 0.18,
     approval: 0.15,
     oversight: 0.1,
     presence: 0.1,
     transparency: 0.1,
-    costEfficiency: 0.05,
+    costEfficiency: 0.07,
     campaign: 0.05,
   },
   EXECUTIVE: {
@@ -220,4 +221,20 @@ export function applySecretVotePenalty(
 ): number {
   const penalty = secretVotesCount * 5 + publicRefusalsCount * 10;
   return Math.max(0, score - penalty);
+}
+
+/**
+ * Dimensão Custo/Benefício (v1.1): razão entre produtividade e custo anual
+ * relativo à média da categoria (R$ 1.2M/ano para parlamentar federal).
+ * PATRIMONY não entra no custo anual (patrimônio não é gasto público).
+ */
+export function applyCostEfficiency(
+  annualCost: number,
+  productivityScore: number,
+  averageCost = 1200000,
+): number {
+  const costRatio = Math.max(annualCost, 0) / averageCost;
+  if (costRatio <= 0) return 50; // sem dado de custo: baseline neutro
+  const efficiency = productivityScore / (costRatio * 100);
+  return Math.min(100, Math.max(0, efficiency * 100));
 }

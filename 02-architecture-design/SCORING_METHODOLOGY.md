@@ -7,11 +7,11 @@
 
 ## 2. Pesos Legislativo (Deputados/Senadores)
 - Integridade: 25%
-- Produção/Aprovação: 35% (20% produção, 15% aprovação)
+- Produção/Aprovação: 33% (18% produção, 15% aprovação)
 - Fiscalização: 10%
 - Presença: 10%
 - Transparência: 10%
-- Custo/Benefício: 5%
+- Custo/Benefício: 7% *(v1.1: peso ampliado com a chegada de CEAP real)*
 - Campanha: 5%
 
 ## 3. Pesos Executivo (Presidente/Governadores)

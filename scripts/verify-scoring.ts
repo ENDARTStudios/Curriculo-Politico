@@ -55,8 +55,8 @@ for (const [profile, weights] of Object.entries(WEIGHTS)) {
 console.log("\nPolítico limpo (Legislativo)");
 {
   const r = calculateIDIP(cleanLegislative);
-  // 25 + 17 + 10.5 + 9 + 9.5 + 10 + 4 + 4.5 = 89.5
-  check("nota = 89.5", approx(r.finalScore, 89.5), `obtido ${r.finalScore}`);
+  // 25 + 15.3 + 10.5 + 9 + 9.5 + 10 + 5.6 + 4.5 = 89.4 (v1.1)
+  check("nota = 89.4 (v1.1)", approx(r.finalScore, 89.4), `obtido ${r.finalScore}`);
   check("termômetro GREEN", r.reliability === "GREEN", `obtido ${r.reliability}`);
   check("sem trava", r.hardCapApplied === false, "trava acionada");
   check("confiança = 95", r.confidence === 95, `obtido ${r.confidence}`);
@@ -82,7 +82,7 @@ console.log("\nDados insuficientes (confiança < 60) — fora do ranking");
 {
   const r = calculateIDIP({ ...cleanLegislative, dataCompleteness: 55 });
   check("termômetro GRAY", r.reliability === "GRAY", `obtido ${r.reliability}`);
-  check("nota ainda calculada (não fictícia, mas marcada)", approx(r.finalScore, 89.5), `obtido ${r.finalScore}`);
+  check("nota ainda calculada (não fictícia, mas marcada)", approx(r.finalScore, 89.4), `obtido ${r.finalScore}`);
 }
 
 console.log("\nZona de atenção (YELLOW)");
