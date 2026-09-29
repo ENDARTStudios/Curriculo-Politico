@@ -18,7 +18,7 @@ export default function RetificacaoPage() {
   const preenchido = nome.trim() && dado.trim() && fonte.trim();
   const assunto = encodeURIComponent(`[Retificação de dados] ${nome || "—"}`);
   const corpo = encodeURIComponent(
-    `Político: ${nome}\n\nDado incorreto:\n${dado}\n\nFonte oficial corrigida:\n${fonte}\n\n—\nSolicitação via /retificacao (Radar Cívico)`,
+    `Político: ${nome}\n\nDado incorreto:\n${dado}\n\nFonte oficial corrigida:\n${fonte}\n\n—\nSolicitação via /retificacao (Currículo Político)`,
   );
 
   return (

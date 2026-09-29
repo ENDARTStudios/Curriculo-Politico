@@ -1,4 +1,4 @@
-# PRD: Radar Cívico (MVP)
+# PRD: Currículo Político (MVP)
 
 ## 1. Visão Geral
 Plataforma open-source de transparência política que agrega dados públicos federais e estaduais para avaliar, ranquear e auditar o desempenho de políticos e partidos no Brasil, utilizando o Índice de Desempenho e Integridade Pública (IDIP).

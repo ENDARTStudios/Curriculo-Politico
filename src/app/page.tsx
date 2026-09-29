@@ -34,7 +34,7 @@ export default function Home() {
           MVP em construção · Fase 0 concluída
         </p>
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-          Radar Cívico
+          Currículo Político
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-slate-400">
           Transparência política brasileira com o{" "}

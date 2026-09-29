@@ -5,7 +5,7 @@ export function LegalDisclaimer() {
         Transparência e Auditabilidade
       </h3>
       <p className="text-sm leading-relaxed text-slate-400">
-        O Radar Cívico é uma ferramenta de verificação de fatos. Todos os dados
+        O Currículo Político é uma ferramenta de verificação de fatos. Todos os dados
         são extraídos de fontes públicas oficiais (TSE, Câmara, Senado, TCU) e a
         pontuação é baseada estritamente em desempenho funcional e integridade,
         sem viés ideológico ou intenção de difamação. Cada nota possui

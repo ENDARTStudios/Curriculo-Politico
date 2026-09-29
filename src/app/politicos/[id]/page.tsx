@@ -4,6 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { Termometro } from "@/components/Termometro";
 import { ScoreBreakdown } from "@/components/ScoreBreakdown";
+import { VotosRecentes } from "@/components/VotosRecentes";
+import { Proposicoes } from "@/components/Proposicoes";
+import { Presenca } from "@/components/Presenca";
+import { ProfileNav } from "@/components/ProfileNav";
 
 export const dynamic = "force-dynamic";
 
@@ -23,8 +27,22 @@ export default async function PoliticoPage({ params }: Props) {
           party: true,
           scores: { orderBy: { calculatedAt: "desc" }, take: 1 },
           finances: { orderBy: { year: "desc" }, take: 1 },
+          actions: {
+            where: { actionType: "VOTED" },
+            orderBy: { date: "desc" },
+            take: 20,
+          },
+          sessionAttendances: {
+            orderBy: { sessionDate: "desc" },
+            take: 300,
+          },
         },
         orderBy: { startYear: "desc" },
+      },
+      billAuthorships: {
+        include: { bill: true },
+        orderBy: { bill: { date: "desc" } },
+        take: 20,
       },
       legalRecords: {
         // LGPD / SECURITY_BASELINE.md §3: apenas registros ativos ou
@@ -44,6 +62,25 @@ export default async function PoliticoPage({ params }: Props) {
   const score = currentTerm?.scores[0];
   const finance = currentTerm?.finances[0];
   const topDonors = (finance?.topDonors as Array<{ nome: string; valor: number }> | undefined) ?? [];
+
+  // Totais reais (independem dos `take` das listas exibidas)
+  const [totalVotos, totalAutorias, totalPresencas] = currentTerm
+    ? await Promise.all([
+        prisma.legislativeAction.count({
+          where: { termId: currentTerm.id, actionType: "VOTED" },
+        }),        prisma.billAuthorship.count({ where: { personId: politician.id } }),
+        prisma.sessionAttendance.count({ where: { termId: currentTerm.id } }),
+      ])
+    : [0, 0, 0];
+
+  const navItems = [
+    { id: "nota", label: "Nota" },
+    { id: "votos", label: `Votos (${totalVotos})` },
+    { id: "proposicoes", label: `Proposições (${totalAutorias})` },
+    { id: "presenca", label: `Presença (${totalPresencas})` },
+    ...(finance ? [{ id: "financiamento", label: "Financiamento" }] : []),
+    { id: "juridico", label: "Jurídico" },
+  ];
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
@@ -115,8 +152,11 @@ export default async function PoliticoPage({ params }: Props) {
         )}
       </div>
 
+      {/* Navegação interna das seções */}
+      <ProfileNav items={navItems} />
+
       {/* Breakdown, financiamento e registros jurídicos */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div id="nota" className="grid gap-6 md:grid-cols-2">
         {score ? (
           <ScoreBreakdown score={score} />
         ) : (
@@ -125,7 +165,7 @@ export default async function PoliticoPage({ params }: Props) {
           </div>
         )}
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <div id="juridico" className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 scroll-mt-16">
           <h2 className="mb-4 text-xl font-bold text-slate-100">
             Registros Jurídicos Públicos
           </h2>
@@ -166,7 +206,7 @@ export default async function PoliticoPage({ params }: Props) {
 
         {/* Financiamento de campanha — só aparece quando há dados (graceful) */}
         {finance && (
-          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 md:col-span-2">
+          <div id="financiamento" className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 md:col-span-2 scroll-mt-16">
             <h2 className="mb-4 text-xl font-bold text-slate-100">
               Financiamento de Campanha ({finance.year})
             </h2>
@@ -213,6 +253,16 @@ export default async function PoliticoPage({ params }: Props) {
             </p>
           </div>
         )}
+      </div>
+
+      {/* Atividade parlamentar */}
+      <div id="votos" className="mt-6 grid gap-6 md:grid-cols-2 scroll-mt-16">
+        <VotosRecentes votos={currentTerm?.actions ?? []} total={totalVotos} />
+        <Proposicoes autorias={politician.billAuthorships} total={totalAutorias} />
+      </div>
+
+      <div id="presenca" className="mt-6 scroll-mt-16">
+        <Presenca presencas={currentTerm?.sessionAttendances ?? []} total={totalPresencas} />
       </div>
     </main>
   );

@@ -1,8 +1,8 @@
-# Sobre o Radar Cívico — Propósito e Compromisso Ético
+# Sobre o Currículo Político — Propósito e Compromisso Ético
 
-*(Fonte canônica do conteúdo da página `/sobre`. Produto provisoriamente nomeado Radar Cívico; workspace "Currículo Político".)*
+*(Fonte canônica do conteúdo da página `/sobre`. Produto provisoriamente nomeado Currículo Político; workspace "Currículo Político".)*
 
-O **Radar Cívico** nasce com uma única missão: **fortalecer a democracia através da transparência radical e do controle social.**
+O **Currículo Político** nasce com uma única missão: **fortalecer a democracia através da transparência radical e do controle social.**
 
 ## O que somos
 

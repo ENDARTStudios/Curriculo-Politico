@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacidade e LGPD — Radar Cívico",
+  title: "Privacidade e LGPD — Currículo Político",
   description:
-    "Como o Radar Cívico trata dados pessoais de agentes públicos conforme a LGPD: base legal, minimização e retenção.",
+    "Como o Currículo Político trata dados pessoais de agentes públicos conforme a LGPD: base legal, minimização e retenção.",
 };
 
 export default function PrivacidadePage() {
@@ -13,7 +13,7 @@ export default function PrivacidadePage() {
         Política de Privacidade e LGPD
       </h1>
       <p className="mt-2 text-slate-400">
-        Como o Radar Cívico trata dados pessoais de agentes públicos.
+        Como o Currículo Político trata dados pessoais de agentes públicos.
       </p>
 
       <div className="mt-8 space-y-6">
@@ -22,7 +22,7 @@ export default function PrivacidadePage() {
             1. Base legal do tratamento
           </h2>
           <p className="text-sm leading-relaxed text-slate-400">
-            O tratamento de dados pessoais realizado pelo Radar Cívico
+            O tratamento de dados pessoais realizado pelo Currículo Político
             fundamenta-se no <strong className="text-slate-200">Art. 7º,
             inciso III</strong> (tutela de procedimentos) e no{" "}
             <strong className="text-slate-200">Art. 11, §4º</strong> da LGPD,
@@ -76,7 +76,7 @@ export default function PrivacidadePage() {
             4. Dados de usuários do site
           </h2>
           <p className="text-sm leading-relaxed text-slate-400">
-            O Radar Cívico <strong className="text-slate-200">não utiliza
+            O Currículo Político <strong className="text-slate-200">não utiliza
             rastreadores nem analítica de terceiros</strong> nesta fase, e não
             requer cadastro para consulta. Contas de usuário (favoritos e
             dashboard) estão previstas para a Fase 4 e terão política própria.

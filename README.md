@@ -1,4 +1,4 @@
-# 📡 Radar Cívico
+# 📡 Currículo Político
 
 Plataforma open-source de transparência política que agrega dados públicos federais e estaduais para avaliar, ranquear e auditar o desempenho de políticos e partidos no Brasil, usando o **IDIP** — Índice de Desempenho e Integridade Pública.
 

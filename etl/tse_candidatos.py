@@ -25,7 +25,7 @@ TSE_BASE = "https://cdn.tse.jus.br/estatistica/sead/odsele"
 RAW_DIR = os.path.join("data", "raw")
 CARGOS = {"DEPUTADO FEDERAL", "SENADOR"}
 HEADERS = {
-    "User-Agent": "RadarCivico/1.0 (Projeto Open Source de Transparencia)",
+    "User-Agent": "CurriculoPolitico/1.0 (Projeto Open Source de Transparencia)",
 }
 
 

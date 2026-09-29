@@ -11,7 +11,7 @@ import requests
 API_URL = "https://legis.senado.leg.br/dadosabertos/senador/lista/atual"
 RAW_DIR = os.path.join("data", "raw")
 HEADERS = {
-    "User-Agent": "RadarCivico/1.0 (Projeto Open Source de Transparencia)",
+    "User-Agent": "CurriculoPolitico/1.0 (Projeto Open Source de Transparencia)",
     "Accept": "application/json",
 }
 

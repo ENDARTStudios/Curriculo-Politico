@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Sobre — Radar Cívico",
+  title: "Sobre — Currículo Político",
   description:
-    "Missão, compromisso ético, fontes de dados e conformidade com a LGPD do Radar Cívico.",
+    "Missão, compromisso ético, fontes de dados e conformidade com a LGPD do Currículo Político.",
 };
 
 const FONTES = [
@@ -37,7 +37,7 @@ export default function SobrePage() {
     <main className="mx-auto max-w-4xl px-6 py-12">
       <div className="mb-12">
         <h1 className="mb-4 text-4xl font-bold tracking-tight text-slate-100">
-          Sobre o Radar Cívico
+          Sobre o Currículo Político
         </h1>
         <p className="text-xl leading-relaxed text-slate-400">
           Transparência radical para fortalecer a democracia. Dados públicos,
@@ -53,7 +53,7 @@ export default function SobrePage() {
         <div className="mb-6 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
           <h3 className="mb-3 text-lg font-semibold text-slate-100">O que somos</h3>
           <p className="mb-4 leading-relaxed text-slate-400">
-            O <strong className="text-slate-200">Radar Cívico</strong> é uma
+            O <strong className="text-slate-200">Currículo Político</strong> é uma
             plataforma de verificação de fatos e desempenho. Não somos um
             tribunal, um partido político ou um veículo de opinião. Nossa função
             é agregar, organizar e tornar legíveis os dados que já são públicos
@@ -184,7 +184,7 @@ export default function SobrePage() {
           <div>
             <h4 className="mb-2 font-semibold text-slate-200">Interesse Público</h4>
             <p className="leading-relaxed text-slate-400">
-              O Radar Cívico é um agregador de informações de interesse público.
+              O Currículo Político é um agregador de informações de interesse público.
               A exposição de dados funcionais de agentes públicos é fundamentada
               no princípio da publicidade dos atos administrativos e no direito
               do eleitor à informação.
@@ -307,7 +307,7 @@ export default function SobrePage() {
             </li>
           </ul>
           <p className="mt-4 text-xs italic text-slate-500">
-            O Radar Cívico se compromete a atualizar o dado assim que a
+            O Currículo Político se compromete a atualizar o dado assim que a
             retificação for comprovada documentalmente na fonte oficial.
           </p>
         </div>
@@ -320,7 +320,7 @@ export default function SobrePage() {
         </h2>
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
           <p className="mb-4 leading-relaxed text-slate-400">
-            O Radar Cívico é um projeto 100% open source. O código-fonte, a
+            O Currículo Político é um projeto 100% open source. O código-fonte, a
             metodologia de cálculo e os pipelines de dados estão disponíveis
             publicamente para auditoria, contribuição e replicação.
           </p>

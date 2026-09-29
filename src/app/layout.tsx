@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Radar Cívico — Transparência Política com Dados Públicos",
+  title: "Currículo Político — Transparência Política com Dados Públicos",
   description:
     "Plataforma open-source que avalia e ranqueia políticos brasileiros com o IDIP, usando apenas dados públicos auditáveis da Câmara, do Senado e do TSE.",
 };
@@ -17,13 +17,16 @@ export default function RootLayout({
       <body className="min-h-screen bg-slate-950 text-slate-100 antialiased">
         <header className="border-b border-slate-800/80">
           <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-4">
-            <span className="text-lg font-bold tracking-tight">📡 Radar Cívico</span>
+            <span className="text-lg font-bold tracking-tight">📡 Currículo Político</span>
             <nav className="flex flex-wrap gap-6 text-sm text-slate-400">
               <a href="/ranking" className="transition hover:text-slate-100">
                 Ranking
               </a>
               <a href="/partidos" className="transition hover:text-slate-100">
                 Partidos
+              </a>
+              <a href="/comparar" className="transition hover:text-slate-100">
+                Comparar
               </a>
               <a href="/metodologia" className="transition hover:text-slate-100">
                 Metodologia
