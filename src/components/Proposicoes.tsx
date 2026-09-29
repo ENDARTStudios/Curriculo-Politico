@@ -1,4 +1,5 @@
 import type { BillAuthorship, Bill } from "@prisma/client";
+import Link from "next/link";
 
 type Autoria = BillAuthorship & { bill: Bill };
 
@@ -44,14 +45,12 @@ export function Proposicoes({ autorias, total }: ProposicoesProps) {
                     : "Data não informada"}
                 </span>
                 {autoria.bill.externalId && (
-                  <a
-                    href={`https://dadosabertos.camara.leg.br/api/v2/proposicoes/${autoria.bill.externalId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    href={`/projetos/${autoria.bill.externalId}`}
                     className="text-xs text-sky-400 hover:underline"
                   >
-                    fonte original
-                  </a>
+                    ver projeto
+                  </Link>
                 )}
               </div>
             </div>

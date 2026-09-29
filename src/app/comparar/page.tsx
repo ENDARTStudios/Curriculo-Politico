@@ -3,7 +3,13 @@ import { ComparacaoCards } from "@/components/ComparacaoCards";
 
 export const dynamic = "force-dynamic";
 
-export default async function CompararPage() {
+interface Props {
+  searchParams: Promise<{ ids?: string }>;
+}
+
+export default async function CompararPage({ searchParams }: Props) {
+  const { ids } = await searchParams;
+  const initialIds = (ids ?? "").split(",").map((s) => s.trim()).filter(Boolean);
   const politicians = await prisma.person.findMany({
     where: { externalId: { not: { startsWith: "seed-" } } },
     include: {
@@ -55,7 +61,7 @@ export default async function CompararPage() {
       </p>
 
       <div className="mt-8">
-        <ComparacaoCards politicians={dados} />
+        <ComparacaoCards politicians={dados} initialIds={initialIds} />
       </div>
     </main>
   );

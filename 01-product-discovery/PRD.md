@@ -15,5 +15,7 @@ Plataforma open-source de transparência política que agrega dados públicos fe
 
 ## 4. Fora do Escopo (v1)
 - Políticos municipais (Prefeitos/Vereadores).
-- Votação popular ou opinião de usuários sobre políticos.
+- Votação popular ou opinião de usuários **sobre políticos** (a nota IDIP nunca incorpora opinião).
 - Aplicativos mobile nativos.
+
+> **Atualização 2026-09-28 — Neutralidade Algorítmica:** votação popular de **projetos de lei** (não de políticos) entra no produto como camada de **engajamento pessoal**, arquiteturalmente separada do IDIP: as contagens (`UserBillVote`) e o futuro Filtro de Afinidade (`UserAffinity`) nunca alteram a nota global factual. Detalhes em `/metodologia` § Neutralidade Algorítmica.

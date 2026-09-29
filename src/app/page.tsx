@@ -27,23 +27,44 @@ const THERMOMETER = [
 
 export default function Home() {
   return (
-    <main className="mx-auto max-w-5xl px-6 py-16">
+    <>
       {/* Hero */}
-      <section className="py-10 text-center">
-        <p className="mb-3 inline-block rounded-full border border-slate-700 px-3 py-1 text-xs font-medium tracking-wide text-slate-400">
-          MVP em construção · Fase 0 concluída
-        </p>
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-          Currículo Político
-        </h1>
-        <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-slate-400">
-          Transparência política brasileira com o{" "}
-          <strong className="text-slate-200">IDIP</strong> — Índice de Desempenho
-          e Integridade Pública. Notas auditáveis, metodologia aberta e o
-          Termômetro de Confiabilidade para separar desempenho de risco.
-        </p>
+      <section className="bg-gradient-to-br from-sky-700 to-blue-900">
+        <div className="mx-auto max-w-4xl px-6 py-20 text-center">
+          <p className="mb-4 inline-block rounded-full border border-white/25 px-3 py-1 text-xs font-medium tracking-wide text-white/85">
+            MVP em construção · Fase 0 concluída
+          </p>
+          <h1 className="text-5xl font-bold tracking-tight text-white">
+            Currículo Político
+          </h1>
+          <p className="mt-6 text-2xl font-light leading-relaxed text-white/95">
+            Uma campanha política não revela o seu candidato,
+            <br />
+            <strong className="font-semibold">o currículo dele sim.</strong>
+          </p>
+          <p className="mt-6 text-slate-200/90">
+            Transparência radical, dados públicos, algoritmos abertos.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            {[
+              { href: "/ranking", label: "Ver Ranking" },
+              { href: "/comparar", label: "⚖️ Comparar" },
+              { href: "/partidos", label: "Partidos" },
+              { href: "/metodologia", label: "Metodologia" },
+            ].map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                className="rounded-lg border border-white/30 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/20"
+              >
+                {l.label}
+              </a>
+            ))}
+          </div>
+        </div>
       </section>
 
+      <main className="mx-auto max-w-5xl px-6 py-16">
       {/* Termômetro */}
       <section id="termometro" className="scroll-mt-20 py-10">
         <h2 className="text-2xl font-semibold">Termômetro de Confiabilidade</h2>
@@ -122,5 +143,6 @@ export default function Home() {
         </div>
       </section>
     </main>
+      </>
   );
 }

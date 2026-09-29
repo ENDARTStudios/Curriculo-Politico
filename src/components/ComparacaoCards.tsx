@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { exportToCSV } from "@/lib/export";
 
 export interface Comparavel {
   id: string;
@@ -27,11 +28,31 @@ const STATUS_STYLE: Record<string, { chip: string; label: string }> = {
 
 const MAX_SELECAO = 3;
 
-export function ComparacaoCards({ politicians }: { politicians: Comparavel[] }) {
-  const [selected, setSelected] = useState<string[]>([]);
+export function ComparacaoCards({
+  politicians,
+  initialIds = [],
+}: {
+  politicians: Comparavel[];
+  initialIds?: string[];
+}) {
+  const [selected, setSelected] = useState<string[]>(() => {
+    // Deep-link: /comparar?ids=a,b,c pré-seleciona (máx. 3, só quem tem nota)
+    return initialIds
+      .slice(0, MAX_SELECAO)
+      .filter((id) => politicians.some((p) => p.id === id));
+  });
   const [filterParty, setFilterParty] = useState("");
   const [filterUF, setFilterUF] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [copiado, setCopiado] = useState(false);
+
+  // Mantém a URL compartilhável em sincronia com a seleção
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (selected.length >= 2) url.searchParams.set("ids", selected.join(","));
+    else url.searchParams.delete("ids");
+    window.history.replaceState(null, "", url.toString());
+  }, [selected]);
 
   const parties = useMemo(
     () => [...new Set(politicians.map((p) => p.party).filter(Boolean))].sort() as string[],
@@ -214,6 +235,49 @@ export function ComparacaoCards({ politicians }: { politicians: Comparavel[] }) 
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-12 text-center">
           <p className="text-slate-400">
             Selecione pelo menos 2 políticos para comparar.
+          </p>
+        </div>
+      )}
+      {/* Compartilhar + exportar */}
+      {selecionados.length >= 2 && (
+        <div className="mt-6 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+          <h3 className="mb-4 text-lg font-bold text-slate-100">
+            Compartilhar comparação
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            <input
+              type="text"
+              readOnly
+              value={
+                typeof window !== "undefined"
+                  ? window.location.href
+                  : `/comparar?ids=${selected.join(",")}`
+              }
+              onFocus={(e) => e.currentTarget.select()}
+              className="min-w-0 flex-1 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-300"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+                setCopiado(true);
+                setTimeout(() => setCopiado(false), 2000);
+              }}
+              className="rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-sky-400"
+            >
+              {copiado ? "Copiado!" : "Copiar link"}
+            </button>
+            <button
+              type="button"
+              onClick={() => exportToCSV(selecionados)}
+              className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm font-medium text-emerald-300 transition hover:bg-emerald-500/20"
+            >
+              📊 Exportar CSV
+            </button>
+          </div>
+          <p className="mt-3 text-xs text-slate-500">
+            Quem abrir o link vê exatamente esta seleção. O CSV exporta nome,
+            partido, UF, nota, confiança e status.
           </p>
         </div>
       )}

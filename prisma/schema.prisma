@@ -86,9 +86,48 @@ model Bill {
   status        String?
   date          DateTime?
   authorships   BillAuthorship[]
+  userVotes     UserBillVote[]
   createdAt     DateTime @default(now())
 
   @@index([externalId])
+}
+
+/// Camada de ENGAJAMENTO PESSOAL — nunca altera o IDIP (Neutralidade Algorítmica, /metodologia).
+/// User enxuto: Account/Session entram com o NextAuth na Fase 4.
+model User {
+  id          String         @id @default(cuid())
+  email       String?        @unique
+  name        String?
+  billVotes   UserBillVote[]
+  affinities  UserAffinity[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model UserBillVote {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  billId    String
+  bill      Bill     @relation(fields: [billId], references: [id], onDelete: Cascade)
+  vote      String // "FAVOR" | "CONTRA"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, billId])
+  @@index([billId])
+}
+
+model UserAffinity {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic     String // "privatizacao", "direitos_humanos", "meio_ambiente", etc
+  stance    String // "FAVOR" | "CONTRA" | "NEUTRO"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, topic])
 }
 
 model BillAuthorship {
