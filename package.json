@@ -34,7 +34,12 @@
     "etl:votacoes-historico": "python etl/camara_votacoes_historico.py",
     "etl:proposicoes": "python etl/camara_proposicoes.py",
     "etl:presenca": "python etl/camara_presenca.py",
-    "db:snapshot": "tsx scripts/snapshot-scores.ts"
+    "db:snapshot": "tsx scripts/snapshot-scores.ts",
+    "db:seed-parties": "tsx scripts/seed-party-data.ts",
+    "tag-bills": "tsx scripts/tag-bills.ts",
+    "db:load-legal": "tsx scripts/load-legal-records.ts",
+    "apply-integrity-caps": "tsx scripts/apply-integrity-caps.ts",
+    "etl:legal": "python etl/legal_records.py"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

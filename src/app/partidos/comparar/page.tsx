@@ -52,6 +52,8 @@ export default async function CompararPartidosPage() {
         id: party.id,
         acronym: party.acronym,
         name: party.name,
+        position: party.position,
+        ideology: party.ideology,
         memberCount: party.members.length,
         avgScore,
         avgConfidence,

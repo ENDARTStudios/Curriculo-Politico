@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { IdeologyBadge } from "@/components/IdeologyBadge";
 import Link from "next/link";
 import type { ReliabilityStatus } from "@prisma/client";
 
@@ -8,6 +9,8 @@ interface PartyRow {
   id: string;
   acronym: string;
   name: string;
+  position: string | null;
+  ideology: string | null;
   memberCount: number;
   rankedCount: number;
   avgScore: number | null;
@@ -54,6 +57,8 @@ async function getPartyStats(): Promise<PartyRow[]> {
         id: party.id,
         acronym: party.acronym,
         name: party.name,
+        position: party.position,
+        ideology: party.ideology,
         memberCount: party.members.length,
         rankedCount: ranked.length,
         avgScore,
@@ -107,6 +112,7 @@ export default async function PartidosPage() {
               <tr>
                 <th className="p-4">Partido</th>
                 <th className="p-4 text-center">Parlamentares</th>
+                <th className="p-4">Ideologia</th>
                 <th className="p-4 text-center">Nota média (ranqueados)</th>
                 <th className="p-4 text-center">Confiança média</th>
                 <th className="p-4">Distribuição</th>
@@ -127,6 +133,13 @@ export default async function PartidosPage() {
                     </div>
                   </td>
                   <td className="p-4 text-center text-slate-300">{party.memberCount}</td>
+                  <td className="p-4">
+                    {party.position ? (
+                      <IdeologyBadge position={party.position} ideology={party.ideology} />
+                    ) : (
+                      <span className="text-xs text-slate-600">—</span>
+                    )}
+                  </td>
                   <td className="p-4 text-center text-lg font-bold text-slate-100">
                     {party.avgScore !== null ? party.avgScore.toFixed(1) : "—"}
                   </td>

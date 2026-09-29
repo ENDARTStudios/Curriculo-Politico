@@ -20,6 +20,8 @@ enum LegalStatus {
   CONDEMNATION
   IMPEACHMENT
   CLEARED
+  ACCOUNTS_REJECTED
+  CRIMINAL_ACTION
 }
 
 enum ActionType {
@@ -44,11 +46,16 @@ model Person {
 }
 
 model Party {
-  id       String   @id @default(cuid())
-  acronym  String   @unique
-  name     String
-  ideology String?
-  members  Term[]
+  id          String   @id @default(cuid())
+  acronym     String   @unique
+  name        String
+  ideology    String? // "Social-democracia", "Liberalismo econômico"
+  position    String? // "ESQUERDA" | "CENTRO_ESQUERDA" | "CENTRO" | "CENTRO_DIREITA" | "DIREITA"
+  foundedYear Int?
+  history     String?  @db.Text
+  tseNumber   Int?
+  color       String? // hex para gráficos
+  members     Term[]
 }
 
 model Office {
@@ -102,6 +109,7 @@ model Bill {
   type          String?
   status        String?
   date          DateTime?
+  tags          Json? // ["saude", "economia", ...] p/ Filtro de Afinidade
   authorships   BillAuthorship[]
   userVotes     UserBillVote[]
   createdAt     DateTime @default(now())
@@ -196,13 +204,15 @@ model LegislativeAction {
   termId        String
   term          Term       @relation(fields: [termId], references: [id])
   actionType    ActionType
-  billId        String?
+  billId        String? // id da VOTAÇÃO na Câmara
+  proposicaoId  String? // id da PROPOSIÇÃO votada (ponte p/ tags de afinidade)
   voteDirection String?
   date          DateTime?
   createdAt     DateTime   @default(now())
 
   @@unique([termId, actionType, billId])
   @@index([termId])
+  @@index([proposicaoId])
 }
 
 model LegalRecord {

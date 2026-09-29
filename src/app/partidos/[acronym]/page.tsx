@@ -1,8 +1,12 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { Termometro } from "@/components/Termometro";
+import { IdeologyBadge } from "@/components/IdeologyBadge";
+import {
+  PartyPerformanceChart,
+} from "@/components/PartyPerformanceChart";
+import { PartyMembersChart } from "@/components/PartyMembersChart";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +34,28 @@ export default async function PartidoPage({ params }: Props) {
 
   if (!party) notFound();
 
+  // Snapshots agregados do partido (média por data — Rastreamento Temporal)
+  const termIds = party.members.map((t) => t.id);
+  const snapshots = termIds.length
+    ? await prisma.scoreSnapshot.findMany({
+        where: { termId: { in: termIds } },
+        orderBy: { snapshotDate: "asc" },
+      })
+    : [];
+
+  const porData = new Map<string, { scores: number[]; date: Date }>();
+  for (const s of snapshots) {
+    const key = s.snapshotDate.toISOString().slice(0, 10);
+    const acc = porData.get(key) ?? { scores: [], date: s.snapshotDate };
+    acc.scores.push(s.finalScore);
+    porData.set(key, acc);
+  }
+  const partySnapshots = [...porData.values()].map((v) => ({
+    date: v.date.toISOString(),
+    avgScore: v.scores.reduce((a, b) => a + b, 0) / v.scores.length,
+    memberCount: v.scores.length,
+  }));
+
   const members = party.members
     .map((term) => ({ person: term.person, term, score: term.scores[0] }))
     .sort((a, b) => (b.score?.finalScore ?? 0) - (a.score?.finalScore ?? 0));
@@ -44,25 +70,57 @@ export default async function PartidoPage({ params }: Props) {
     ? ranked.reduce((sum, m) => sum + m.score!.finalScore, 0) / ranked.length
     : null;
 
+  const rankedMembers = ranked.map((m) => ({
+    id: m.person.id,
+    name: m.person.politicalName,
+    score: m.score!.finalScore,
+    reliability: m.score!.reliabilityStatus as string,
+  }));
+
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12">
-      <Link href="/partidos" className="mb-6 inline-block text-sm text-slate-400 transition hover:text-slate-100">
+    <main className="mx-auto max-w-6xl px-6 py-12">
+      <Link
+        href="/partidos"
+        className="mb-6 inline-block text-sm text-slate-400 transition hover:text-slate-100"
+      >
         ← Todos os partidos
       </Link>
 
-      <div className="mb-8 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-        <h1 className="text-4xl font-bold tracking-tight text-slate-100">{party.acronym}</h1>
+      <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+        <h1 className="text-4xl font-bold tracking-tight text-slate-100">
+          {party.acronym}
+        </h1>
         <p className="mt-1 text-lg text-slate-400">{party.name}</p>
-        {party.ideology && (
-          <p className="mt-1 text-sm text-slate-500">Ideologia registrada: {party.ideology}</p>
-        )}
+        <div className="mt-3 flex flex-wrap items-center gap-4">
+          <IdeologyBadge
+            position={party.position}
+            ideology={party.ideology}
+            size="md"
+          />
+          {party.foundedYear && (
+            <span className="text-sm text-slate-500">
+              Fundado em {party.foundedYear}
+            </span>
+          )}
+          {party.tseNumber && (
+            <span className="text-sm text-slate-500">
+              Nº TSE: {party.tseNumber}
+            </span>
+          )}
+        </div>
         <div className="mt-4 flex gap-8">
           <div>
-            <div className="text-xs uppercase tracking-wide text-slate-500">Parlamentares</div>
-            <div className="text-2xl font-bold text-slate-100">{members.length}</div>
+            <div className="text-xs uppercase tracking-wide text-slate-500">
+              Parlamentares
+            </div>
+            <div className="text-2xl font-bold text-slate-100">
+              {members.length}
+            </div>
           </div>
           <div>
-            <div className="text-xs uppercase tracking-wide text-slate-500">Nota média (ranqueados)</div>
+            <div className="text-xs uppercase tracking-wide text-slate-500">
+              Nota média (ranqueados)
+            </div>
             <div className="text-2xl font-bold text-slate-100">
               {avgScore !== null ? avgScore.toFixed(1) : "—"}
             </div>
@@ -70,6 +128,47 @@ export default async function PartidoPage({ params }: Props) {
         </div>
       </div>
 
+      {/* História do partido */}
+      {party.history && (
+        <div className="mb-6 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+          <h2 className="mb-3 text-xl font-bold text-slate-100">História</h2>
+          <p className="leading-relaxed text-slate-400">{party.history}</p>
+          {party.ideology && (
+            <div className="mt-4 border-t border-slate-800 pt-4">
+              <h3 className="mb-2 text-sm font-semibold text-slate-300">
+                Ideologia e Posicionamento
+              </h3>
+              <div className="flex flex-wrap items-center gap-3">
+                <IdeologyBadge
+                  position={party.position}
+                  ideology={party.ideology}
+                  size="md"
+                />
+                <span className="text-sm text-slate-400">{party.ideology}</span>
+              </div>
+              <p className="mt-2 text-xs italic text-slate-500">
+                Classificação baseada em fontes públicas (registro TSE,
+                programas partidários e ciência política consolidada). É
+                contexto informativo — nunca influencia a nota IDIP.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Gráficos de desempenho */}
+      <div className="mb-6 grid gap-6 lg:grid-cols-2">
+        <PartyPerformanceChart
+          snapshots={partySnapshots}
+          partyColor={party.color ?? ""}
+        />
+        <PartyMembersChart
+          members={rankedMembers}
+          partyColor={party.color ?? ""}
+        />
+      </div>
+
+      {/* Tabela ranqueados + GRAY */}
       <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-slate-800 text-xs uppercase tracking-wide text-slate-500">
@@ -86,28 +185,21 @@ export default async function PartidoPage({ params }: Props) {
               <tr key={m.term.id} className="transition hover:bg-slate-800/40">
                 <td className="p-4 font-mono text-slate-500">{i + 1}º</td>
                 <td className="p-4">
-                  <Link href={`/politicos/${m.person.id}`} className="flex items-center gap-3">
-                    <Image
-                      src={m.person.photoUrl || "/avatar-placeholder.svg"}
-                      alt=""
-                      width={40}
-                      height={40}
-                      className="h-10 w-10 rounded-full object-cover"
-                      unoptimized
-                    />
-                    <span className="font-semibold text-slate-100 hover:underline">
-                      {m.person.politicalName}
-                    </span>
+                  <Link
+                    href={`/politicos/${m.person.id}`}
+                    className="font-semibold text-slate-100 hover:underline"
+                  >
+                    {m.person.politicalName}
                   </Link>
                 </td>
                 <td className="p-4 text-slate-400">
                   {m.term.office.name} · {m.term.office.jurisdiction}
                 </td>
                 <td className="p-4 text-center">
-                  {m.score ? <Termometro status={m.score.reliabilityStatus} /> : "—"}
+                  <Termometro status={m.score!.reliabilityStatus} />
                 </td>
                 <td className="p-4 text-center text-lg font-bold text-slate-100">
-                  {m.score?.finalScore.toFixed(1) ?? "—"}
+                  {m.score!.finalScore.toFixed(1)}
                 </td>
               </tr>
             ))}
@@ -115,18 +207,11 @@ export default async function PartidoPage({ params }: Props) {
               <tr key={m.term.id} className="opacity-60 transition hover:bg-slate-800/40">
                 <td className="p-4 text-slate-600">—</td>
                 <td className="p-4">
-                  <Link href={`/politicos/${m.person.id}`} className="flex items-center gap-3">
-                    <Image
-                      src={m.person.photoUrl || "/avatar-placeholder.svg"}
-                      alt=""
-                      width={40}
-                      height={40}
-                      className="h-10 w-10 rounded-full object-cover grayscale"
-                      unoptimized
-                    />
-                    <span className="font-medium text-slate-300 hover:underline">
-                      {m.person.politicalName}
-                    </span>
+                  <Link
+                    href={`/politicos/${m.person.id}`}
+                    className="font-medium text-slate-300 hover:underline"
+                  >
+                    {m.person.politicalName}
                   </Link>
                 </td>
                 <td className="p-4 text-slate-500">

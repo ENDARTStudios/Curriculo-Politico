@@ -9,6 +9,7 @@ import { Proposicoes } from "@/components/Proposicoes";
 import { Presenca } from "@/components/Presenca";
 import { ProfileNav } from "@/components/ProfileNav";
 import { TimelineChart } from "@/components/TimelineChart";
+import { IdeologyBadge } from "@/components/IdeologyBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -116,6 +117,12 @@ export default async function PoliticoPage({ params }: Props) {
               <span className="rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-sm font-medium text-sky-300">
                 {currentTerm.party.acronym}
               </span>
+            )}
+            {currentTerm?.party && (
+              <IdeologyBadge
+                position={currentTerm.party.position}
+                ideology={currentTerm.party.ideology}
+              />
             )}
             {currentTerm?.office && (
               <span className="rounded-full border border-slate-700 bg-slate-800/60 px-3 py-1 text-sm text-slate-300">

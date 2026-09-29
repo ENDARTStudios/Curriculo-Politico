@@ -77,6 +77,7 @@ def run():
     votacoes = fetch_all_votacoes()
 
     all_votes = []
+    votacao_proposicao = []  # ponte votação → proposição (Filtro de Afinidade)
     nominal_count = 0
     simbolica_count = 0
 
@@ -87,6 +88,14 @@ def run():
             simbolica_count += 1
         else:
             nominal_count += 1
+            obj = v.get("proposicaoObjeto")
+            prop_uri = (obj.get("uri") if isinstance(obj, dict) else obj) or ""
+            prop_id = prop_uri.rstrip("/").split("/")[-1] if prop_uri else ""
+            if prop_id.isdigit():
+                votacao_proposicao.append({
+                    "votacao_id": str(vot_id),
+                    "proposicao_id": prop_id,
+                })
             for voto in votos:
                 dep = voto.get("deputado_") or voto.get("deputado") or {}
                 if not dep.get("id"):
@@ -111,24 +120,28 @@ def run():
     with open(out_votes, "w", encoding="utf-8") as f:
         json.dump(all_votes, f, ensure_ascii=False)  # compacto: arquivo será grande
 
+    out_pontes = os.path.join(RAW_DIR, "camara_votacao_proposicao.json")
+    with open(out_pontes, "w", encoding="utf-8") as f:
+        json.dump(votacao_proposicao, f, ensure_ascii=False)
+
     metadata = {
         "periodo": {"inicio": START_DATE, "fim": END_DATE},
         "total_votacoes_plenarias": len(votacoes),
         "votacoes_nominais": nominal_count,
         "votacoes_simbolicas": simbolica_count,
         "total_votos_coletados": len(all_votes),
+        "pontes_votacao_proposicao": len(votacao_proposicao),
         "gerado_em": datetime.now().isoformat(),
     }
     out_meta = os.path.join(RAW_DIR, "camara_votacoes_historico_meta.json")
     with open(out_meta, "w", encoding="utf-8") as f:
         json.dump(metadata, f, ensure_ascii=False, indent=2)
 
-    print(f"\n✅ Crawl completo:")
+    print(f"✅ Crawl completo:")
     print(f"   Votações plenárias: {len(votacoes)}")
     print(f"   Nominais: {nominal_count} | Simbólicas: {simbolica_count}")
     print(f"   Votos coletados: {len(all_votes)}")
-    print(f"   Salvos em: {out_votes}")
-
+    print(f"   Pontes votação→proposição: {len(votacao_proposicao)}")
 
 if __name__ == "__main__":
     run()

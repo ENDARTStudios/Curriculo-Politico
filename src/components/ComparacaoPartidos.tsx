@@ -8,6 +8,8 @@ export interface PartyComparavel {
   id: string;
   acronym: string;
   name: string;
+  position?: string | null;
+  ideology?: string | null;
   memberCount: number;
   avgScore: number | null;
   avgConfidence: number;
@@ -92,6 +94,13 @@ export function ComparacaoPartidos({ parties }: { parties: PartyComparavel[] }) 
                     {party.acronym}
                   </Link>
                   <div className="mt-1 truncate text-sm text-slate-500">{party.name}</div>
+                {party.position && (
+                  <div className="mt-2">
+                    <span className="rounded-full border border-slate-600 bg-slate-800/60 px-2 py-0.5 text-xs text-slate-300">
+                      {party.position.replace("_", "-").toLowerCase()}
+                    </span>
+                  </div>
+                )}
                 </div>
 
                 <div className="mb-6 grid grid-cols-2 gap-4 text-center">
