@@ -6,7 +6,7 @@
   "license": "AGPL-3.0-only",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "verify:scoring": "tsx scripts/verify-scoring.ts",
     "verify:identity": "tsx scripts/verify-identity.ts",
