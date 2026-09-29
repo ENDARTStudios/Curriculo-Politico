@@ -12,7 +12,7 @@ import os
 import zipfile
 from pathlib import Path
 
-import requests
+from curl_cffi import requests
 
 RAW_DIR = Path("data/raw")
 TSE_BASE = "https://cdn.tse.jus.br/estatistica/sead/odsele"
@@ -29,6 +29,7 @@ def download_bem(ano: int) -> str | None:
     try:
         res = requests.get(url, timeout=300, headers={
             "User-Agent": "CurriculoPolitico/1.0 (Projeto Open Source de Transparencia)",
+            "impersonate": "chrome",
         })
         if res.status_code == 403:
             print(f"   ⚠️ {ano}: CDN bloqueado (403 Akamai).")
