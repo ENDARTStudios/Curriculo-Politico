@@ -77,6 +77,8 @@ model Term {
   party    Party?  @relation(fields: [partyId], references: [id])
   startYear Int
   endYear  Int?
+  isFirstTerm Boolean @default(false)
+  previousTerms Int   @default(0)
   scores   Score[]
   actions  LegislativeAction[]
   finances CampaignFinance[]
@@ -123,13 +125,52 @@ model Bill {
 /// Camada de ENGAJAMENTO PESSOAL — nunca altera o IDIP (Neutralidade Algorítmica, /metodologia).
 /// User enxuto: Account/Session entram com o NextAuth na Fase 4.
 model User {
-  id          String         @id @default(cuid())
-  email       String?        @unique
-  name        String?
-  billVotes   UserBillVote[]
-  affinities  UserAffinity[]
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  id            String         @id @default(cuid())
+  email         String?        @unique
+  name          String?
+  password      String? // hash bcrypt (credentials)
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  billVotes     UserBillVote[]
+  affinities    UserAffinity[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Account {
+  id                String @id @default(cuid())
+  userId            String
+  user              User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires      DateTime
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
 model UserBillVote {
@@ -208,6 +249,7 @@ model LegislativeAction {
   billId        String? // id da VOTAÇÃO na Câmara
   proposicaoId  String? // id da PROPOSIÇÃO votada (ponte p/ tags de afinidade)
   voteDirection String?
+  isSecretVote  Boolean @default(false)
   date          DateTime?
   createdAt     DateTime   @default(now())
 

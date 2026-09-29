@@ -4,6 +4,8 @@
  * Falha (exit 1) se qualquer asserção quebrar — usado no CI.
  */
 import {
+  applyCareerModifiers,
+  applySecretVotePenalty,
   calculateIDIP,
   HARD_CAP,
   WEIGHTS,
@@ -121,6 +123,28 @@ console.log("\nValidação de entrada");
     threw = true;
   }
   check("NaN rejeitado", threw, "aceitou presence=NaN");
+}
+
+
+  console.log("\nModificadores de carreira e votos secretos");
+{
+  const iniciante = applyCareerModifiers(50, true, 0, 10);
+  check("iniciante com base 50 fica em 50", iniciante === 50, `obtido ${iniciante}`);
+
+  const inicianteBaixo = applyCareerModifiers(20, true, 0, 0);
+  check("iniciante nunca desce abaixo de 35", inicianteBaixo === 35, `obtido ${inicianteBaixo}`);
+
+  const veteranoInocuo = applyCareerModifiers(60, false, 5, 0);
+  check("veterano 5 mandatos sem aprovações: -2", veteranoInocuo === 58, `obtido ${veteranoInocuo}`);
+
+  const veteranoProdutivo = applyCareerModifiers(60, false, 5, 3);
+  check("veterano com aprovações: sem penalidade", veteranoProdutivo === 60, `obtido ${veteranoProdutivo}`);
+
+  const secreto = applySecretVotePenalty(70, 2, 1);
+  check("votos secretos: -5×2 -10×1 = -20", secreto === 50, `obtido ${secreto}`);
+
+  const piso = applySecretVotePenalty(10, 5, 5);
+  check("penalidade nunca gera nota negativa", piso === 0, `obtido ${piso}`);
 }
 
 if (failures > 0) {

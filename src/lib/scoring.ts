@@ -172,3 +172,52 @@ export function calculateIDIP(
     breakdown,
   };
 }
+
+/**
+ * Modificadores de Carreira (planejados em /metodologia — FUNÇÃO DISPONÍVEL,
+ * ainda não aplicada na nota pública: depende de ficha limpa e transparência
+ * de campanha do TSE, fontes pendentes no pipeline).
+ *
+ * - Iniciantes (primeiro mandato): partem de 35 pontos (20 Ficha Limpa +
+ *   15 Transparência de Campanha) e conquistam o restante com dados reais.
+ * - Veteranos (mais de 3 mandatos): −1 ponto por mandato consecutivo sem
+ *   projetos aprovados (longevidade inócua), limitado a −10.
+ */
+export function applyCareerModifiers(
+  baseScore: number,
+  isFirstTerm: boolean,
+  previousTerms: number,
+  approvedBills: number,
+): number {
+  let score = baseScore;
+
+  if (isFirstTerm) {
+    const base = 35; // 20 Ficha Limpa + 15 Transparência
+    const earned = Math.min(65, baseScore - 35);
+    score = base + Math.max(0, earned);
+  }
+
+  if (previousTerms > 3 && approvedBills === 0) {
+    const penalty = Math.min(10, previousTerms - 3);
+    score -= penalty;
+  }
+
+  return Math.max(0, Math.min(100, score));
+}
+
+/**
+ * Penalização por Votos Secretos (planejada em /metodologia — FUNÇÃO
+ * DISPONÍVEL; ativa quando o pipeline registrar posicionamento em votação
+ * secreta, hoje não coletado pela API da Câmara).
+ *
+ * - −5 pontos por voto secreto em pauta de alto interesse público
+ * - −10 pontos por recusa pública em abrir voto quando o regimento permite
+ */
+export function applySecretVotePenalty(
+  score: number,
+  secretVotesCount: number,
+  publicRefusalsCount: number,
+): number {
+  const penalty = secretVotesCount * 5 + publicRefusalsCount * 10;
+  return Math.max(0, score - penalty);
+}
