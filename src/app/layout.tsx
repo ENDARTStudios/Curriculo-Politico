@@ -18,21 +18,18 @@ export default function RootLayout({
         <header className="border-b border-slate-800/80">
           <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-4">
             <span className="text-lg font-bold tracking-tight">📡 Radar Cívico</span>
-            <nav className="flex gap-6 text-sm text-slate-400">
+            <nav className="flex flex-wrap gap-6 text-sm text-slate-400">
               <a href="/ranking" className="transition hover:text-slate-100">
                 Ranking
               </a>
               <a href="/partidos" className="transition hover:text-slate-100">
                 Partidos
               </a>
-              <a href="#termometro" className="transition hover:text-slate-100">
-                Termômetro
-              </a>
-              <a href="#metodologia" className="transition hover:text-slate-100">
+              <a href="/metodologia" className="transition hover:text-slate-100">
                 Metodologia
               </a>
-              <a href="#api" className="transition hover:text-slate-100">
-                API
+              <a href="/sobre" className="transition hover:text-slate-100">
+                Sobre
               </a>
             </nav>
           </div>
@@ -49,6 +46,20 @@ export default function RootLayout({
             Sem voto popular: notas derivadas exclusivamente de dados públicos
             auditáveis.
           </p>
+          <div className="mt-4 flex justify-center gap-5">
+            <a href="/sobre" className="transition hover:text-slate-300">
+              Sobre
+            </a>
+            <a href="/termos-de-uso" className="transition hover:text-slate-300">
+              Termos de Uso
+            </a>
+            <a href="/privacidade" className="transition hover:text-slate-300">
+              Privacidade
+            </a>
+            <a href="/retificacao" className="transition hover:text-slate-300">
+              Retificação
+            </a>
+          </div>
         </footer>
       </body>
     </html>

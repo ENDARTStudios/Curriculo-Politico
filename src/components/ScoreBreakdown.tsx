@@ -35,8 +35,8 @@ export function ScoreBreakdown({ score }: { score: Score }) {
       </div>
       <p className="mt-5 text-xs text-slate-500">
         Metodologia completa e pesos por cargo em{" "}
-        <a href="/#metodologia" className="text-sky-400 hover:underline">
-          /#metodologia
+        <a href="/metodologia" className="text-sky-400 hover:underline">
+          /metodologia
         </a>
       </p>
     </div>

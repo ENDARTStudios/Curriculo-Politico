@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { Termometro } from "@/components/Termometro";
+import { LegalDisclaimer } from "@/components/LegalDisclaimer";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -134,6 +135,8 @@ export default async function RankingPage() {
         (50) — não representa desempenho real. Ela é recalculada conforme o
         pipeline ingere votações, proposições e dados financeiros.
       </p>
+
+      <LegalDisclaimer />
     </main>
   );
 }
