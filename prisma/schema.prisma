@@ -42,7 +42,9 @@ model Person {
   terms         Term[]
   legalRecords  LegalRecord[]
   billAuthorships BillAuthorship[]
-  verifiedClaims VerifiedClaim[]
+  verifiedClaims  VerifiedClaim[]
+  patrimonyHistory PatrimonyHistory[]
+  municipalExpenses MunicipalExpense[]
   createdAt     DateTime      @default(now())
 }
 
@@ -438,4 +440,39 @@ model FixedBenefit {
   createdAt     DateTime     @default(now())
 
   @@unique([officeType, category, effectiveFrom])
+}
+
+/// Menções em diários oficiais municipais (Querido Diário/OKBR) —
+/// preparação para a escala municipal (fora do escopo IDIP v1)
+model MunicipalExpense {
+  id             String   @id @default(cuid())
+  politicianName String // nome completo normalizado quando vinculado; "—" quando não
+  personId       String?
+  person         Person?  @relation(fields: [personId], references: [id])
+  municipality   String
+  state          String
+  keyword        String?
+  publishedAt    DateTime?
+  gazetteUrl     String
+  excerpt        String   @db.Text
+  fetchedAt      DateTime @default(now())
+
+  @@index([municipality])
+  @@index([personId])
+}
+
+/// Patrimônio declarado por eleição (multi-eleição — Rastreamento Patrimonial)
+model PatrimonyHistory {
+  id            String   @id @default(cuid())
+  personId      String
+  person        Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+  electionYear  Int
+  declaredValue Float
+  assetCount    Int
+  source        String // "TSE_2022"
+  sourceUrl     String?
+  retrievedAt   DateTime @default(now())
+
+  @@unique([personId, electionYear])
+  @@index([personId])
 }

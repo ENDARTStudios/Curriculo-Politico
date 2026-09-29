@@ -51,7 +51,13 @@
     "etl:bens": "python etl/tse_bens.py",
     "db:load-ceap": "tsx scripts/load-ceap.ts",
     "db:load-patrimony": "tsx scripts/load-patrimony.ts",
-    "recalculate-cost-scores": "tsx scripts/recalculate-scores.ts"
+    "recalculate-cost-scores": "tsx scripts/recalculate-scores.ts",
+    "etl:ceap-bulk": "python etl/camara_despesas_bulk.py",
+    "db:load-ceap-bulk": "tsx scripts/load-ceap-bulk.ts",
+    "db:load-municipal": "tsx scripts/load-municipal.ts",
+    "etl:municipal": "python etl/municipal_gazettes.py",
+    "etl:bens-historico": "python etl/tse_patrimony_history.py",
+    "db:load-patrimony-history": "tsx scripts/load-patrimony-history.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
