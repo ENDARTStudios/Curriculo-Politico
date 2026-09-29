@@ -26,7 +26,14 @@
     "db:load-votacoes-expandido": "tsx scripts/load-votacoes-expandido.ts",
     "db:load-finance": "tsx scripts/load-campaign-finance.ts",
     "resolve-identity": "tsx scripts/resolve-identity.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:load-votacoes-historico": "tsx scripts/load-votacoes-historico.ts",
+    "db:load-proposicoes": "tsx scripts/load-proposicoes.ts",
+    "db:load-presenca": "tsx scripts/load-presenca.ts",
+    "recalculate-scores": "tsx scripts/recalculate-scores.ts",
+    "etl:votacoes-historico": "python etl/camara_votacoes_historico.py",
+    "etl:proposicoes": "python etl/camara_proposicoes.py",
+    "etl:presenca": "python etl/camara_presenca.py"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

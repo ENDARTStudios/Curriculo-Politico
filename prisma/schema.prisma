@@ -39,6 +39,7 @@ model Person {
   photoUrl      String?
   terms         Term[]
   legalRecords  LegalRecord[]
+  billAuthorships BillAuthorship[]
   createdAt     DateTime      @default(now())
 }
 
@@ -71,9 +72,49 @@ model Term {
   scores   Score[]
   actions  LegislativeAction[]
   finances CampaignFinance[]
+  sessionAttendances SessionAttendance[]
 
   @@index([personId])
   @@index([officeId])
+}
+
+model Bill {
+  id            String   @id @default(cuid())
+  externalId    String?  @unique
+  title         String
+  type          String?
+  status        String?
+  date          DateTime?
+  authorships   BillAuthorship[]
+  createdAt     DateTime @default(now())
+
+  @@index([externalId])
+}
+
+model BillAuthorship {
+  id            String   @id @default(cuid())
+  billId        String
+  bill          Bill     @relation(fields: [billId], references: [id])
+  personId      String
+  person        Person   @relation(fields: [personId], references: [id])
+  type          String? // "Autor", "Coautor", "Relator"
+  createdAt     DateTime @default(now())
+
+  @@unique([billId, personId])
+  @@index([personId])
+}
+
+model SessionAttendance {
+  id            String   @id @default(cuid())
+  termId        String
+  term          Term     @relation(fields: [termId], references: [id])
+  sessionDate   DateTime
+  sessionType   String?
+  present       Boolean
+  externalId    String? // id do evento na Câmara, para idempotência
+
+  @@unique([termId, sessionDate, externalId])
+  @@index([termId])
 }
 
 model CampaignFinance {
