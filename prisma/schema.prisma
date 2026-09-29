@@ -116,6 +116,10 @@ model Bill {
   status        String?
   date          DateTime?
   tags          Json? // ["saude", "economia", ...] p/ Filtro de Afinidade
+  fullText      String?  @db.Text
+  simpleSummary String?  @db.Text // resumo por categoria temática
+  citizenImpact String?  @db.Text // como afeta o cidadão
+  keyPoints     Json?
   authorships   BillAuthorship[]
   userVotes     UserBillVote[]
   createdAt     DateTime @default(now())

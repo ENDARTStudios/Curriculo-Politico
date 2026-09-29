@@ -68,7 +68,10 @@ export default function RootLayout({
               Sem voto popular: notas derivadas exclusivamente de dados públicos
               auditáveis.
             </p>
-            <div className="mt-4 flex justify-center gap-5">
+            <div className="mt-4 flex flex-wrap justify-center gap-5">
+              <a href="/apoie" className="text-sky-400 transition hover:text-sky-300">
+                💜 Apoie o projeto
+              </a>
               <a href="/sobre" className="transition hover:text-slate-300">
                 Sobre
               </a>
@@ -80,6 +83,12 @@ export default function RootLayout({
               </a>
               <a href="/privacidade" className="transition hover:text-slate-300">
                 Privacidade
+              </a>
+              <a href="/lgpd" className="transition hover:text-slate-300">
+                LGPD
+              </a>
+              <a href="/cookies" className="transition hover:text-slate-300">
+                Cookies
               </a>
               <a href="/retificacao" className="transition hover:text-slate-300">
                 Retificação
