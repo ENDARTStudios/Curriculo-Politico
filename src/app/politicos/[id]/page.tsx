@@ -8,6 +8,7 @@ import { VotosRecentes } from "@/components/VotosRecentes";
 import { Proposicoes } from "@/components/Proposicoes";
 import { Presenca } from "@/components/Presenca";
 import { ProfileNav } from "@/components/ProfileNav";
+import { TimelineChart } from "@/components/TimelineChart";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,7 @@ export default async function PoliticoPage({ params }: Props) {
             orderBy: { sessionDate: "desc" },
             take: 300,
           },
+          scoreSnapshots: { orderBy: { snapshotDate: "asc" } },
         },
         orderBy: { startYear: "desc" },
       },
@@ -264,6 +266,13 @@ export default async function PoliticoPage({ params }: Props) {
       <div id="presenca" className="mt-6 scroll-mt-16">
         <Presenca presencas={currentTerm?.sessionAttendances ?? []} total={totalPresencas} />
       </div>
+
+      {/* Rastreamento temporal (snapshots mensais) */}
+      {currentTerm && currentTerm.scoreSnapshots.length > 0 && (
+        <div className="mt-6">
+          <TimelineChart snapshots={currentTerm.scoreSnapshots} />
+        </div>
+      )}
     </main>
   );
 }

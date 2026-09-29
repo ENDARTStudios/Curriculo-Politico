@@ -18,15 +18,30 @@ export default function RootLayout({
         <header className="border-b border-slate-800/80">
           <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-4">
             <span className="text-lg font-bold tracking-tight">📡 Currículo Político</span>
-            <nav className="flex flex-wrap gap-6 text-sm text-slate-400">
+            <nav className="flex flex-wrap gap-5 text-sm text-slate-400">
               <a href="/ranking" className="transition hover:text-slate-100">
                 Ranking
               </a>
               <a href="/partidos" className="transition hover:text-slate-100">
                 Partidos
               </a>
+              <a href="/projetos" className="transition hover:text-slate-100">
+                Projetos
+              </a>
               <a href="/comparar" className="transition hover:text-slate-100">
                 Comparar
+              </a>
+              <a href="/como-funciona" className="transition hover:text-slate-100">
+                Como Funciona
+              </a>
+              <a href="/calendario-eleitoral" className="transition hover:text-slate-100">
+                Calendário
+              </a>
+              <a href="/stf" className="transition hover:text-slate-100">
+                STF
+              </a>
+              <a href="/faq" className="transition hover:text-slate-100">
+                FAQ
               </a>
               <a href="/metodologia" className="transition hover:text-slate-100">
                 Metodologia

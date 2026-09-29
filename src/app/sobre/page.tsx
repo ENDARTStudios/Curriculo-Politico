@@ -313,6 +313,104 @@ export default function SobrePage() {
         </div>
       </section>
 
+      {/* Base Legal */}
+      <section className="mb-12">
+        <h2 className="mb-4 text-2xl font-bold text-slate-100">
+          Base Legal e Direitos
+        </h2>
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+          <p className="mb-6 leading-relaxed text-slate-400">
+            O <strong className="text-slate-200">Currículo Político</strong>{" "}
+            opera com pleno amparo da legislação brasileira e de tratados
+            internacionais de direitos humanos e liberdade de expressão.
+          </p>
+          <div className="space-y-4">
+            {[
+              {
+                titulo: "Constituição Federal de 1988",
+                artigos: [
+                  { ref: "Art. 5º, IV", texto: "É livre a manifestação do pensamento, sendo vedado o anonimato." },
+                  { ref: "Art. 5º, IX", texto: "É livre a expressão da atividade intelectual, artística, científica e de comunicação, independentemente de censura ou licença." },
+                  { ref: "Art. 5º, XIV", texto: "É assegurado a todos o acesso à informação e resguardado o sigilo da fonte, quando necessário ao exercício profissional." },
+                  { ref: "Art. 5º, XXXIII", texto: "Todos têm direito a receber dos órgãos públicos informações de seu interesse particular, ou de interesse coletivo ou geral." },
+                  { ref: "Art. 37", texto: "A administração pública obedecerá aos princípios da legalidade, impessoalidade, moralidade, publicidade e eficiência." },
+                ],
+              },
+              {
+                titulo: "Lei de Acesso à Informação (Lei 12.527/2011)",
+                artigos: [
+                  { ref: "Art. 3º, I", texto: "A publicidade é preceito geral; o sigilo é exceção." },
+                  { ref: "Art. 7º", texto: "O acesso à informação pública é direito fundamental de todo cidadão." },
+                  { ref: "Art. 8º", texto: "É dever dos órgãos públicos promover a divulgação de informações de interesse coletivo independentemente de solicitação." },
+                ],
+              },
+              {
+                titulo: "Lei Geral de Proteção de Dados (Lei 13.709/2018)",
+                artigos: [
+                  { ref: "Art. 7º, §7º", texto: "O tratamento de dados tornados manifestamente públicos pelo titular é lícito." },
+                  { ref: "Art. 11, §4º", texto: "Dados pessoais sensíveis podem ser tratados para fins de controle social e interesse público." },
+                ],
+              },
+              {
+                titulo: "Marco Civil da Internet (Lei 12.965/2014)",
+                artigos: [
+                  { ref: "Art. 3º, I-III", texto: "Garante liberdade de expressão, privacidade e acesso aberto à internet." },
+                  { ref: "Art. 19", texto: "Protege provedores e plataformas de responsabilidade por conteúdo de terceiros, salvo ordem judicial específica." },
+                ],
+              },
+              {
+                titulo: "Tratados Internacionais",
+                artigos: [
+                  { ref: "Declaração Universal dos Direitos Humanos", texto: "Art. 19 — Direito à liberdade de opinião e expressão, incluindo buscar, receber e difundir informações." },
+                  { ref: "Pacto de San José da Costa Rica", texto: "Art. 13 — Liberdade de pensamento e expressão, vedada a censura prévia." },
+                ],
+              },
+            ].map((lei) => (
+              <div key={lei.titulo} className="border-l-4 border-sky-500/60 pl-4">
+                <h4 className="mb-2 font-semibold text-slate-100">{lei.titulo}</h4>
+                <ul className="space-y-2">
+                  {lei.artigos.map((a) => (
+                    <li key={a.ref} className="text-sm text-slate-400">
+                      <span className="font-semibold text-slate-200">{a.ref}:</span>{" "}
+                      {a.texto}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 rounded-lg bg-slate-800/60 p-4">
+            <h4 className="mb-2 font-semibold text-slate-100">
+              Direitos Autorais e Código Aberto
+            </h4>
+            <p className="text-sm leading-relaxed text-slate-400">
+              O código-fonte do Currículo Político é licenciado sob{" "}
+              <strong className="text-slate-200">AGPL-3.0</strong> (software
+              livre), permitindo uso, modificação e redistribuição, inclusive
+              comercial, desde que as modificações também sejam liberadas. A
+              documentação está sob{" "}
+              <strong className="text-slate-200">CC BY 4.0</strong>. Os dados
+              exibidos são de domínio público, extraídos de fontes
+              governamentais abertas.
+            </p>
+          </div>
+
+          <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/5 p-4">
+            <h4 className="mb-2 font-semibold text-slate-100">
+              Direito de Crítica e Interesse Público
+            </h4>
+            <p className="text-sm leading-relaxed text-slate-400">
+              Agentes públicos possuem esfera de privacidade reduzida em razão
+              do cargo que ocupam, conforme jurisprudência consolidada do STF.
+              A exposição de dados funcionais e jurídicos de políticos em
+              exercício é protegida pelo direito à informação e ao controle
+              social (ADPF 130/DF).
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Licença */}
       <section className="mb-12">
         <h2 className="mb-4 text-2xl font-bold text-slate-100">

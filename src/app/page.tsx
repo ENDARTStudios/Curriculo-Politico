@@ -48,9 +48,11 @@ export default function Home() {
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {[
               { href: "/ranking", label: "Ver Ranking" },
+              { href: "/projetos", label: "📋 Projetos" },
               { href: "/comparar", label: "⚖️ Comparar" },
-              { href: "/partidos", label: "Partidos" },
-              { href: "/metodologia", label: "Metodologia" },
+              { href: "/como-funciona", label: "🏛️ Como Funciona" },
+              { href: "/calendario-eleitoral", label: "📅 Calendário" },
+              { href: "/faq", label: "FAQ" },
             ].map((l) => (
               <a
                 key={l.href}

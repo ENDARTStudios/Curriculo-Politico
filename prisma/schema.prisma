@@ -73,9 +73,26 @@ model Term {
   actions  LegislativeAction[]
   finances CampaignFinance[]
   sessionAttendances SessionAttendance[]
+  scoreSnapshots ScoreSnapshot[]
 
   @@index([personId])
   @@index([officeId])
+}
+
+/// Histórico mensal da nota (Rastreamento Temporal — /metodologia)
+model ScoreSnapshot {
+  id                String            @id @default(cuid())
+  termId            String
+  term              Term              @relation(fields: [termId], references: [id], onDelete: Cascade)
+  snapshotDate      DateTime
+  finalScore        Float
+  confidenceScore   Float
+  reliabilityStatus ReliabilityStatus
+  breakdown         Json?
+  events            Json?
+
+  @@unique([termId, snapshotDate])
+  @@index([snapshotDate])
 }
 
 model Bill {
@@ -90,6 +107,8 @@ model Bill {
   createdAt     DateTime @default(now())
 
   @@index([externalId])
+  @@index([type])
+  @@index([date])
 }
 
 /// Camada de ENGAJAMENTO PESSOAL — nunca altera o IDIP (Neutralidade Algorítmica, /metodologia).
@@ -214,4 +233,60 @@ model Score {
 
   @@index([termId])
   @@index([finalScore])
+}
+
+// ─── Judiciário: STF (estrutura pronta; ETL das decisões é fase específica —
+// as decisões são publicadas no DJE sem API consolidada) ───
+
+model StfJustice {
+  id              String     @id @default(cuid())
+  name            String     @unique
+  birthYear       Int?
+  appointedBy     String? // Presidente que indicou
+  appointmentDate DateTime?
+  active          Boolean    @default(true)
+  scores          StfScore[]
+  votes           StfVote[]
+  createdAt       DateTime   @default(now())
+}
+
+model StfCase {
+  id           String    @id @default(cuid())
+  externalId   String?   @unique // Número do processo (ex: ADI 1234)
+  title        String
+  category     String? // "ADI", "ADPF", "RE", "HC"
+  status       String?
+  decisionDate DateTime?
+  votes        StfVote[]
+  createdAt    DateTime  @default(now())
+}
+
+model StfVote {
+  id            String     @id @default(cuid())
+  justiceId     String
+  justice       StfJustice @relation(fields: [justiceId], references: [id])
+  caseId        String
+  case          StfCase    @relation(fields: [caseId], references: [id])
+  voteDirection String // "PROCEDENTE", "IMPROCEDENTE", "PARCIAL"
+  wasRapporteur Boolean    @default(false)
+  dissent       Boolean    @default(false)
+  voteDate      DateTime?
+
+  @@unique([justiceId, caseId])
+}
+
+model StfScore {
+  id                String     @id @default(cuid())
+  justiceId         String
+  justice           StfJustice @relation(fields: [justiceId], references: [id])
+  periodStart       DateTime
+  periodEnd         DateTime
+  finalScore        Float
+  confidenceScore   Float
+  productivityScore Float
+  consistencyScore  Float
+  transparencyScore Float
+  calculatedAt      DateTime   @default(now())
+
+  @@unique([justiceId, periodStart])
 }

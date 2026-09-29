@@ -33,7 +33,8 @@
     "recalculate-scores": "tsx scripts/recalculate-scores.ts",
     "etl:votacoes-historico": "python etl/camara_votacoes_historico.py",
     "etl:proposicoes": "python etl/camara_proposicoes.py",
-    "etl:presenca": "python etl/camara_presenca.py"
+    "etl:presenca": "python etl/camara_presenca.py",
+    "db:snapshot": "tsx scripts/snapshot-scores.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
