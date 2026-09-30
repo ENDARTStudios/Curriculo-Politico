@@ -88,7 +88,7 @@ const SECOES = [
       "• Utilizar bots, scrapers ou sistemas automatizados para coletar dados da Plataforma sem autorização expressa;",
       "• Criar múltiplas contas (sybil attacks) para manipular votações populares;",
       "• Utilizar a votação popular para fins comerciais, eleitorais ou de desinformação;",
-      "• Tentar burlar o rate limiting (60 requisições/minuto) ou os mecanismos de segurança;",
+      "• Tentar burlar os limites de taxa (rate limiting por Token Bucket — 60/min geral, 10/min em autenticação) ou os mecanismos de segurança;",
       "• Utilizar a Plataforma para prática de atos ilícitos ou contrários à moral e aos bons costumes;",
       "• Importunar, ofender ou praticar assédio contra outros usuários ou Agentes Políticos.",
     ],

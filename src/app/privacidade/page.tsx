@@ -306,7 +306,7 @@ export default function PrivacidadePage() {
           <ul className="list-disc space-y-1 pl-5 text-sm text-slate-400">
             <li>HTTPS/TLS em todas as comunicações</li>
             <li>Senhas hasheadas com bcrypt (custo 10)</li>
-            <li>Rate limiting: 60 requisições/minuto por IP</li>
+            <li>Rate limiting por Token Bucket: 60/min por usuário autenticado (ou IP) nas APIs; 10/min em rotas de autenticação (login/cadastro)</li>
             <li>Role dedicado no banco (curriculo_app — não superuser)</li>
             <li>Headers de segurança: CSP, X-Frame-Options, nosniff, Referrer-Policy</li>
             <li>Anti-bot: conta com menos de 24h não vota</li>

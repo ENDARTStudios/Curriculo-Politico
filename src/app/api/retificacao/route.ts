@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
  * POST /api/retificacao → registra solicitação e devolve protocolo
  * GET  /api/retificacao?protocolo=&email= → consulta status
  *
- * Rate limiting geral /api (60/min) aplica-se via middleware.
+ * Rate limiting geral /api (60/min por usuário ou IP) aplica-se via middleware.
  */
 
 function gerarProtocolo(): string {

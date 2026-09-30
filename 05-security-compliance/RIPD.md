@@ -21,7 +21,7 @@ Pela Res. CD/ANPD nº 2/2022, **dados pessoais sensíveis são critério especí
 | 2 | Tratamento analítico próprio (IDIP) | Derivados da operação 1 | LGPD Art. 7º §4º / Art. 10 (estudos por órgão de pesquisa é aplicado por analogia como referência; dados manifestamente públicos) | `Score` |
 | 3 | Conta de usuário | Email, senha (bcrypt), nome opcional, registro de aceites | LGPD Art. 7º, I (consentimento — clickwrap versionado) | `User` |
 | 4 | **Votação popular (dado sensível)** | FAVOR/CONTRA por projeto, vinculado à conta | LGPD **Art. 11, I (consentimento específico e destacado)** | `UserBillVote` |
-| 5 | Segurança/antifraude | IP (rate limiting 60/min), idades de conta | LGPD Art. 7º, IX (legítimo interesse) | Middleware, logs |
+| 5 | Segurança/antifraude | IP e/ou id de usuário (rate limiting Token Bucket: 60/min geral, 10/min em autenticação), idades de conta | LGPD Art. 7º, IX (legítimo interesse) | Middleware, logs |
 | 6 | Monitoramento de erros (condicional) | Stack traces | Consentimento/documentação (Sentry disclosure na Política) | Sentry, se `SENTRY_DSN` ativo |
 | 7 | Canal de direitos do titular | Nome, email, conteúdo da solicitação | LGPD Art. 18 (cumprimento de obrigação legal) | `RetificationRequest` |
 
