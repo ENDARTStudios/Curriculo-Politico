@@ -4,6 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
+import { TERMS_VERSION } from "./consent";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -42,6 +43,17 @@ export const authOptions: NextAuthOptions = {
     // Google/GitHub entram aqui quando houver credenciais de OAuth
   ],
   callbacks: {
+    async signIn({ user }) {
+      // Clickwrap p/ fluxos OAuth (Google): o primeiro login grava o aceite
+      // dos Termos/Privacidade com versão. Credentials já grava no cadastro.
+      if (user?.id) {
+        await prisma.user.updateMany({
+          where: { id: user.id, termsAcceptedAt: null },
+          data: { termsVersion: TERMS_VERSION, termsAcceptedAt: new Date() },
+        });
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) token.id = (user as { id: string }).id;
       return token;

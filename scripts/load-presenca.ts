@@ -41,7 +41,7 @@ async function load() {
 
   // Dedup no raw (mesmo parlamentar + evento repetido no crawling)
   let semData = 0;
-  const vistos = new Map<string, { termId: number; sessionDate: Date; sessionType: string | null; present: boolean; externalId: string }>();
+  const vistos = new Map<string, { termId: string; sessionDate: Date; sessionType: string | null; present: boolean; externalId: string }>();
 
   for (const r of records) {
     const term = termPorExternal.get(r.deputado_id);

@@ -61,10 +61,15 @@ const FAQS: FAQ[] = [
     pergunta: "O site tem viés ideológico (esquerda ou direita)?",
     resposta: (
       <p>
-        <strong>Não.</strong> O algoritmo nunca avalia o conteúdo ideológico de
-        um voto ou projeto. Um político que vota a favor ou contra uma pauta
-        recebe exatamente o mesmo tratamento técnico. A pontuação reflete
-        atividade, integridade e transparência — não opinião política.
+        Por desenho metodológico, o algoritmo <strong>não avalia o conteúdo
+        ideológico</strong> de um voto ou projeto: um político que vota a favor
+        ou contra uma pauta recebe o mesmo tratamento técnico. A pontuação
+        reflete atividade, integridade e transparência — não opinião política.
+        Pesos e fórmulas são públicos e auditáveis em{" "}
+        <strong>/metodologia</strong>, e as dimensões ainda sem dados usam
+        baseline neutro, claramente identificado. Isso é uma característica
+        verificável da metodologia aberta — não uma promessa de neutralidade
+        absoluta.
       </p>
     ),
   },

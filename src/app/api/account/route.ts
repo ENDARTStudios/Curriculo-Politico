@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * DELETE /api/account — Exclusão de conta e dados pessoais (Art. 18, VI LGPD).
- * Elimina: UserBillVote, UserAffinity, Sessions, Accounts, User (cascade).
+ * Elimina: UserBillVote (dado sensível), Sessions, Accounts, User (cascade).
  * Dados públicos de agentes políticos (Universo A) NÃO são afetados.
  */
 export async function DELETE(request: NextRequest) {
@@ -23,7 +23,7 @@ export async function DELETE(request: NextRequest) {
   const userId = session.user.id;
 
   try {
-    // Cascade: UserBillVote, UserAffinity são eliminados automaticamente
+    // Cascade: UserBillVote (dado sensível) é eliminado automaticamente
     // (onDelete: Cascade no schema). Sessions e Accounts também.
     await prisma.user.delete({ where: { id: userId } });
 

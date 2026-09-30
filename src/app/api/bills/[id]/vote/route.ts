@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { consentimentoPoliticoAtivo } from "@/lib/consent";
 
 export const dynamic = "force-dynamic";
 
@@ -9,9 +10,12 @@ export const dynamic = "force-dynamic";
  * Votação popular em PROJETOS — camada de engajamento pessoal que
  * NUNCA altera o IDIP (Neutralidade Algorítmica, /metodologia).
  *
- * GET  /api/bills/[id]/vote → contagens públicas (a favor/contra)
- * POST /api/bills/[id]/vote → requer login; conta com menos de 24h não vota
- *   (proteção anti-bot). Voto único por usuário por projeto, alterável.
+ * GET  /api/bills/[id]/vote → contagens públicas (a favor/contra) +,
+ *      autenticado, o estado do próprio voto e do consentimento.
+ * POST /api/bills/[id]/vote → requer login + CONSENTIMENTO ESPECÍFICO
+ *      p/ dado sensível (opinião política, Art. 11 LGPD — 403
+ *      CONSENT_REQUIRED se ausente); conta com menos de 24h não vota
+ *      (proteção anti-bot). Voto único por usuário por projeto, alterável.
  */
 export async function GET(
   _request: NextRequest,
@@ -27,17 +31,40 @@ export async function GET(
     return NextResponse.json({ error: "PROJETO_NAO_ENCONTRADO" }, { status: 404 });
   }
 
-  const votes = await prisma.userBillVote.groupBy({
-    by: ["vote"],
-    where: { billId: bill.id },
-    _count: true,
-  });
+  const [votes, session] = await Promise.all([
+    prisma.userBillVote.groupBy({
+      by: ["vote"],
+      where: { billId: bill.id },
+      _count: true,
+    }),
+    getServerSession(authOptions),
+  ]);
+
+  let me: { vote: string; consented: boolean } | null = null;
+  const userId = (session?.user as { id?: string } | undefined)?.id;
+  if (userId) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        politicalConsentAt: true,
+        politicalConsentWithdrawnAt: true,
+        billVotes: { where: { billId: bill.id }, select: { vote: true } },
+      },
+    });
+    if (user) {
+      const meuVoto = user.billVotes[0]?.vote;
+      me = meuVoto
+        ? { vote: meuVoto, consented: consentimentoPoliticoAtivo(user) }
+        : null;
+    }
+  }
 
   return NextResponse.json({
     bill: { id: bill.id, externalId: bill.externalId, title: bill.title, type: bill.type },
     favor: votes.find((v) => v.vote === "FAVOR")?._count ?? 0,
     contra: votes.find((v) => v.vote === "CONTRA")?._count ?? 0,
     votingOpen: true,
+    me,
   });
 }
 
@@ -81,7 +108,14 @@ export async function POST(
   }
 
   // Proteção anti-bot: conta precisa ter 24h para votar
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      createdAt: true,
+      politicalConsentAt: true,
+      politicalConsentWithdrawnAt: true,
+    },
+  });
   const accountAge = Date.now() - (user?.createdAt.getTime() ?? 0);
   const MIN_AGE_MS = 24 * 60 * 60 * 1000;
   if (accountAge < MIN_AGE_MS) {
@@ -89,6 +123,19 @@ export async function POST(
       {
         error: "ACCOUNT_TOO_NEW",
         message: "Contas com menos de 24 horas ainda não podem votar.",
+      },
+      { status: 403 },
+    );
+  }
+
+  // Gate LGPD (Art. 11): sem consentimento ESPECÍFICO ativo p/ dado
+  // sensível (opinião política), a manifestação não é registrada.
+  if (!user || !consentimentoPoliticoAtivo(user)) {
+    return NextResponse.json(
+      {
+        error: "CONSENT_REQUIRED",
+        message:
+          "Votar requer consentimento específico para tratamento de opinião política (dado sensível). Autorize no painel de votação — é revogável a qualquer momento.",
       },
       { status: 403 },
     );

@@ -130,20 +130,27 @@ model Bill {
 }
 
 /// Camada de ENGAJAMENTO PESSOAL — nunca altera o IDIP (Neutralidade Algorítmica, /metodologia).
-/// User enxuto: Account/Session entram com o NextAuth na Fase 4.
+/// Consentimentos versionados (LGPD Art. 8º): aceite de Termos/Privacidade
+/// (clickwrap) e consentimento ESPECÍFICO p/ opinião política (dado sensível,
+/// Art. 11) gravados com versão e timestamp; revogação zera o direito de voto
+/// e elimina os votos existentes.
 model User {
-  id            String         @id @default(cuid())
-  email         String?        @unique
-  name          String?
-  password      String? // hash bcrypt (credentials)
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  billVotes     UserBillVote[]
-  affinities    UserAffinity[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id                          String         @id @default(cuid())
+  email                       String?        @unique
+  name                        String?
+  password                    String? // hash bcrypt (credentials)
+  emailVerified               DateTime?
+  image                       String?
+  termsVersion                String? // versão dos Termos aceitos no cadastro
+  termsAcceptedAt             DateTime?
+  politicalConsentVersion     String? // versão do consentimento específico (dado sensível)
+  politicalConsentAt          DateTime?
+  politicalConsentWithdrawnAt DateTime? // revogação — elimina UserBillVote
+  accounts                    Account[]
+  sessions                    Session[]
+  billVotes                   UserBillVote[]
+  createdAt                   DateTime       @default(now())
+  updatedAt                   DateTime       @updatedAt
 }
 
 model Account {
@@ -194,16 +201,22 @@ model UserBillVote {
   @@index([billId])
 }
 
-model UserAffinity {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  topic     String // "privatizacao", "direitos_humanos", "meio_ambiente", etc
-  stance    String // "FAVOR" | "CONTRA" | "NEUTRO"
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+/// Canal de retificação/direitos do titular (LGPD Art. 18) — público,
+/// sem login (o titular pode não ter conta). Protocolo rastreável.
+model RetificationRequest {
+  id             String   @id @default(cuid())
+  protocolo      String   @unique
+  requesterName  String
+  requesterEmail String
+  targetType     String // "POLITICO" | "USUARIO" | "OUTRO"
+  targetName     String?
+  description    String
+  sourceUrl      String?
+  status         String   @default("RECEBIDO") // RECEBIDO | EM_ANALISE | CONCLUIDO | DEFERIDO | INDEFERIDO
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  @@unique([userId, topic])
+  @@index([requesterEmail])
 }
 
 model BillAuthorship {

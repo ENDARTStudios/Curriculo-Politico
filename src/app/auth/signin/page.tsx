@@ -3,12 +3,16 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { POLITICAL_CONSENT_TEXTO } from "@/lib/consent";
 
 export default function SigninPage() {
   const [modo, setModo] = useState<"login" | "registrar">("login");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [nome, setNome] = useState("");
+  const [aceitaTermos, setAceitaTermos] = useState(false);
+  const [maioridade, setMaioridade] = useState(false);
+  const [consentimentoPolitico, setConsentimentoPolitico] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -17,13 +21,30 @@ export default function SigninPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setErro(null);
+    if (modo === "registrar") {
+      if (!aceitaTermos) {
+        setErro("É preciso aceitar os Termos de Uso e a Política de Privacidade.");
+        return;
+      }
+      if (!maioridade) {
+        setErro("A plataforma é restrita a maiores de 18 anos.");
+        return;
+      }
+    }
     setLoading(true);
     try {
       if (modo === "registrar") {
         const res = await fetch("/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password: senha, name: nome }),
+          body: JSON.stringify({
+            email,
+            password: senha,
+            name: nome,
+            termsAccepted: aceitaTermos,
+            adult: maioridade,
+            politicalConsent: consentimentoPolitico,
+          }),
         });
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
@@ -142,6 +163,55 @@ export default function SigninPage() {
             )}
           </div>
 
+          {modo === "registrar" && (
+            <div className="space-y-3 rounded-lg border border-slate-700 bg-slate-950/60 p-4">
+              <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={aceitaTermos}
+                  onChange={(e) => setAceitaTermos(e.target.checked)}
+                  className="mt-1 h-4 w-4 shrink-0 accent-sky-500"
+                />
+                <span>
+                  Li e aceito os{" "}
+                  <Link href="/termos-de-uso" className="text-sky-400 underline hover:text-sky-300">
+                    Termos de Uso
+                  </Link>{" "}
+                  e a{" "}
+                  <Link href="/privacidade" className="text-sky-400 underline hover:text-sky-300">
+                    Política de Privacidade
+                  </Link>
+                  . O aceite fica registrado com versão e data.
+                </span>
+              </label>
+              <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={maioridade}
+                  onChange={(e) => setMaioridade(e.target.checked)}
+                  className="mt-1 h-4 w-4 shrink-0 accent-sky-500"
+                />
+                <span>Declaro ter 18 anos ou mais.</span>
+              </label>
+              <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-slate-400">
+                <input
+                  type="checkbox"
+                  checked={consentimentoPolitico}
+                  onChange={(e) => setConsentimentoPolitico(e.target.checked)}
+                  className="mt-1 h-4 w-4 shrink-0 accent-amber-400"
+                />
+                <span className="text-xs">
+                  <strong className="text-amber-300">Opcional</strong> —{" "}
+                  {POLITICAL_CONSENT_TEXTO}{" "}
+                  <Link href="/privacidade" className="underline hover:text-slate-300">
+                    Detalhes
+                  </Link>
+                  . Sem esta autorização você pode usar a plataforma, mas não votar.
+                </span>
+              </label>
+            </div>
+          )}
+
           {erro && (
             <p className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
               {erro}
@@ -189,16 +259,17 @@ export default function SigninPage() {
       </div>
 
       <p className="mt-4 text-center text-xs leading-relaxed text-slate-500">
-        Ao entrar, você concorda com nossos{" "}
+        No cadastro, o aceite dos{" "}
         <Link href="/termos-de-uso" className="underline hover:text-slate-300">
           Termos de Uso
         </Link>{" "}
-        e{" "}
+        e da{" "}
         <Link href="/privacidade" className="underline hover:text-slate-300">
           Política de Privacidade
-        </Link>
-        . Contas novas ficam 24h sem votar (proteção anti-bot). A votação popular
-        nunca altera a nota IDIP.
+        </Link>{" "}
+        é registrado com versão e data. O voto em projetos requer autorização
+        específica (revogável). Contas novas ficam 24h sem votar (proteção
+        anti-bot). A votação popular nunca altera a nota IDIP.
       </p>
     </main>
   );

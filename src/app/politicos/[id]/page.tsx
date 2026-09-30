@@ -196,7 +196,18 @@ export default async function PoliticoPage({ params }: Props) {
       {/* Breakdown, financiamento e registros jurídicos */}
       <div id="nota" className="grid gap-6 md:grid-cols-2">
         {score ? (
-          <ScoreBreakdown score={score} />
+          <ScoreBreakdown
+            score={score}
+            coverage={{
+              // Alinha com scripts/recalculate-scores.ts v1.1.0:
+              // Integridade 50 fixo até fontes judiciais (TCU/STF) ativarem;
+              // Transparência 50 fixo (sem fonte ativa); Produção é medida
+              // a partir das autorias reais.
+              Integridade: politician.legalRecords.length > 0,
+              Produção: totalAutorias > 0,
+              Transparência: false,
+            }}
+          />
         ) : (
           <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 text-sm text-slate-500">
             Este político ainda não possui nota IDIP calculada.

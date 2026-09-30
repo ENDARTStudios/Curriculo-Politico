@@ -440,6 +440,61 @@ export default function MetodologiaPage() {
         </div>
       </section>
 
+      {/* Baseline neutro — transparência metodológica */}
+      <section className="mt-12">
+        <div className="mb-1 flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-slate-100">
+            Baseline Neutro (50): o que é medido hoje
+          </h2>
+          <Badge tipo="vigente" />
+        </div>
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+          <p className="mb-4 text-sm leading-relaxed text-slate-400">
+            Enquanto uma dimensão não possui fonte de dados ativa, ela recebe o{" "}
+            <strong className="text-slate-200">valor neutro 50</strong> — o que{" "}
+            <strong className="text-slate-200">não é desempenho medido</strong>,
+            apenas ausência de dado. Perfis individuais marcam essas dimensões
+            com o selo “sem dados · neutro” para que o usuário distingua
+            facilmente nota medida de nota baseline.
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="border-b border-slate-700 text-slate-300">
+                <tr>
+                  <th className="pb-2 pr-4">Dimensão (Legislativo)</th>
+                  <th className="pb-2 pr-4">Peso</th>
+                  <th className="pb-2">Status em v1.1.0</th>
+                </tr>
+              </thead>
+              <tbody className="text-slate-400">
+                {[
+                  ["Integridade", "25%", "⚪ baseline — ativa com fontes judiciais (TCU/STF, hoje bloqueadas)"],
+                  ["Produção", "18%", "✅ medida — autorias reais (50k+)"],
+                  ["Aprovação", "15%", "⚪ baseline — requer tramitação de proposições"],
+                  ["Fiscalização", "10%", "⚪ baseline — requer pedidos/inquéritos estruturados"],
+                  ["Presença", "10%", "✅ medida — votações nominais + presenças (167k)"],
+                  ["Transparência", "10%", "⚪ baseline — sem fonte ativa"],
+                  ["Custo/Benefício", "7%", "✅ medida (quando há CEAP) — cota parlamentar real"],
+                  ["Campanha", "5%", "⚪ baseline parcial — receitas TSE 2022 carregadas"],
+                ].map(([d, p, s]) => (
+                  <tr key={d} className="border-b border-slate-800/60">
+                    <td className="py-2 pr-4 text-slate-300">{d}</td>
+                    <td className="py-2 pr-4">{p}</td>
+                    <td className="py-2">{s}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 text-xs leading-relaxed text-slate-500">
+            Consequência prática: a nota final de um parlamentar com todas as
+            dimensões em baseline tende a gravitar próximo de 50 por construção
+            — confira sempre a <strong>Confiança</strong> exibida e os selos de
+            baseline antes de comparar parlamentares.
+          </p>
+        </div>
+      </section>
+
       {/* Fontes */}
       <section className="mt-12">
         <div className="mb-1 flex items-center gap-2">

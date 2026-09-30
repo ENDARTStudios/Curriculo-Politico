@@ -10,10 +10,10 @@ const SECOES = [
   {
     titulo: "1. Aceitação dos Termos",
     paragrafos: [
-      "1.1. Ao acessar, navegar ou utilizar o Currículo Político (\"Plataforma\"), o usuário declara ter lido, compreendido e aceito integralmente os presentes Termos de Uso, constituindo-se em contrato de adesão nos termos do Art. 423 do Código Civil brasileiro.",
-      "1.2. A aceitação é caracterizada pelo ato de acessar e navegar no site (browsewrap), complementado pelo consentimento explícito no caso de criação de conta ou envio de comunicações.",
-      "1.3. O usuário declara ser maior de 18 (dezoito) anos e plenamente capaz de exercer direitos e obrigações nos termos da legislação vigente. Menores de 18 anos não devem utilizar a Plataforma.",
-      "1.4. Caso não concorde com qualquer disposição destes Termos, o usuário deve imediatamente cessar o uso da Plataforma.",
+      "1.1. A utilização do Currículo Político (\"Plataforma\") com criação de conta constitui contrato de adesão nos termos do Art. 423 do Código Civil brasileiro.",
+      "1.2. A aceitação ocorre no ato do cadastro, mediante marcação expressa, livre e informada de checkbox específico, que registra a versão dos Termos e da Política de Privacidade aceita, com data e hora. O mero acesso e navegação não constituem, por si, aceitação contratual. No login via provedores externos (ex.: Google), o aceite é registrado no primeiro acesso.",
+      "1.3. No cadastro, o usuário declara expressamente ser maior de 18 (dezoito) anos e plenamente capaz de exercer direitos e obrigações nos termos da legislação vigente. Menores de 18 anos não devem utilizar a Plataforma.",
+      "1.4. Caso não concorde com qualquer disposição destes Termos, o usuário não deve criar conta nem utilizar a Plataforma, podendo eliminar sua conta a qualquer momento.",
     ],
   },
   {
@@ -97,6 +97,7 @@ const SECOES = [
         sub: "4.2. Votação Popular",
         itens: [
           "A votação em projetos de lei é uma camada de engajamento pessoal que NUNCA altera a nota IDIP dos parlamentares.",
+          "A votação requer consentimento específico e destacado para o tratamento de opinião política (dado pessoal sensível, Art. 5º, II e Art. 11 da LGPD), concedido em checkbox próprio, registrado com versão e data. O consentimento pode ser revogado a qualquer momento na própria interface de votação; a revogação elimina imediatamente os votos registrados e impede novos votos até nova autorização.",
           "Cada usuário pode votar uma vez por projeto, podendo alterar seu voto.",
           "Contas com menos de 24 horas não podem votar (proteção anti-bot).",
         ],
@@ -114,7 +115,7 @@ const SECOES = [
     paragrafos: [
       "5.1. O código-fonte da Plataforma é licenciado sob AGPL-3.0 (GNU Affero General Public License v3.0), permitindo uso, modificação e redistribuição, inclusive comercial, desde que as modificações também sejam licenciadas sob AGPL-3.0.",
       "5.2. A documentação é licenciada sob Creative Commons Attribution 4.0 International (CC BY 4.0).",
-      "5.3. Os dados exibidos são de domínio público, extraídos de fontes governamentais abertas. A Plataforma não reivindica propriedade sobre os dados originais.",
+      "5.3. A Plataforma utiliza informações disponibilizadas publicamente por fontes oficiais (Câmara dos Deputados, Senado Federal, TSE e demais órgãos) e não reivindica titularidade sobre os dados públicos de origem. A publicidade de uma informação não elimina eventuais direitos de terceiros sobre o conteúdo original, que permanecem com seus titulares.",
       "5.4. A marca \"Currículo Político\", o logotipo e o design da interface são propriedade de seus criadores e não podem ser utilizados sem autorização expressa.",
     ],
   },
@@ -124,7 +125,7 @@ const SECOES = [
       "6.1. Os dados exibidos são extraídos de fontes oficiais e têm caráter meramente informativo. A Plataforma não se responsabiliza por decisões tomadas com base nas informações exibidas, especialmente se a fonte oficial tiver atualizado o dado posteriormente à coleta.",
       "6.2. A nota IDIP é um indicador técnico algorítmico e não constitui julgamento moral, avaliação de caráter ou recomendação de voto.",
       "6.3. A Plataforma replica dados de fontes oficiais. Se a fonte oficial publicar dado incorreto, o erro é replicado. A responsabilidade primária pela veracidade é do órgão público fonte.",
-      "6.4. Em nenhuma hipótese a responsabilidade da Plataforma excederá R$ 1.000,00 (mil reais) por usuário, em danos diretos, excluídos quaisquer danos indiretos, lucros cessantes ou perda de dados.",
+      "6.4. O serviço é prestado gratuitamente e com finalidade informativa. A responsabilidade da Plataforma segue a legislação aplicável — em hipótese de relação de consumo, aplicam-se as normas do Código de Defesa do Consumidor, inclusive as que restringem limitações de responsabilidade em contratos de adesão. Nos limites permitidos em lei, a responsabilidade restringe-se a danos diretos decorrentes de dolo ou culpa da Plataforma, excluídos danos indiretos e lucros cessantes na medida permitida.",
       "6.5. A Plataforma é fornecida \"no estado em que se encontra\" (AS IS), sem garantias de continuidade, disponibilidade ou ausência de erros.",
     ],
   },
@@ -132,7 +133,7 @@ const SECOES = [
     titulo: "7. Privacidade e Proteção de Dados",
     paragrafos: [
       "7.1. O tratamento de dados pessoais de usuários e Agentes Políticos é realizado em conformidade com a LGPD (Lei 13.709/2018), conforme Política de Privacidade disponível em /privacidade.",
-      "7.2. Dados de usuários: email, nome opcional, votos em projetos e preferências de afinidade. Senhas hasheadas com bcrypt. Nenhum dado bancário, endereço ou telefone.",
+      "7.2. Dados de usuários: email, nome opcional, registro de aceites e votos em projetos (dado sensível, apenas com consentimento específico e revogável). Senhas hasheadas com bcrypt. Nenhum dado bancário, endereço ou telefone. Preferências de afinidade permanecem apenas no navegador do usuário (localStorage).",
       "7.3. Dados de Agentes Políticos: exclusivamente dados funcionais e públicos relevantes para o exercício do mandato.",
       "7.4. Encarregado de Dados (DPO): dpo@curriculopolitico.org.",
     ],
@@ -140,7 +141,7 @@ const SECOES = [
   {
     titulo: "8. Disposições Gerais",
     paragrafos: [
-      "8.1. Foro de Eleição: Fica eleito o foro da Comarca de São Paulo, Estado de São Paulo, para dirimir quaisquer controvérsias decorrentes dos presentes Termos, com renúncia a qualquer outro, por mais privilegiado que seja.",
+      "8.1. Foro de Eleição: Fica eleito o foro da Comarca de São Paulo, Estado de São Paulo, para dirimir controvérsias decorrentes dos presentes Termos, sem prejuízo das normas imperativas de competência aplicáveis ao caso concreto, inclusive as que asseguram foro ao consumidor.",
       "8.2. Independência das Cláusulas: A nulidade de qualquer cláusula não afeta a validade das demais.",
       "8.3. Alterações: Estes Termos podem ser atualizados periodicamente. Mudanças significativas serão comunicadas via aviso no site com 30 dias de antecedência.",
       "8.4. Tolerância: A tolerância quanto ao descumprimento de qualquer cláusula não constitui renúncia ou novação.",

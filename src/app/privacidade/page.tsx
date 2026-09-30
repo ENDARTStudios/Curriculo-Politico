@@ -49,9 +49,14 @@ export default function PrivacidadePage() {
             <p><strong>Contato institucional:</strong> {CONTROLLER.email}</p>
             <p><strong>Encarregado de Dados (DPO):</strong> {CONTROLLER.dpo}</p>
             <p className="mt-2 text-xs text-slate-500">
-              A identificação empresarial completa (CNPJ, endereço) será adicionada
-              quando a entidade jurídica for formalmente constituída.
+              A identificação nominal do encarregado (Resolução CD/ANPD
+              nº 18/2024, Art. 4º) será publicada nesta seção. A
+              identificação empresarial completa (CNPJ, endereço) será
+              adicionada quando a entidade jurídica for formalmente constituída.
             </p>
+            {/* TODO(lançamento): publicar nome completo do encarregado aqui —
+                exigência da Res. CD/ANPD nº 18/2024. Bloqueado por decisão
+                do controlador (quem assume o papel). */}
           </div>
         </section>
 
@@ -97,7 +102,19 @@ export default function PrivacidadePage() {
             dado é tratado com o regime agravado do Art. 11 da LGPD: coleta apenas
             com consentimento específico e destacado, finalidade exclusivamente
             pessoal (nunca compartilhada, nunca usada para o IDIP), e eliminação
-            imediata mediante solicitação ou exclusão de conta.
+            imediata mediante revogação ou exclusão de conta.
+          </div>
+
+          <div className="mb-4 rounded-lg border border-sky-500/30 bg-sky-500/5 p-4 text-sm text-slate-400">
+            <strong className="text-sky-300">Como o consentimento funciona
+            (Art. 8º):</strong> a votação exige autorização em checkbox específico
+            e destacado, concedida no cadastro ou na própria interface de voto.
+            Registramos a <strong>versão do consentimento</strong> e a{" "}
+            <strong>data/hora</strong> da concessão. A{" "}
+            <strong>revogação</strong> é feita com um clique no próprio painel de
+            votação (ou via /retificacao) e <strong>elimina imediatamente todos os
+            votos</strong> associados à conta. Sem consentimento ativo, a API de
+            votação recusa o registro da manifestação.
           </div>
 
           <div className="space-y-3 text-sm text-slate-400">
@@ -106,8 +123,8 @@ export default function PrivacidadePage() {
               <li>Email (login)</li>
               <li>Senha (hash bcrypt — nunca texto plano)</li>
               <li>Nome (opcional)</li>
-              <li>Votos FAVOR/CONTRA em projetos (dado sensível — Art. 5º, II)</li>
-              <li>Preferências de afinidade (apenas localStorage — nunca servidor)</li>
+              <li>Registro de aceites: versão dos Termos/Privacidade e data (clickwrap)</li>
+              <li>Votos FAVOR/CONTRA em projetos (dado sensível — Art. 5º, II, apenas com consentimento específico)</li>
             </ul>
             <p><strong className="text-slate-300">NÃO coletamos:</strong></p>
             <ul className="list-disc space-y-1 pl-5">
@@ -115,6 +132,10 @@ export default function PrivacidadePage() {
               <li>Localização precisa (GPS)</li>
               <li>Dados de menores de 18 anos</li>
               <li>Dados de saúde, biometria, religião ou origem racial</li>
+              <li>
+                Preferências de afinidade — permanecem <strong>apenas no seu
+                navegador</strong> (localStorage) e nunca são enviadas ao servidor
+              </li>
             </ul>
           </div>
         </section>
@@ -183,7 +204,7 @@ export default function PrivacidadePage() {
                 <tr className="border-b border-slate-800/60">
                   <td className="py-2 pr-4">Vercel Inc. (EUA)</td>
                   <td className="py-2 pr-4">Logs, dados de sessão</td>
-                  <td>SCCs + adequação (ADF)</td>
+                  <td>Cláusulas Padrão Contratuais (Res. CD/ANPD nº 19/2024) — a formalizar no contrato</td>
                 </tr>
                 <tr className="border-b border-slate-800/60">
                   <td className="py-2 pr-4">Supabase Inc. (sa-east-1)</td>
@@ -193,15 +214,17 @@ export default function PrivacidadePage() {
                 <tr>
                   <td className="py-2 pr-4">Sentry (EUA, se ativo)</td>
                   <td className="py-2 pr-4">Stack traces de erros</td>
-                  <td>SCCs + adequação (ADF)</td>
+                  <td>Cláusulas Padrão Contratuais (Res. CD/ANPD nº 19/2024) — a formalizar no contrato</td>
                 </tr>
               </tbody>
             </table>
           </div>
           <p className="mt-3 text-xs italic text-slate-500">
-            Os contratos com os provedores devem conter as Cláusulas Padrão
-            Contratuais aplicáveis. Esta política será atualizada quando os
-            contratos forem formalmente firmados.
+            Programas de certificação estrangeiros (como o EU-US Data Privacy
+            Framework) não constituem, por si, decisão de adequação da ANPD — a
+            base da transferência são as Cláusulas Padrão Contratuais brasileiras,
+            a serem incorporadas aos contratos com os provedores. Esta política
+            será atualizada quando os contratos forem formalmente firmados.
           </p>
         </section>
 
@@ -260,8 +283,8 @@ export default function PrivacidadePage() {
               </tr>
               <tr className="border-b border-slate-800/60">
                 <td className="py-2 pr-4">Votos em projetos (UserBillVote)</td>
-                <td className="py-2 pr-4">Vinculados à conta</td>
-                <td className="py-2">Eliminados com a conta (cascade)</td>
+                <td className="py-2 pr-4">Vinculados à conta, mediante consentimento</td>
+                <td className="py-2">Imediata na revogação do consentimento; com a conta (cascade)</td>
               </tr>
               <tr className="border-b border-slate-800/60">
                 <td className="py-2 pr-4">Logs de segurança (IP)</td>
@@ -306,7 +329,8 @@ export default function PrivacidadePage() {
             </li>
             <li>
               <strong className="text-slate-200">Comunicação aos titulares:</strong>{" "}
-              em prazo razoável, via email e aviso no site
+              em até 3 dias úteis da constatação, via email e aviso no site
+              (mesmo prazo da comunicação à ANPD, Resolução CD/ANPD nº 15/2024)
             </li>
             <li>
               <strong className="text-slate-200">Documentação:</strong> post-mortem
@@ -335,9 +359,10 @@ export default function PrivacidadePage() {
           </h2>
           <p className="text-sm leading-relaxed text-slate-400">
             O usuário pode solicitar a exclusão de sua conta e de todos os dados
-            pessoais vinculados (votos, preferências, dados de perfil) a qualquer
-            momento, via dpo@curriculopolitico.org. A eliminação será realizada em
-            até 30 dias, com exceção de dados que a lei exija manter.
+            pessoais vinculados (votos, dados de perfil) a qualquer momento,
+            via dpo@curriculopolitico.org ou /retificacao. A exclusão técnica é
+            realizada imediatamente ou, no máximo, em 30 dias — ressalvados os
+            dados que a lei exija manter.
           </p>
         </section>
       </div>
