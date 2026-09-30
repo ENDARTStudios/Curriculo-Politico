@@ -1,0 +1,10 @@
+data/
+node_modules/
+.next/
+*.zip
+*.csv
+*.tsbuildinfo
+.claude/
+.specify/
+scripts/_*
+data/_dbpass.txt

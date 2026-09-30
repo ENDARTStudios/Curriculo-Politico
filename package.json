@@ -62,7 +62,8 @@
     "uptimerobot": "tsx scripts/uptimerobot-monitor.ts",
     "generate-summaries": "tsx scripts/generate-bill-summaries.ts",
     "seed:summaries": "tsx scripts/generate-bill-summaries.ts",
-    "db:load-patrimony-full": "tsx scripts/load-patrimony-full.ts"
+    "db:load-patrimony-full": "tsx scripts/load-patrimony-full.ts",
+    "db:load-receitas": "tsx scripts/load-receitas.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
