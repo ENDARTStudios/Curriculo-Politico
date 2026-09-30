@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { SearchBar } from "@/components/SearchBar";
+import { CookieBanner } from "@/components/CookieBanner";
 
 export const metadata: Metadata = {
   title: "Currículo Político — Transparência Política com Dados Públicos",
@@ -95,6 +96,7 @@ export default function RootLayout({
               </a>
             </div>
           </footer>
+          <CookieBanner />
         </Providers>
       </body>
     </html>
