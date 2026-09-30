@@ -106,6 +106,15 @@ request do teste de headers consumiu 1 do quota: 1 + 59 = 60).
 Observação: a falha do teste anterior foi o redirect do apex
 (curriculopolitico.org → www), que mudava de IP de saída a cada conexão.
 
+### 5.1 `Access-Control-Allow-Origin: *` em cache HITs — benigno
+
+Páginas estáticas servidas com `X-Vercel-Cache: HIT` incluem
+`Access-Control-Allow-Origin: *`; respostas MISS (servidor) não incluem.
+É comportamento da camada de cache de borda da Vercel, não do código
+(nenhum header CORS no repositório). Risco nulo: afeta apenas páginas
+públicas, e navegadores rejeitam `ACAO:*` em requisições credenciadas,
+logo não expõe dado de usuário.
+
 ---
 
 ## 6. Google OAuth ✅
