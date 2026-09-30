@@ -75,37 +75,36 @@ preenche os registros faltantes.
 
 ---
 
-## 4. Segurança — Headers ⚠️
+## 4. Segurança — Headers ✅ RESOLVIDO (re-verificado 2026-09-29)
 
 | Header | Status |
 |---|---|
 | Strict-Transport-Security | ✅ Ativo (Vercel default) |
-| Content-Security-Policy | ⚠️ **Não detectado em produção** |
-| X-Frame-Options | ⚠️ **Não detectado** |
-| X-Content-Type-Options | ⚠️ **Não detectado** |
-| Referrer-Policy | ⚠️ **Não detectado** |
-| Permissions-Policy | ⚠️ **Não detectado** |
+| Content-Security-Policy | ✅ Ativo (middleware) |
+| X-Frame-Options: DENY | ✅ Ativo |
+| X-Content-Type-Options: nosniff | ✅ Ativo |
+| Referrer-Policy: strict-origin-when-cross-origin | ✅ Ativo |
+| Permissions-Policy | ✅ Ativo |
 
-**Causa:** O middleware Next.js (`src/middleware.ts`) pode não estar sendo
-executado em produção, ou os headers estão sendo removidos pelo CDN edge da
-Vercel. O middleware compila localmente mas os headers não aparecem nas
-respostas de produção.
-
-**Ação:** Investigar se o middleware está ativo no runtime da Vercel.
-Alternativa: mover os headers para `next.config.ts` (headers() config) que
-não depende de middleware.
+**Correção:** o achado crítico da primeira auditoria era falso — o teste
+foi feito contra um deploy anterior à inclusão do middleware. Re-verificação
+em 2026-09-29 confirmou todos os headers presentes tanto em páginas (cache
+PRERENDER) quanto em rotas `/api/*`. O middleware `src/middleware.ts` está
+executando normalmente no runtime Edge da Vercel.
 
 ---
 
-## 5. Rate Limiting — Não Testável Externamente
+## 5. Rate Limiting ✅ VERIFICADO EM PRODUÇÃO (2026-09-29)
 
-O teste de 65 requisições sequenciais não retornou 429. Possíveis causas:
-1. O middleware não está ativo (mesma causa dos headers)
-2. O teste foi feito via apex (curriculopolitico.org) que redireciona para www
-3. Cada redirect cria uma nova conexão com IP diferente
+Teste real: 65 requisições rápidas em `GET /api/search?q=...` a partir de
+um único IP.
 
-**Ação:** Verificar middleware ativo. Se não estiver, migrar rate limiting
-para `next.config.ts` headers ou usar Vercel Rate Limiting nativo.
+**Resultado:** 59× HTTP 200, depois **429** nas requisições seguintes com
+`Retry-After: 60` — exatamente o limite de 60 req/min configurado (o 1º
+request do teste de headers consumiu 1 do quota: 1 + 59 = 60).
+
+Observação: a falha do teste anterior foi o redirect do apex
+(curriculopolitico.org → www), que mudava de IP de saída a cada conexão.
 
 ---
 
