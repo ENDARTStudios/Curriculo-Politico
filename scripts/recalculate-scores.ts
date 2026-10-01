@@ -137,6 +137,9 @@ async function recalculate() {
     await prisma.score.upsert({
       where: { id: `score_${term.id}_v1` },
       update: {
+        version: "1.1.0", // update precisa subir a versão — scores existentes
+        // nunca passam pelo branch create
+        calculatedAt: new Date(),
         finalScore: result.finalScore,
         confidenceScore: result.confidence,
         reliabilityStatus: result.reliability,
