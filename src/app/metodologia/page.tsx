@@ -407,13 +407,15 @@ export default function MetodologiaPage() {
           <h2 className="text-2xl font-bold text-slate-100">
             Rastreamento Temporal
           </h2>
-          <Badge tipo="planejado" />
+          <Badge tipo="vigente" />
         </div>
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
           <p className="mb-4 text-sm leading-relaxed text-slate-400">
-            Cada político terá um gráfico de linha com a evolução da nota ao
-            final de cada ano legislativo (requer histórico anual de scores,
-            coletado automaticamente desde o lançamento).
+            Cada político com score ativo tem um gráfico de linha com a
+            evolução da nota — snapshots mensais coletados automaticamente
+            (cron do GitHub Actions no dia 1º de cada mês) desde o bootstrap
+            de setembro de 2026. Parlamentares fora do ranking (sem dados
+            suficientes) ainda não acumulam snapshots.
           </p>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4">
@@ -475,7 +477,7 @@ export default function MetodologiaPage() {
                   ["Presença", "10%", "✅ medida — votações nominais + presenças (167k)"],
                   ["Transparência", "10%", "⚪ baseline — sem fonte ativa"],
                   ["Custo/Benefício", "7%", "✅ medida (quando há CEAP) — cota parlamentar real"],
-                  ["Campanha", "5%", "⚪ baseline parcial — receitas TSE 2022 carregadas"],
+                  ["Campanha", "5%", "✅ medida (binária) — prestação de contas TSE presente (500 de 594); concentração PF/PJ aguarda bulk completo"],
                 ].map(([d, p, s]) => (
                   <tr key={d} className="border-b border-slate-800/60">
                     <td className="py-2 pr-4 text-slate-300">{d}</td>

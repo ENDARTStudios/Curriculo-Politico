@@ -94,6 +94,9 @@ export default function RootLayout({
               <a href="/retificacao" className="transition hover:text-slate-300">
                 Retificação
               </a>
+              <a href="/conta" className="transition hover:text-slate-300">
+                Minha conta
+              </a>
             </div>
           </footer>
           <CookieBanner />

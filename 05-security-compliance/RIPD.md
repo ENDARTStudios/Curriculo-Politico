@@ -44,6 +44,7 @@ Pela Res. CD/ANPD nº 2/2022, **dados pessoais sensíveis são critério especí
 | Dado público impreciso afetando reputação de agente político | Média (replica fonte oficial) | Alto | Fonte citada; retificação com protocolo (72h úteis p/ políticos); presunção de inocência (arquivados/absolvidos ocultos); TIC com confiança por dimensão | Médio |
 | Transferência internacional sem salvaguarda válida | Baixa | Médio | Supabase sa-east-1 (Brasil); Vercel/Sentry: SCPs Res. 19/2024 **a formalizar nos contratos** — pendência registrada | Médio (até formalização) |
 | Tratamento de dado de menor | Baixa (declaração de maioridade; sem verificação documental) | Alto | Declaração expressa no cadastro; eliminação imediata se detectado | Médio (controle declaratório) |
+| Conta com e-mail não verificado votando (dado sensível) | Média (não há verificação de e-mail) | Médio (integridade da manifestação; identidade frágil) | Clickwrap; conta 24h; rate limiting 10/min em auth; consentimento específico versionado | **Médio — mitigação definitiva bloqueada por serviço de e-mail inexistente** (ver §6.5); ao ativar provedor: verificar e-mail antes de habilitar voto + recuperação de senha |
 
 ## 5. Direitos do titular na prática
 
@@ -59,6 +60,8 @@ Pela Res. CD/ANPD nº 2/2022, **dados pessoais sensíveis são critério especí
 2. **Formalização contratual das SCCs** (Res. 19/2024) com Vercel e Sentry — evidência contratual a anexar a este RIPD.
 3. **Revisão jurídica humana** integral deste RIPD, Termos e Política antes de campanha de divulgação.
 4. Revisão deste documento a cada expansão de escala, nova finalidade ou novo processador.
+5. **Serviço de e-mail** (Resend/SMTP) inexistente — bloqueia verificação de e-mail no cadastro, recuperação de senha e notificações; ver risco "e-mail não verificado" na §4.
+6. **Sentry**: código de instrumentação pronto (dormente sem DSN); falta criar o projeto no Sentry.io e definir `SENTRY_DSN`/`NEXT_PUBLIC_SENTRY_DSN` na Vercel.
 
 ## 7. Conclusão
 

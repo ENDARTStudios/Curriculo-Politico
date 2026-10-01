@@ -48,7 +48,10 @@ async function recalculate() {
       terms: {
         orderBy: { startYear: "desc" },
         take: 1,
-        include: { costs: true },
+        include: {
+          costs: true,
+          finances: { orderBy: { year: "desc" }, take: 1 },
+        },
       },
     },
   });
@@ -73,16 +76,19 @@ async function recalculate() {
     const participationRate =
       totalNominalSessions > 0 ? votesCount / totalNominalSessions : 0;
 
-    // Confiança multi-fonte (30 base + até 65):
+    // Confiança multi-fonte (30 base + até 70, teto 95):
     //  - votações: até +30 pela taxa de participação real;
     //  - autorias: até +15 (10 proposições satura);
-    //  - presença: +15 se ≥20 sessões deliberativas, +10 a partir de 4.
+    //  - presença: +15 se ≥20 sessões deliberativas, +10 a partir de 4;
+    //  - prestação de contas TSE: +5 (receitas declaradas).
+    const financeParaConfianca = term.finances[0];
     const dataCompleteness = Math.min(
       95,
       30 +
         Math.min(30, participationRate * 30) +
         Math.min(15, billsCount * 1.5) +
-        (attended >= 20 ? 15 : Math.min(10, attended * 2.5)),
+        (attended >= 20 ? 15 : Math.min(10, attended * 2.5)) +
+        (financeParaConfianca && financeParaConfianca.totalReceived > 0 ? 5 : 0),
     );
 
     // Presença métrica = participação em votações nominais (sinal real);
@@ -104,6 +110,14 @@ async function recalculate() {
     const costEfficiency =
       annualCost > 0 ? applyCostEfficiency(annualCost, productivity) : 50;
 
+    // Campanha (v1.1, binário e factual): presença de prestação de contas
+    // com receitas declaradas no TSE no pleito coberto pelo pipeline (2022).
+    // 100 = conta prestada; 50 = sem registro do pleito (ex.: senadores
+    // eleitos em 2018 — dado ausente NÃO é penalizado). Enriquecimento
+    // (concentração PF/PJ, despesas) aguarda o bulk completo do TSE.
+    const finance = term.finances[0];
+    const campaign = finance && finance.totalReceived > 0 ? 100 : 50;
+
     const metrics: LegislativeMetrics = {
       integrity: 50,
       productivity,
@@ -112,7 +126,7 @@ async function recalculate() {
       presence,
       transparency: 50,
       costEfficiency,
-      campaign: 50,
+      campaign,
       hasFinalCondemnation: false,
       hasRejectedAccounts: false,
       dataCompleteness,
