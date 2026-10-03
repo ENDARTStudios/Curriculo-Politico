@@ -1,88 +1,104 @@
 # Currículo Político
 
-Plataforma open-source de transparência política que agrega dados públicos federais e estaduais para avaliar, ranquear e auditar o desempenho de políticos e partidos no Brasil, usando o **IDIP** — Índice de Desempenho e Integridade Pública.
+Plataforma open-source de transparência política que agrega dados públicos federais para avaliar, ranquear e auditar o desempenho de políticos e partidos no Brasil, usando o **IDIP** — Índice de Desempenho e Integridade Pública.
 
-> **Status:** MVP em construção (Fase 0 concluída, Fase 1 em andamento). Veja o [Roadmap](01-product-discovery/ROADMAP.md).
+**Produção:** https://www.curriculopolitico.org
 
 ## Como funciona
 
-- **Nota IDIP (0–100):** mede desempenho, com pesos distintos para o Legislativo e o Executivo. Metodologia aberta e versionada em [`02-architecture-design/SCORING_METHODOLOGY.md`](02-architecture-design/SCORING_METHODOLOGY.md).
-- **Termômetro de Confiabilidade:** mede risco e transparência, exibido ao lado da nota (🟢 Confiável, 🟡 Atenção, 🔴 Não Confiável, ⚪ Dados Insuficientes — fora do ranking).
+- **Nota IDIP (0–100):** mede desempenho com pesos distintos para Legislativo e Executivo. Metodologia aberta e versionada em [/metodologia](https://www.curriculopolitico.org/metodologia).
+- **Termômetro de Confiabilidade:** risco e transparência ao lado da nota (🟢 Confiável, 🟡 Atenção, 🔴 Não Confiável, ⚪ Dados Insuficientes — fora do ranking).
 - **Travas de integridade:** condenação transitada em julgado, impeachment, inelegibilidade ou contas rejeitadas zeram a Integridade e limitam a nota a 39.9.
-- **Sem voto popular:** apenas dados públicos auditáveis (Câmara, Senado, TSE). Dados faltantes reduzem a Confiança, nunca geram nota fictícia.
+- **Neutralidade algorítmica:** o IDIP usa exclusivamente dados públicos auditáveis (Câmara, Senado, TSE). A votação popular é camada de engajamento separada — nunca altera a nota. Dimensões sem dados recebem baseline neutro 50, identificado na interface.
 
-## Estrutura do repositório
+## Estrutura (monorepo — npm workspaces)
 
 ```
-├── 01-product-discovery/       PRD e Roadmap
-├── 02-architecture-design/     Arquitetura, Modelo de Dados e Metodologia IDIP
-├── 05-security-compliance/     Baseline de Segurança e LGPD
-├── etl/                        Pipeline de coleta (Python — Câmara dos Deputados)
-├── prisma/                     Schema do banco + seed de desenvolvimento
-├── scripts/                    Verificação do motor IDIP (usado no CI)
-└── src/
-    ├── app/                    Next.js App Router (home + API REST)
-    └── lib/                    Motor IDIP (scoring.ts) e cliente Prisma
+├── apps/
+│   ├── web/            Aplicação Next.js 15 (UI + API routes + Prisma) — deploy Vercel
+│   └── pipeline/       Dados: scripts TS de carga/recálculo + ETLs Python (Câmara/Senado/TSE)
+├── packages/
+│   └── idip/           Motores puros compartilhados: cálculo IDIP + resolução de identidade (@cp/idip)
+├── docs/               Documentação (security/, ops/)
+├── data/               Cache local de dados brutos do ETL (gitignored)
+├── docker-compose.yml  Infra local de dev (Postgres 15432 + Redis 16379)
+└── .github/workflows   CI · snapshot mensal de scores · smoke de produção (6h)
 ```
 
-## Stack
-
-Next.js 15 (App Router) + TypeScript + TailwindCSS · PostgreSQL (Prisma) · Redis (cache, Fase 3) · Python (ETL) · Vercel/Cloudflare (deploy e borda).
+**A raiz contém apenas configuração global** (package.json de workspaces, README, LICENSE, ignores, compose). Código de aplicação vive em `apps/*`; documentação, em `docs/`.
 
 ## Quickstart
 
-Pré-requisitos: Node 20+, Python 3.12+ e Docker (para o Postgres local).
+Pré-requisitos: Node 22+, Python 3.12+ (apenas para ETL) e Docker (para o Postgres local).
 
 ```bash
-# 1. Dependências Node
+# 1. Dependências (instala os workspaces web + pipeline)
 npm install
 
-# 2. Banco de dados local (Postgres + Redis)
+# 2. Banco local — ou aponte DATABASE_URL ao Supabase
 docker compose up -d
 
-# 3. Variáveis de ambiente
-cp .env.example .env
+# 3. Variáveis de ambiente (arquivo único do monorepo)
+cp apps/web/.env.example apps/web/.env
 
-# 4. Schema + dados fictícios (3 perfis: GREEN, YELLOW e RED)
-npx prisma migrate dev --name init
+# 4. Schema + dados fictícios (3 perfis: GREEN, YELLOW, RED)
+npm run db:migrate
 npm run db:seed
 
 # 5. Aplicação
-npm run dev
+npm run dev          # http://localhost:3000
 ```
 
-- Home: http://localhost:3000
-- Ranking: `GET /api/rankings?cargo=LEGISLATIVE&limit=10`
-- Perfil: `GET /api/politicians/seed-0001` (também aceita o id interno do banco)
+Todos os comandos (`npm run db:*`, `npm run etl:*`, `build`, `typecheck`…) funcionam **a partir da raiz** — o `package.json` raiz delega para o workspace certo.
 
-## ETL (Fase 1)
+## Comandos principais
 
-Coleta real da API de Dados Abertos da Câmara dos Deputados:
+| Comando | O que faz |
+|---|---|
+| `npm run dev` / `build` / `start` | Aplicação web (apps/web) |
+| `npm run db:migrate` / `db:seed` | Prisma migrate/seed (schema em apps/web/prisma) |
+| `npm run db:snapshot` | Snapshot dos scores (idempotente; cron mensal no Actions) |
+| `npm run recalculate-scores` | Recalcula o IDIP com os dados atuais |
+| `npm run db:load-*` | Carga dos JSONs de `data/raw/` para o banco |
+| `npm run etl:*` | Coletas Python (gravam em `data/raw/`) |
+| `npm run verify:scoring` / `verify:identity` | Testes dos motores (rodam no CI) |
+
+## ETL
 
 ```bash
-pip install -r etl/requirements.txt
-python etl/camara_deputados.py --limit 10
+pip install -r apps/pipeline/etl/requirements.txt
+npm run etl:camara        # ou: python apps/pipeline/etl/camara_deputados.py --limit 10
 ```
 
-Saída em `data/raw/` (gitignored): `camara_deputados_raw.json` (camada raw imutável) e `raw_data_camara.csv` (camada curada mínima).
+Saída em `data/raw/` (gitignored): `*_raw.json` (camada raw imutável), consumida pelos `db:load-*`.
 
 ## Verificação
 
 ```bash
-npm run typecheck        # TypeScript estrito, zero erros
-npm run verify:scoring   # Matemática do IDIP: pesos, hard caps e termômetro
-npm run build            # Build de produção do Next.js
+npm run typecheck         # TypeScript estrito
+npm run verify:scoring    # Matemática do IDIP: pesos, hard caps, termômetro
+npm run build             # Build de produção
 ```
 
-O `verify:scoring` cobre: soma dos pesos = 1.0 nos dois perfis, teto de 39.9 para condenados/contas rejeitadas, termômetro (GREEN/YELLOW/RED/GRAY) e rejeição de métricas inválidas. Roda no CI (`.github/workflows/ci.yml`).
+`verify:scoring` cobre soma dos pesos = 1.0 nos dois perfis, teto 39.9 para condenados/contas rejeitadas, termômetro GREEN/YELLOW/RED/GRAY e rejeição de métricas inválidas. Roda no CI (`.github/workflows/ci.yml`).
+
+## Deploy
+
+- **Web:** Vercel, Root Directory = `apps/web`. Deploy por push em `main` (webhook) ou `npx vercel --prod` da raiz.
+- **Cron:** snapshot mensal (dia 1, 03:00 UTC) e smoke de produção (6h) via GitHub Actions — requer secret `DATABASE_URL`.
 
 ## Compliance
 
-- **Linguagem jurídica estrita:** apenas termos como "Réu em Ação Penal" ou "Condenação Transitada em Julgado"; nunca "crime" sem trânsito em julgado (ver [SECURITY_BASELINE.md](05-security-compliance/SECURITY_BASELINE.md)).
-- **LGPD:** minimização de dados — nenhum CPF, endereço residencial ou dado familiar; registros judiciais arquivados/absolvidos são ocultados do perfil público automaticamente (implementado na API).
-- **Direito de resposta:** canal de retificação com SLA e auditoria (planejado para a Fase 4).
+- **Linguagem jurídica estrita:** apenas "Réu em Ação Penal" / "Condenação Transitada em Julgado"; nunca "crime" sem trânsito em julgado.
+- **LGPD:** minimização de dados (nenhum CPF, endereço, dado familiar); registros judiciais arquivados/absolvidos ocultados automaticamente; consentimento específico versionado para a votação (dado sensível). Ver [`docs/security/RIPD.md`](docs/security/RIPD.md).
+- **Direito de resposta:** canal de retificação com protocolo rastreável (`/retificacao`).
+
+## Documentação
+
+- [`docs/security/`](docs/security/) — RIPD e auditorias jurídicas
+- [`docs/ops/`](docs/ops/) — auditorias técnicas de produção
+- [`apps/web/README.md`](apps/web/README.md) · [`apps/pipeline/README.md`](apps/pipeline/README.md)
 
 ## Licenças
 
-- **Código:** [AGPL-3.0-only](LICENSE)
-- **Documentação:** CC BY 4.0
+Código sob [AGPL-3.0-only](LICENSE) · Documentação sob CC BY 4.0.

@@ -1,0 +1,12 @@
+{
+  "name": "@cp/idip",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Motores puros do Currículo Político: cálculo IDIP (scoring) e resolução de identidade (TSE).",
+  "license": "AGPL-3.0-only",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "exports": {
+    ".": "./index.ts"
+  }
+}

@@ -1,3 +1,5 @@
+.vercel
+.env*
 data/
 node_modules/
 .next/
@@ -6,5 +8,7 @@ node_modules/
 *.tsbuildinfo
 .claude/
 .specify/
-scripts/_*
+.github/
+docs/
+apps/pipeline/
 data/_dbpass.txt

@@ -1,0 +1,15 @@
+{
+  "name": "@cp/pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pipeline de dados do Currículo Político — cargas TS (Prisma) + ETLs Python (Câmara/Senado/TSE).",
+  "license": "AGPL-3.0-only",
+  "dependencies": {
+    "@cp/idip": "*"
+  },
+  "scripts": {
+    "snapshot": "tsx --env-file-if-exists=../../apps/web/.env scripts/snapshot-scores.ts",
+    "recalculate-scores": "tsx --env-file-if-exists=../../apps/web/.env scripts/recalculate-scores.ts",
+    "seed:production": "tsx --env-file-if-exists=../../apps/web/.env scripts/seed-all-production.ts"
+  }
+}

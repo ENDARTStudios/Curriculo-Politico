@@ -6,11 +6,11 @@ node_modules/
 out/
 *.tsbuildinfo
 
-# Ambiente (nunca versionar segredos)
-.env
-.env*.local
+# Ambiente (nunca versionar segredos) — exceção: apps/web/.env.example
+.env*
+!apps/web/.env.example
 
-# Dados brutos coletados pelo ETL (ficam em storage imutável, não no git)
+# Dados brutos coletados pelo ETL (cache local, não versionado)
 data/
 
 # Python
@@ -21,6 +21,3 @@ __pycache__/
 # Sistema / Deploy
 .DS_Store
 .vercel
-
-.vercel
-.env*

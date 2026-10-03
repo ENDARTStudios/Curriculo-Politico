@@ -1,25 +1,25 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: radarcivico-db
+    container_name: curriculo-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: radar_civico
-      POSTGRES_DB: radarcivico
+      POSTGRES_DB: curriculo
     ports:
       # Portas altas: 5432/5433 (Postgres) e 6379/6380 (Redis) já ocupadas nesta máquina
       - "15432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d radarcivico"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d curriculo"]
       interval: 5s
       timeout: 3s
       retries: 10
 
   redis:
     image: redis:7-alpine
-    container_name: radarcivico-redis
+    container_name: curriculo-redis
     ports:
       - "16379:6379"
 

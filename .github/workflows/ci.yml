@@ -13,14 +13,14 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Instalar dependências
         run: npm ci
 
       - name: Gerar cliente Prisma (valida o schema)
-        run: npx prisma generate
+        run: npx prisma generate --schema=apps/web/prisma/schema.prisma
 
       - name: Checagem de tipos
         run: npm run typecheck
