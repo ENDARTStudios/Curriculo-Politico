@@ -18,8 +18,7 @@
     "typecheck": "npm run typecheck --workspace @cp/web",
     "db:generate": "prisma generate --schema=apps/web/prisma/schema.prisma",
     "db:migrate": "npm run db:migrate --workspace @cp/web",
-    "db:seed": "npm run db:seed --workspace @cp/web",
-
+    "db:seed": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/seed-dev.ts",
     "verify:scoring": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/verify-scoring.ts",
     "verify:identity": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/verify-identity.ts",
     "resolve-identity": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/resolve-identity.ts",
@@ -35,7 +34,6 @@
     "seed:production": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/seed-all-production.ts",
     "db:snapshot": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/snapshot-scores.ts",
     "uptimerobot": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/uptimerobot-monitor.ts",
-
     "db:load-camara": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/load-camara.ts",
     "db:load-camara-completa": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/load-camara-completa.ts",
     "db:load-senado": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/load-senado.ts",
@@ -57,7 +55,6 @@
     "db:load-patrimony-history": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/load-patrimony-history.ts",
     "db:load-municipal": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/load-municipal.ts",
     "db:load-receitas": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/load-receitas.ts",
-
     "etl:camara": "python apps/pipeline/etl/camara_deputados.py",
     "etl:camara-completa": "python apps/pipeline/etl/camara_completa.py",
     "etl:votacoes": "python apps/pipeline/etl/camara_votacoes.py",
