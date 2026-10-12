@@ -4,6 +4,124 @@
 
 ---
 
+## 0. Atualização 2026-10-12 — correções aplicadas
+
+> Esta seção atualiza os achados abaixo. Onde houver divergência, **esta seção
+> prevalece**; os números das §3 e §8 são históricos (fotografia de 2026-09-29).
+
+### 0.1 Dados — cargas concluídas ✅
+
+Os loads interrompidos relatados em §3 foram concluídos. Contagem direta no
+banco em 2026-10-12:
+
+| Tabela | 2026-09-29 | 2026-10-12 |
+|---|---|---|
+| Person | 594 | **594** |
+| Score | 594 | **594** |
+| Bill | 24.643 (77%) | **31.815 (100%)** |
+| BillAuthorship | 38.677 (77%) | **50.479 (100%)** |
+| LegislativeAction | 6.457 | **6.457** |
+| SessionAttendance | 95.511 (57%) | **166.825 (100%)** |
+| PatrimonyHistory | 539 | **539** |
+| CampaignFinance | 500 | **500** |
+| PoliticianCost | — | **2.452** (1.966 de CEAP com valor > 0) |
+| VerifiedClaim | — | **13** |
+| LegalRecord | — | **0** ⚠️ (ver §0.6) |
+
+### 0.2 Deploy automático da Vercel — estava quebrado 🔴 → corrigido
+
+**Sintoma.** O deployment por Git de `main` falhava *depois* de um build Next.js
+íntegro:
+
+```
+Error: The file "/vercel/path0/.next/routes-manifest.json" couldn't be found.
+```
+
+**Causa.** O refactor do monorepo (`f3c7630`, 03/10) moveu a aplicação para
+`apps/web`, mas o projeto Vercel permaneceu com **Root Directory = `.`**. O build
+rodava a partir da raiz, o Next.js escrevia em `apps/web/.next` e a Vercel
+procurava `.next` na raiz do repositório.
+
+**Impacto.** Último deploy por Git bem-sucedido: `7sov9itnh` (01/10, `0a79609`),
+ainda com a aplicação na raiz. Depois do refactor, produção só recebeu deploy
+manual (`npx vercel --prod` executado de `apps/web`: `a6t5cvlm7` e `pa4ah9vn4`,
+03/10). O commit `256c96d` teve o deployment Git em `Error` (`5qtrqo0b2`) e
+qualquer push novo em `main` falharia.
+
+**Correção (12/10).** `PATCH /v9/projects/<projeto> { "rootDirectory": "apps/web" }`.
+O deploy por push em `main` foi reexecutado e concluído com sucesso.
+
+### 0.3 Snapshot mensal — datação corrigida
+
+`snapshot-scores.ts` datava o snapshot com o **último dia do mês corrente às
+23:59:59 no fuso do executor**. Isso produzia três defeitos:
+
+1. data ~1 mês no futuro — `/status` exibia "novembro de 2026" em 12/10;
+2. **duplicata do mesmo mês** — o GitHub Actions roda em UTC
+   (`2026-10-31T23:59:59Z`) e a execução local em BRT gravava outro instante
+   (`2026-11-01T02:59:59Z`) para o mesmo mês de referência;
+3. reexecução não idempotente no mesmo dia.
+
+**Correção.** Novo módulo `apps/pipeline/scripts/snapshot-date.ts` define a data
+canônica como **primeiro dia do mês corrente à meia-noite UTC**, consumido por
+`snapshot-scores.ts` e `verify-snapshot.ts`. Os dados existentes foram
+normalizados:
+
+| Antes | Depois |
+|---|---|
+| `2026-10-01T02:59:59Z` (509) | `2026-09-01T00:00:00Z` (509) — setembro/2026 |
+| `2026-10-31T23:59:59Z` (509) | `2026-10-01T00:00:00Z` (509) — outubro/2026 |
+| `2026-11-01T02:59:59Z` (509) | removida — duplicata de outubro/2026 |
+
+Reexecução verificada: `npm run db:snapshot` → 0 criados (idempotente);
+`verify-snapshot.ts` → 509 snapshots para `2026-10-01`. Sem datas futuras.
+
+### 0.4 `/ranking` — paginação
+
+1,5 MB / ~3,1 s → **100 linhas por página** (`?pagina=N`) e aba própria para os
+85 parlamentares com confiança < 60 (`?grupo=insuficientes`), antes renderizados
+na mesma tabela de 594 linhas. A ordem e a semântica (último mandato, último
+score, corte de confiança em 60) não mudaram.
+
+### 0.5 Higiene de dados fictícios
+
+`seed-*` (dados de desenvolvimento do `npm run db:seed`) passa a ser filtrado
+também em `/ranking`, `/api/rankings` e `/status` — com
+`OR externalId IS NULL`, porque `externalId` é nullable e o filtro ingênuo
+descartaria registros legítimos sem ID externo. Adicionalmente, `db:seed` agora
+**recusa** execução contra banco remoto, salvo `CP_ALLOW_REMOTE_SEED=1`, já que
+o `apps/web/.env` local aponta para o Supabase de produção.
+
+### 0.6 Versão de Node alinhada
+
+Vercel rodava Node 24.x enquanto CI e `engines` declaravam 22. Alinhado em
+**Node 24** (`engines` na raiz e em `apps/web`, `ci.yml`,
+`monthly-snapshot.yml`, README), eliminando o aviso de upgrade automático da
+Vercel.
+
+### 0.7 Pendências externas — não resolvíveis por código
+
+1. **`LegalRecord = 0`** — TCU (`api-publica` exige credencial, retorna 401) e
+   STF (sem API consolidada, 403). A dimensão **Integridade (25%, maior peso)**
+   permanece em baseline neutro 50, identificado na interface, e as **travas de
+   integridade nunca disparam** com dado real. O ETL opera em modo *local-first*:
+   basta depositar `data/raw/tcu_contas_rejeitadas_raw.json` e
+   `data/raw/stf_acoes_penais_raw.json` e rodar `npm run etl:legal` seguido de
+   `npm run db:load-legal`. O TCU publica listas periódicas de "Responsáveis com
+   contas julgadas irregulares" (exportação manual em PDF).
+2. ~~**Encarregado (DPO)** — nome e caixa postal não publicados (P1-02).~~
+   ✅ **Resolvido em 2026-10-12**: encarregado publicado como **Equipe END ART
+   Studios** com canais operacionais — `endart.studios+privacidade@gmail.com`
+   (DPO), `+direitos` (Art. 18), `+security` (incidentes), `+contato`
+   (institucional/imprensa), `+suporte` e `+reembolso`. Endereços
+   `@curriculopolitico.org` substituídos por não terem caixa postal ativa.
+   Ver `docs/security/RIPD.md` §5 e §6.1.
+3. **SCCs** de Vercel/Sentry não assinados (P1-03).
+4. **Revisão jurídica humana** de Termos, Política de Privacidade e RIPD antes de
+   campanha.
+
+---
+
 ## 1. Rotas — 20/20 HTTP 200 ✅
 
 | Rota | Status | Tempo | Tamanho |

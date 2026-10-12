@@ -29,7 +29,7 @@ Plataforma open-source de transparência política que agrega dados públicos fe
 
 ## Quickstart
 
-Pré-requisitos: Node 22+, Python 3.12+ (apenas para ETL) e Docker (para o Postgres local).
+Pré-requisitos: Node 24, Python 3.12+ (apenas para ETL) e Docker (para o Postgres local).
 
 ```bash
 # 1. Dependências (instala os workspaces web + pipeline)
@@ -48,6 +48,14 @@ npm run db:seed
 # 5. Aplicação
 npm run dev          # http://localhost:3000
 ```
+
+> ⚠️ **`DATABASE_URL` manda em tudo.** Todo script de dados (`db:load-*`,
+> `recalculate-scores`, `db:snapshot`, `db:seed`) grava no banco que ela
+> apontar — inclusive o Supabase de **produção**, se for o caso do seu `.env`.
+> Para trabalho isolado, use o Postgres do `docker compose`
+> (`localhost:15432`) e mantenha as credenciais de produção fora do `.env` de
+> desenvolvimento. Como salvaguarda, `npm run db:seed` **recusa** rodar contra
+> banco remoto, salvo `CP_ALLOW_REMOTE_SEED=1`.
 
 Todos os comandos (`npm run db:*`, `npm run etl:*`, `build`, `typecheck`…) funcionam **a partir da raiz** — o `package.json` raiz delega para o workspace certo.
 

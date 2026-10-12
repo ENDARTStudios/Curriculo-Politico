@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CONTATO, mailto } from "@/lib/contato";
 
 export const metadata: Metadata = {
   title: "Contato — Currículo Político",
   description:
-    "Canais oficiais do Currículo Político: retificação de dados, imprensa, colaboração open source e segurança.",
+    "Canais oficiais do Currículo Político: retificação de dados, privacidade e DPO, imprensa, suporte, colaboração open source e segurança.",
 };
 
 export default function ContatoPage() {
@@ -35,17 +36,69 @@ export default function ContatoPage() {
         </div>
 
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+          <h2 className="mb-2 text-xl font-bold text-slate-100">
+            🔐 Privacidade e Dados (DPO)
+          </h2>
+          <p className="mb-3 text-sm leading-relaxed text-slate-400">
+            Encarregado pelo Tratamento de Dados Pessoais:{" "}
+            <strong className="text-slate-300">{CONTATO.encarregado}</strong>.
+            Para exercer direitos do titular (LGPD, Art. 18), tirar dúvidas
+            sobre tratamento de dados ou reportar incidente de privacidade.
+          </p>
+          <p className="text-sm text-slate-400">
+            <a
+              href={mailto(CONTATO.privacidade)}
+              className="text-sky-400 hover:underline"
+            >
+              {CONTATO.privacidade}
+            </a>{" "}
+            · direitos do titular:{" "}
+            <a
+              href={mailto(CONTATO.direitos)}
+              className="text-sky-400 hover:underline"
+            >
+              {CONTATO.direitos}
+            </a>
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
           <h2 className="mb-2 text-xl font-bold text-slate-100">📰 Imprensa</h2>
           <p className="mb-3 text-sm leading-relaxed text-slate-400">
             Para entrevistas, dados ou informações sobre o projeto, entre em
             contato pelo e-mail oficial.
           </p>
           <a
-            href="mailto:imprensa@curriculopolitico.org"
+            href={mailto(CONTATO.geral)}
             className="text-sky-400 hover:underline"
           >
-            imprensa@curriculopolitico.org
+            {CONTATO.geral}
           </a>
+        </div>
+
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+          <h2 className="mb-2 text-xl font-bold text-slate-100">
+            🧾 Suporte e Doações
+          </h2>
+          <p className="mb-3 text-sm leading-relaxed text-slate-400">
+            Problemas com a conta, dúvidas de uso e reembolso de doações — que é
+            integral e sem exigência de justificativa em até 7 dias.
+          </p>
+          <p className="text-sm text-slate-400">
+            <a
+              href={mailto(CONTATO.suporte)}
+              className="text-sky-400 hover:underline"
+            >
+              {CONTATO.suporte}
+            </a>{" "}
+            · reembolso:{" "}
+            <a
+              href={mailto(CONTATO.reembolso)}
+              className="text-sky-400 hover:underline"
+            >
+              {CONTATO.reembolso}
+            </a>
+          </p>
         </div>
 
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
@@ -70,10 +123,10 @@ export default function ContatoPage() {
             Encontrou uma vulnerabilidade? Reporte de forma responsável.
           </p>
           <a
-            href="mailto:security@curriculopolitico.org"
+            href={mailto(CONTATO.seguranca)}
             className="text-sky-400 hover:underline"
           >
-            security@curriculopolitico.org
+            {CONTATO.seguranca}
           </a>
         </div>
 
@@ -83,6 +136,7 @@ export default function ContatoPage() {
           </h3>
           <ul className="space-y-1 text-sm text-slate-400">
             <li>• <strong className="text-slate-200">Retificações:</strong> até 72 horas úteis</li>
+            <li>• <strong className="text-slate-200">Direitos do titular (LGPD):</strong> até 15 dias (Art. 19)</li>
             <li>• <strong className="text-slate-200">Imprensa:</strong> até 48 horas úteis</li>
             <li>• <strong className="text-slate-200">Vulnerabilidades:</strong> até 24 horas</li>
             <li>• <strong className="text-slate-200">Colaborações:</strong> revisão em até 7 dias</li>

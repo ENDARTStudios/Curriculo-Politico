@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CONTATO, mailto } from "@/lib/contato";
 
 export const metadata: Metadata = {
   title: "Política de Privacidade — Currículo Político",
@@ -8,9 +9,9 @@ export const metadata: Metadata = {
 };
 
 const CONTROLLER = {
-  nome: "ENDART Studios",
-  email: "contato@curriculopolitico.org",
-  dpo: "dpo@curriculopolitico.org",
+  nome: CONTATO.controlador,
+  email: CONTATO.geral,
+  dpo: CONTATO.privacidade,
 };
 
 const PROVEDORES = [
@@ -46,17 +47,24 @@ export default function PrivacidadePage() {
           <h2 className="mb-3 text-2xl font-bold text-slate-100">1. Identificação do Controlador</h2>
           <div className="rounded-lg bg-slate-800/60 p-4 text-sm text-slate-300">
             <p><strong>Controlador:</strong> {CONTROLLER.nome}</p>
-            <p><strong>Contato institucional:</strong> {CONTROLLER.email}</p>
-            <p><strong>Encarregado de Dados (DPO):</strong> {CONTROLLER.dpo}</p>
-            <p className="mt-2 text-xs text-slate-500">
-              A identificação nominal do encarregado (Resolução CD/ANPD
-              nº 18/2024, Art. 4º) será publicada nesta seção. A
-              identificação empresarial completa (CNPJ, endereço) será
-              adicionada quando a entidade jurídica for formalmente constituída.
+            <p>
+              <strong>Contato institucional:</strong>{" "}
+              <a href={mailto(CONTROLLER.email)} className="text-sky-400 hover:underline">
+                {CONTROLLER.email}
+              </a>
             </p>
-            {/* TODO(lançamento): publicar nome completo do encarregado aqui —
-                exigência da Res. CD/ANPD nº 18/2024. Bloqueado por decisão
-                do controlador (quem assume o papel). */}
+            <p>
+              <strong>Encarregado de Dados (DPO):</strong> {CONTATO.encarregado} —{" "}
+              <a href={mailto(CONTROLLER.dpo)} className="text-sky-400 hover:underline">
+                {CONTROLLER.dpo}
+              </a>
+            </p>
+            <p className="mt-2 text-xs text-slate-500">
+              Encarregado designado nos termos do Art. 41 da LGPD e da Resolução
+              CD/ANPD nº 18/2024, Art. 4º. A identificação empresarial completa
+              (CNPJ e endereço) será adicionada quando a entidade jurídica for
+              formalmente constituída.
+            </p>
           </div>
         </section>
 
@@ -258,7 +266,11 @@ export default function PrivacidadePage() {
             <Link href="/retificacao" className="text-sky-400 hover:underline">
               /retificacao
             </Link>{" "}
-            ou dpo@curriculopolitico.org. Prazo de resposta: 15 dias (Art. 19).
+            ou{" "}
+            <a href={mailto(CONTATO.direitos)} className="text-sky-400 hover:underline">
+              {CONTATO.direitos}
+            </a>
+            . Prazo de resposta: 15 dias (Art. 19).
           </p>
         </section>
 
@@ -360,7 +372,11 @@ export default function PrivacidadePage() {
           <p className="text-sm leading-relaxed text-slate-400">
             O usuário pode solicitar a exclusão de sua conta e de todos os dados
             pessoais vinculados (votos, dados de perfil) a qualquer momento,
-            via dpo@curriculopolitico.org ou /retificacao. A exclusão técnica é
+            via{" "}
+            <a href={mailto(CONTATO.direitos)} className="text-sky-400 hover:underline">
+              {CONTATO.direitos}
+            </a>{" "}
+            ou /retificacao. A exclusão técnica é
             realizada imediatamente ou, no máximo, em 30 dias — ressalvados os
             dados que a lei exija manter.
           </p>

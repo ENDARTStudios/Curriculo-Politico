@@ -2,25 +2,19 @@
  * Snapshot mensal do IDIP para o Rastreamento Temporal (/metodologia).
  * Rodar todo fim de mês (cron); re-execuções são idempotentes.
  *   npm run db:snapshot
+ *
+ * A data do snapshot vem de `monthSnapshotDate()` — ver snapshot-date.ts para
+ * o motivo de não usar mais o último dia do mês no fuso do executor.
  */
 import { PrismaClient } from "@prisma/client";
+import { isoUtcDay, monthSnapshotDate } from "./snapshot-date";
 
 const prisma = new PrismaClient();
 
 async function snapshot() {
-  // Usa o último dia do mês corrente como data do snapshot
-  const now = new Date();
-  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  const snapshotDate = new Date(
-    lastDay.getFullYear(),
-    lastDay.getMonth(),
-    lastDay.getDate(),
-    23, 59, 59,
-  );
+  const snapshotDate = monthSnapshotDate();
 
-  console.log(
-    `📸 Gerando snapshot de ${snapshotDate.toISOString().split("T")[0]}...\n`,
-  );
+  console.log(`📸 Gerando snapshot de ${isoUtcDay(snapshotDate)}...\n`);
 
   // GRAY usa baseline provisório — não vale como histórico
   const scores = await prisma.score.findMany({

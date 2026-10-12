@@ -17,7 +17,7 @@ Abaixo, cada achado e a ação implementada nesta branch. Itens marcados
 | Achado | Ação implementada |
 |---|---|
 | **P1-01** Retificação só `mailto:` | ✅ Backend: `RetificationRequest` (protocolo `RET-AAAA-XXXXXX`), `POST /api/retificacao` + consulta de status (`GET` por protocolo+email); página aberta a **qualquer titular** (agentes, usuários, terceiros) |
-| **P1-02** DPO sem identidade nominal | 🟡 **EXTERNO** — Política declara pendência da publicação do nome (Res. 18/2024, Art. 4º) + `TODO` no código; requer decisão de quem assume o papel. O canal `dpo@` precisa de caixa postal operacional |
+| **P1-02** DPO sem identidade nominal | ✅ **RESOLVIDO em 2026-10-12** — encarregado publicado como **Equipe END ART Studios**, com caixas postais operacionais (`endart.studios+privacidade@gmail.com` para DPO, `+direitos` para o Art. 18, `+security` para incidentes) na Política §1, /lgpd §5, Termos §7.4, /contato e RIPD §5. Os endereços `@curriculopolitico.org` (sem caixa postal ativa) foram substituídos. Risco residual de identificação institucional (não nominal) registrado no RIPD §6.1 |
 | **P1-03** Transferência internacional não comprovada | 🟡 Texto corrigido (SCCs Res. 19/2024; nota de que ADF/DPF **não** equivale a adequação ANPD) + pendência de formalização contratual registrada no RIPD §6. **EXTERNO:** assinatura dos contratos |
 | **P1-04** Clickwrap não implementado | ✅ Checkbox obrigatório de Termos+Privacidade e de maioridade no cadastro; aceite gravado com **versão e data** (`User.termsVersion/At`); fluxo OAuth também grava o aceite no 1º login (`signIn` callback); Termos §1.2 reescrito (browsewrap eliminado) |
 | **P1-05** Cap R$ 1.000 | ✅ Cláusula removida; §6.4 agora remete ao CDC (cláusulas abusivas/adesão) com limitação apenas nos limites legais |
@@ -43,6 +43,9 @@ Abaixo, cada achado e a ação implementada nesta branch. Itens marcados
 
 ## Pendências externas restantes (bloqueiam "concluído" pleno)
 
-1. Nome do encarregado (DPO) a publicar + caixa postal `dpo@` operacional.
+1. ~~Nome do encarregado (DPO) a publicar + caixa postal `dpo@` operacional.~~
+   **Resolvido em 2026-10-12** (ver P1-02 acima).
 2. Contratos Vercel/Sentry com SCCs assinados (anexar evidência ao RIPD §6).
 3. Revisão jurídica humana integral (Termos, Política, RIPD) antes de campanha.
+4. Serviço de e-mail transacional (Resend/SMTP) inexistente — bloqueia
+   verificação de e-mail no cadastro e recuperação de senha (RIPD §6.5).

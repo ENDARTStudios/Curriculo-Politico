@@ -25,7 +25,18 @@ async function medir<T>(fn: () => Promise<T>): Promise<T | null> {
 export default async function StatusPage() {
   const [parlamentares, scores, custoReal, ceap, proposicoes, votos, autorias, presencas, ultimoSnapshot, checagens] =
     await Promise.all([
-      medir(() => prisma.person.count({ where: { externalId: { not: { startsWith: "seed-" } } } })),
+      medir(() =>
+        prisma.person.count({
+          // Exclui apenas dados fictícios de desenvolvimento; OR preserva
+          // registros com externalId nulo (externalId é nullable no schema).
+          where: {
+            OR: [
+              { externalId: null },
+              { externalId: { not: { startsWith: "seed-" } } },
+            ],
+          },
+        }),
+      ),
       medir(() => prisma.score.count()),
       medir(() => prisma.score.count({ where: { costEfficiencyScore: { not: null } } })),
       medir(() => prisma.politicianCost.count({ where: { category: "CEAP", amount: { gt: 0 } } })),

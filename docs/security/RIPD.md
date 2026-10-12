@@ -2,7 +2,7 @@
 
 **Projeto:** Currículo Político (curriculopolitico.org)
 **Controlador:** ENDART Studios (identificação empresarial completa pendente de constituição formal)
-**Versão:** 1.0 · 2026-09-30
+**Versão:** 1.1 · 2026-10-12 (v1.0 em 2026-09-30; v1.1 identifica o encarregado)
 **Referências:** LGPD (Lei 13.709/2018), Res. CD/ANPD nº 2/2022 (alto risco), Guia RIPD/ANPD, Res. CD/ANPD nº 15/2024 (incidentes), Res. CD/ANPD nº 19/2024 (transferência internacional)
 
 ---
@@ -53,10 +53,21 @@ Pela Res. CD/ANPD nº 2/2022, **dados pessoais sensíveis são critério especí
 - **Exclusão de conta:** `DELETE /api/account` (imediata; máximo 30 dias).
 - **Acesso/retificação/correção:** `/retificacao` com protocolo rastreável e consulta de status; prazo Art. 19 (15 dias).
 - **Informação:** Política de Privacidade com Universos A/B separados, tabela de retenção e de transferência internacional.
+- **Encarregado (DPO):** **Equipe END ART Studios** — canal de privacidade
+  `endart.studios+privacidade@gmail.com`; direitos do titular
+  `endart.studios+direitos@gmail.com`; segurança
+  `endart.studios+security@gmail.com`. Publicado na Política §1, em /lgpd §5,
+  nos Termos §7.4 e em /contato.
 
 ## 6. Pendências registradas (com prazo/responsável)
 
-1. **Identidade nominal do DPO** a publicar na Política (Res. CD/ANPD nº 18/2024, Art. 4º) — decisão do controlador; bloqueia lançamento público.
+1. **Identidade do encarregado (DPO)** — ✅ **RESOLVIDO em 2026-10-12.**
+   Publicado institucionalmente como **Equipe END ART Studios**, com caixa
+   postal operacional (`endart.studios+privacidade@gmail.com`), substituindo o
+   endereço `dpo@curriculopolitico.org`, que não tinha caixa postal ativa.
+   *Risco residual:* a identificação é institucional, não de pessoa natural; a
+   ANPD pode exigir, em fiscalização, a indicação nominal do responsável — a
+   decisão do controlador fica registrada aqui.
 2. **Formalização contratual das SCCs** (Res. 19/2024) com Vercel e Sentry — evidência contratual a anexar a este RIPD.
 3. **Revisão jurídica humana** integral deste RIPD, Termos e Política antes de campanha de divulgação.
 4. Revisão deste documento a cada expansão de escala, nova finalidade ou novo processador.

@@ -82,7 +82,41 @@ const CASES: SeedCase[] = [
   },
 ];
 
+/**
+ * Guarda de segurança: o `apps/web/.env` deste repositório aponta para o
+ * Supabase de produção. Este seed insere políticos FICTÍCIOS — se rodar contra
+ * um banco remoto, eles aparecem em /politicos/[id] e nas listagens públicas.
+ * Recusa execução fora de localhost, salvo CP_ALLOW_REMOTE_SEED=1 explícito.
+ */
+function assertLocalDatabase() {
+  const url = process.env.DATABASE_URL ?? "";
+  const isLocal = /@(localhost|127\.0\.0\.1|host\.docker\.internal)[:/]/.test(url);
+
+  if (isLocal) return;
+
+  if (process.env.CP_ALLOW_REMOTE_SEED === "1") {
+    console.warn(
+      "⚠️  CP_ALLOW_REMOTE_SEED=1 — inserindo dados FICTÍCIOS em banco REMOTO.\n",
+    );
+    return;
+  }
+
+  console.error(
+    [
+      "❌ db:seed recusado: DATABASE_URL não aponta para um banco local.",
+      "   Este script cria parlamentares fictícios de desenvolvimento e não",
+      "   deve gravar em produção.",
+      "",
+      "   Banco local:  docker compose up -d db",
+      "   Se for realmente intencional: CP_ALLOW_REMOTE_SEED=1 npm run db:seed",
+    ].join("\n"),
+  );
+  process.exit(1);
+}
+
 async function main() {
+  assertLocalDatabase();
+
   const party = await prisma.party.upsert({
     where: { acronym: PARTY.acronym },
     update: {},

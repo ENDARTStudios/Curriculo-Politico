@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CONTATO } from "@/lib/contato";
 
 export const metadata: Metadata = {
   title: "Termos de Uso — Currículo Político",
@@ -135,7 +136,7 @@ const SECOES = [
       "7.1. O tratamento de dados pessoais de usuários e Agentes Políticos é realizado em conformidade com a LGPD (Lei 13.709/2018), conforme Política de Privacidade disponível em /privacidade.",
       "7.2. Dados de usuários: email, nome opcional, registro de aceites e votos em projetos (dado sensível, apenas com consentimento específico e revogável). Senhas hasheadas com bcrypt. Nenhum dado bancário, endereço ou telefone. Preferências de afinidade permanecem apenas no navegador do usuário (localStorage).",
       "7.3. Dados de Agentes Políticos: exclusivamente dados funcionais e públicos relevantes para o exercício do mandato.",
-      "7.4. Encarregado de Dados (DPO): dpo@curriculopolitico.org.",
+      `7.4. Encarregado de Dados (DPO): ${CONTATO.encarregado} — ${CONTATO.privacidade}.`
     ],
   },
   {

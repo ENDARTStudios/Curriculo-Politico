@@ -30,7 +30,17 @@ export async function GET(request: NextRequest) {
     scores = await prisma.score.findMany({
       where: {
         confidenceScore: { gte: 60 },
-        ...(cargo ? { term: { office: { type: cargo } } } : {}),
+        term: {
+          // Dados fictícios de desenvolvimento (npm run db:seed) nunca entram
+          // no ranking público; externalId nulo é mantido (OR).
+          person: {
+            OR: [
+              { externalId: null },
+              { externalId: { not: { startsWith: "seed-" } } },
+            ],
+          },
+          ...(cargo ? { office: { type: cargo } } : {}),
+        },
       },
       orderBy: { finalScore: "desc" },
       take: limit,

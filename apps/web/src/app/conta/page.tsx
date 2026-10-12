@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ContaAcoes } from "./ContaAcoes";
+import { CONTATO, mailto } from "@/lib/contato";
 
 export const dynamic = "force-dynamic";
 
@@ -174,7 +175,11 @@ export default async function ContaPage() {
         <Link href="/retificacao" className="text-sky-400 hover:underline">
           /retificacao
         </Link>{" "}
-        (com protocolo rastreável) ou escreva para dpo@curriculopolitico.org.
+        (com protocolo rastreável) ou escreva para{" "}
+        <a href={mailto(CONTATO.direitos)} className="text-sky-400 hover:underline">
+          {CONTATO.direitos}
+        </a>
+        .
       </p>
     </main>
   );

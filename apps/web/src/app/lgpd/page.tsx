@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CONTATO, mailto } from "@/lib/contato";
 
 export const metadata: Metadata = {
   title: "LGPD — Currículo Político",
@@ -154,8 +155,14 @@ export default function LGPDPage() {
           </ul>
           <div className="rounded-lg bg-slate-800/60 p-4">
             <p className="text-sm text-slate-400">
+              <strong className="text-slate-300">Encarregado:</strong>{" "}
+              {CONTATO.encarregado}
+            </p>
+            <p className="text-sm text-slate-400">
               <strong className="text-slate-300">Contato do DPO:</strong>{" "}
-              dpo@curriculopolitico.org
+              <a href={mailto(CONTATO.privacidade)} className="text-sky-400 hover:underline">
+                {CONTATO.privacidade}
+              </a>
             </p>
           </div>
         </section>

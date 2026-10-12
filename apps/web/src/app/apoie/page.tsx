@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CONTATO, mailto } from "@/lib/contato";
 
 export const metadata: Metadata = {
   title: "Apoie o Currículo Político",
@@ -128,6 +129,16 @@ export default function ApoiePage() {
         <p className="mt-3 text-xs italic text-slate-500">
           A prestação de contas pública será publicada nesta página conforme o
           projeto receber doações.
+        </p>
+        <p className="mt-3 text-xs leading-relaxed text-slate-500">
+          Doação não é compra de serviço: não há contrapartida, vantagem ou
+          influência sobre notas, rankings ou conteúdo editorial. Desistiu ou
+          doou por engano? Escreva para{" "}
+          <a href={mailto(CONTATO.reembolso)} className="text-sky-400 hover:underline">
+            {CONTATO.reembolso}
+          </a>{" "}
+          dentro de 7 dias — o reembolso integral é feito sem exigência de
+          justificativa.
         </p>
       </div>
     </main>

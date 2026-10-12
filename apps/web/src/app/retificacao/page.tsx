@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CONTATO, mailto } from "@/lib/contato";
 
 /**
  * Canal de retificação e direitos do titular (LGPD Art. 18) — com backend:
@@ -239,7 +240,11 @@ export default function RetificacaoPage() {
             Os dados deste formulário (nome, e-mail e conteúdo da solicitação)
             são tratados exclusivamente para responder ao pedido, com base no
             Art. 18 da LGPD, e mantidos pelo prazo de resposta e eventual
-            auditoria. Canal alternativo: dpo@curriculopolitico.org.
+            auditoria. Canal alternativo:{" "}
+            <a href={mailto(CONTATO.direitos)} className="text-sky-400 hover:underline">
+              {CONTATO.direitos}
+            </a>
+            .
           </p>
         </form>
       )}
