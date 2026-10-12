@@ -504,11 +504,32 @@ internacional, art. 33) — desligar armazenamento de mensagens no Resend e usar
 
 ## 10. Roadmap priorizado
 
-### Agora — 1 dia, US$ 0 (risco baixo, ganho alto)
+### ✅ Aplicado em 2026-10-12 (commit `780e941`)
 
-1. `regions: ["gru1"]` no `apps/web/vercel.json` + redeploy (**R1**).
-2. `DATABASE_URL` → 6543 com `pgbouncer=true&connection_limit=1` (**R3**).
-3. `next` → 15.5.27 (**R11**).
+| Item | O que foi feito | Resultado medido |
+|---|---|---|
+| **R1** | `apps/web/vercel.json` com `regions: ["gru1"]` | Funções saíram de `iad1` (Washington) para **`gru1` (São Paulo)**, co-localizadas com o banco |
+| **R3** | `DATABASE_URL` de produção → pooler em **transaction mode (6543)** com `pgbouncer=true&connection_limit=1`; `directUrl` (5432) adicionado ao schema e às envs | Pool de 15 clientes deixa de ser o gargalo; `prisma migrate` preservado pela conexão direta |
+| **R11** | `next` 15.5.0 → **15.5.27** | Corrige GHSA-4jqv-mc3x-m676 e GHSA-mcj8-r9mp-w47p (`< 15.5.27`) |
+
+**`/ranking` em produção, 10 requisições:**
+
+| | min | p50 | max | média |
+|---|---|---|---|---|
+| Antes | 1.563 ms | 1.625 ms | 2.621 ms | **1.740 ms** |
+| Depois | 290 ms | 496 ms | 1.244 ms | **572 ms** |
+
+**Queda de 67% na média e 69% na mediana**, sem mudar uma linha de código de aplicação — só
+região, pool e versão. As 20 rotas testadas respondem 200 e os dados seguem íntegros
+(594 parlamentares, 509 no ranking, snapshot de outubro/2026).
+
+> **Nota de validação:** o pooler em transaction mode foi testado **antes** de ir a produção —
+> primeiro com o Prisma isolado, depois rodando a aplicação inteira localmente contra a 6543
+> (`/ranking` 638 ms, `/partidos` 258 ms, `/projetos` 671 ms, todas as rotas 200) e só então
+> trocando a variável na Vercel. Nenhuma janela de indisponibilidade.
+
+### Agora — o que resta do bloco original (US$ 0)
+
 4. Sentry DSN (**R9**).
 5. Corrigir a linha de backup no RIPD (**R4**, parte documental).
 
