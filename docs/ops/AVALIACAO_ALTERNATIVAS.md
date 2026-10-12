@@ -87,11 +87,14 @@ dependem de dados não podem ser pré-renderizadas no build.
 | Teste do pooler em **transaction mode (6543)** com Prisma deste projeto | **funciona** — `count` 688 ms (vs 3.995 ms), ranking 163 ms, `$transaction([...])` OK |
 
 > **Correção importante de premissa.** O `pool_size: 15` **não é um teto do plano gratuito** — é um
-> **valor padrão configurável** no painel (Connection pooling → Database Settings). O teto real do
-> compute Nano (Free) é **60 conexões diretas / 200 via pooler**. Isso significa que existe uma
-> segunda mitigação gratuita (elevar o `pool_size` para ~40) e que o 15 era apenas um default mal
-> dimensionado para serverless. A correção estrutural continua sendo o transaction pooler; elevar
-> o `pool_size` é paliativo útil.
+> **valor padrão configurável** no painel (Connection pooling → Database Settings). Confirmado na
+> documentação oficial: *"You can change how many database connections Supavisor can manage by
+> altering the pool size"*, com a regra de comprometer até **80% do `max_connections`** ao pool
+> (40% se usar PostgREST intensivamente). O teto do compute Nano (Free) é de **60 conexões diretas
+> / 200 via pooler** (doc de solução de problemas de conexão do Supabase). Isso significa que
+> existe uma **segunda mitigação gratuita** — elevar o `pool_size` para ~40 — e que o 15 era
+> apenas um default mal dimensionado para serverless. A correção estrutural continua sendo o
+> transaction pooler; elevar o `pool_size` é paliativo útil.
 
 ### 2.5 Dados e volume
 
