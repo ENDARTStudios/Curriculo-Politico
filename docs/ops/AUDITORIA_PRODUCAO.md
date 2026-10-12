@@ -48,8 +48,19 @@ manual (`npx vercel --prod` executado de `apps/web`: `a6t5cvlm7` e `pa4ah9vn4`,
 03/10). O commit `256c96d` teve o deployment Git em `Error` (`5qtrqo0b2`) e
 qualquer push novo em `main` falharia.
 
-**Correção (12/10).** `PATCH /v9/projects/<projeto> { "rootDirectory": "apps/web" }`.
-O deploy por push em `main` foi reexecutado e concluído com sucesso.
+**Correção (12/10).** `PATCH /v9/projects/<projeto> { "rootDirectory": "apps/web" }`
+— o projeto agora aponta para o diretório real da aplicação, alinhado ao
+`apps/web/.vercelignore` e ao `package.json` autocontido.
+
+> ⚠️ **Verificação pendente de plataforma.** Em 2026-10-12 a Vercel estava em
+> **incidente parcial de build/deploy** ("Increased build and deployment
+> failures", investigado às 13:35 UTC, em monitoramento a partir das 19:56 UTC).
+> Na janela do incidente, **todo** deployment novo — por Git e por CLI, em
+> qualquer configuração — retornava `Resource provisioning failed`, inclusive
+> reexecuções do commit corrigido. A correção de Root Directory está aplicada,
+> mas a reexecução do pipeline por push precisa ser confirmada após o
+> incidente encerrar. Produção permaneceu no último deployment íntegro
+> (`pa4ah9vn4`), sem interrupção de serviço.
 
 ### 0.3 Snapshot mensal — datação corrigida
 
@@ -75,6 +86,14 @@ normalizados:
 
 Reexecução verificada: `npm run db:snapshot` → 0 criados (idempotente);
 `verify-snapshot.ts` → 509 snapshots para `2026-10-01`. Sem datas futuras.
+
+**Exibição também corrigida.** A data canônica é meia-noite UTC; formatar com o
+fuso local empurra `2026-10-01T00:00:00Z` para 30/09 em qualquer fuso a oeste de
+Greenwich — `/status` exibia "setembro de 2026" para o snapshot de outubro
+quando renderizado em BRT. O novo `apps/web/src/lib/snapshot.ts` fixa
+`timeZone: "UTC"` em toda formatação de snapshot (`/status`, `TimelineChart` de
+`/politicos/[id]`, `PartyPerformanceChart` de `/partidos/[acronym]`), e
+`/metodologia` documenta a regra de datação.
 
 ### 0.4 `/ranking` — paginação
 
