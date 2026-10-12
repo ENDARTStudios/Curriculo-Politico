@@ -517,9 +517,9 @@ internacional, art. 33) — desligar armazenamento de mensagens no Resend e usar
 | | min | p50 | max | média |
 |---|---|---|---|---|
 | Antes | 1.563 ms | 1.625 ms | 2.621 ms | **1.740 ms** |
-| Depois | 290 ms | 496 ms | 1.244 ms | **572 ms** |
+| Depois (após aquecer o cache de borda) | **238 ms** | **328 ms** | 661 ms | **354 ms** |
 
-**Queda de 67% na média e 69% na mediana**, sem mudar uma linha de código de aplicação — só
+**Queda de 80% na média e 80% na mediana**, sem mudar uma linha de código de aplicação — só
 região, pool e versão. As 20 rotas testadas respondem 200 e os dados seguem íntegros
 (594 parlamentares, 509 no ranking, snapshot de outubro/2026).
 

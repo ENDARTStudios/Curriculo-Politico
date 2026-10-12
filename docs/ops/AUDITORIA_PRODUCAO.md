@@ -188,9 +188,9 @@ Vercel.
    | | min | p50 | máx | média |
    |---|---|---|---|---|
    | Antes | 1.563 ms | 1.625 ms | 2.621 ms | **1.740 ms** |
-   | Depois | 290 ms | 496 ms | 1.244 ms | **572 ms** |
+   | Depois (após aquecer) | **238 ms** | **328 ms** | 661 ms | **354 ms** |
 
-   **Queda de 67% na média e 69% na mediana**, sem alterar código de aplicação.
+   **Queda de 80% na média e na mediana**, sem alterar código de aplicação.
 
    **Correção de premissa:** o `pool_size: 15` **não** é teto do plano gratuito, e sim um
    **default configurável** no painel (teto do compute Nano: 60 conexões diretas / 200 via pooler).
