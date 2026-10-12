@@ -4,7 +4,13 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  // DATABASE_URL: conexão de runtime. Em produção aponta para o pooler Supabase em
+  // TRANSACTION mode (porta 6543, com ?pgbouncer=true&connection_limit=1) — serverless
+  // não deve usar session mode, que limita a 15 clientes e derruba o site em deploy.
+  url = env("DATABASE_URL")
+  // DIRECT_URL: conexão direta (porta 5432) para `prisma migrate`/`db push`, que NÃO
+  // funcionam em transaction mode. Também é a conexão usada pelos ETLs de carga.
+  directUrl = env("DIRECT_URL")
 }
 
 enum ReliabilityStatus {
