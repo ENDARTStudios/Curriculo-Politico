@@ -60,6 +60,10 @@ Confirmado na documentação oficial: a cota de egress é **unificada** entre se
 estourada no Free, a organização entra em período de graça e depois é **restrita**. Backups
 manuais pelo pooler **também contam** como egress.
 
+**Nuance que muda a prioridade:** o consumo **não vem só das visitas ao site** — cada `createMany`
+em lote e cada dump do ETL rodando da máquina local também contam. O egress é o recurso escasso
+do projeto, mais que as conexões.
+
 ### 2.3 Cache: tudo que é dinâmico bate no banco sempre
 
 | Rota | `x-vercel-cache` | `cache-control` |
@@ -78,9 +82,16 @@ dependem de dados não podem ser pré-renderizadas no build.
 |---|---|
 | Erro capturado | `FATAL: (EMAXCONNSESSION) max clients reached in session mode - pool_size: 15` |
 | Pooler em uso | Session mode, porta **5432** |
-| `connection_limit` no `prisma.ts` | **ausente** |
+| `connection_limit` no `prisma.ts` | **ausente** — o padrão do Prisma é `num_cpus × 2 + 1`, ou seja, cada instância abre várias conexões |
 | Efeito real | HTTP **500/503 por 1–2 min** em páginas dinâmicas após deploys |
 | Teste do pooler em **transaction mode (6543)** com Prisma deste projeto | **funciona** — `count` 688 ms (vs 3.995 ms), ranking 163 ms, `$transaction([...])` OK |
+
+> **Correção importante de premissa.** O `pool_size: 15` **não é um teto do plano gratuito** — é um
+> **valor padrão configurável** no painel (Connection pooling → Database Settings). O teto real do
+> compute Nano (Free) é **60 conexões diretas / 200 via pooler**. Isso significa que existe uma
+> segunda mitigação gratuita (elevar o `pool_size` para ~40) e que o 15 era apenas um default mal
+> dimensionado para serverless. A correção estrutural continua sendo o transaction pooler; elevar
+> o `pool_size` é paliativo útil.
 
 ### 2.5 Dados e volume
 
@@ -154,25 +165,45 @@ mais rápido no primeiro acesso**. Logo, a recomendação é segura e não exige
 
 ### 3.2 Alternativas
 
-| Opção | Custo/mês | Região BR | Egress/limite | Esforço | Risco |
+| Opção | Custo/mês | Região BR | Modelo de conexão | Esforço | Risco |
 |---|---|---|---|---|---|
-| **Supabase Free + transaction pooler + cache** (recomendado agora) | **US$ 0** | ✅ sa-east-1 | **5 GB** — teto real | 30 min | Baixo. Egress é o teto |
-| **Supabase Pro** | **US$ 25** | ✅ sa-east-1 | 250 GB | 15 min | Baixo. É a saída natural do teto |
-| Neon | ver plano | ✅ (AWS São Paulo) | generoso no free | médio (driver/URL) | pooling próprio; migração de schema simples |
-| Railway / Render / Fly.io | ~US$ 5–20 | parcial | varia | médio | menos previsível que Supabase |
-| Postgres em VPS (Hetzner + Coolify) | ~US$ 5–10 | ❌ (EUA/UE) | ilimitado | alto | **você opera backup, patch e HA**; LGPD/residência piora |
-| Cloudflare Hyperdrive + Postgres | baixo | ❌ | — | alto | muda a plataforma de execução |
+| **Supabase Free + transaction pooler + cache** (recomendado agora) | **US$ 0** | ✅ sa-east-1 | Supavisor transaction (6543); teto real do Nano: **60 diretas / 200 pooler** | Nenhum (só `DATABASE_URL`/`directUrl`) | Baixo. O teto é **egress**, não conexão |
+| **Supabase Pro** (gatilho de egress) | **US$ 25** | ✅ sa-east-1 | idem | Nenhum | Muito baixo. 250 GB egress, backup 7 dias, sem pausa |
+| Neon | **não confirmado** | ✅ (AWS São Paulo) | PgBouncer gerenciado + adapter Prisma documentado | Baixo | Preço/limites não verificados |
+| **Railway** | US$ 5 (mínimo de uso) | ❌ **nenhuma região de compute no Brasil** — o "Olá, São Paulo" do changelog é **CDN, não compute** | PgBouncer **desligado por padrão**; 20 conexões de servidor por réplica | Baixo-médio | **Alto para LGPD** (banco fora do Brasil); cobra RAM ociosa |
+| **Cloudflare Hyperdrive + Postgres** | US$ 5 (Workers Paid) | ❌ (região "Brazil" só em add-on enterprise) | Transaction pooling | — | **Inviável nesta arquitetura:** a connection string *"only accessible from your Worker"* → **não funciona na Vercel**; free limita a 100 mil statements/dia (conta INSERT/DDL) → inviável para o ETL |
+| **Turso / libSQL** | não confirmado | não confirmado | libSQL, **não é PostgreSQL** | **Alto** — troca de dialeto, reescreve schema | Perde enums e recursos do Postgres |
+| VPS própria (Hetzner + Coolify) | não confirmado | ❌ Hetzner não tem datacenter no Brasil | Postgres + PgBouncer que **você** opera | Alto (operação, não schema) | **Piora a residência LGPD** e transfere backup, patch e HA para você |
+| Prisma Accelerate | não confirmado | — | Proxy de pooling/cache | Baixo | **Desnecessário** — o Supavisor já faz pooling |
+| Render / Fly.io / PlanetScale | **não confirmado** | — | — | — | Não verificados nesta rodada |
 
-> Preços de Neon/Railway/Render/Fly não foram confirmados em fonte oficial nesta rodada —
-> **não confirmado**. As duas linhas que importam (Free e Pro do Supabase) estão confirmadas.
+> Preços de Neon, Render, Fly.io, PlanetScale e Hetzner **não foram confirmados em fonte
+> oficial** nesta rodada — marcados como tal em vez de estimados. As duas linhas que decidem
+> (Free e Pro do Supabase) estão confirmadas.
+
+**O argumento econômico central:** o custo de trocar é US$ 0 e o de sair do teto é **US$ 25**.
+Nenhuma alternativa verificada entrega **região em São Paulo + backup + zero operação** por menos
+que isso. Migrar de provedor para economizar US$ 25 — perdendo a residência no Brasil — é
+economicamente ruim.
 
 ### 3.3 Recomendação
 
 1. **Agora (US$ 0):** `DATABASE_URL` de produção → porta **6543** com
-   `?pgbouncer=true&connection_limit=1`. Manter `directUrl` (ou uma variável separada) na 5432
-   para `prisma migrate`, que **não** funciona em transaction mode.
-2. **Gatilho para o Pro:** quando o egress mensal passar de ~4 GB ou o egress for restringido.
+   `?pgbouncer=true&connection_limit=1&connect_timeout=30`.
+2. **Adicionar `directUrl`** no `datasource` do Prisma apontando para a 5432. **`prisma migrate`
+   não funciona em transaction mode** — sem `directUrl`, as migrações quebram. O Prisma documenta
+   exatamente esse par `DATABASE_URL` (pooled) / `directUrl` (direta) para Supabase e Neon.
+3. **Elevar o `pool_size` do Supavisor** de 15 para ~40 (o teto do Nano é 200) — paliativo
+   barato que também reduz o risco enquanto o cache não existe.
+4. **Separar ETL de runtime:** o ETL continua na 5432 com `connection_limit=1`, fora de pico e
+   com `createMany` em blocos (o `apps/pipeline/README.md` já prescreve isso). Nunca a mesma
+   credencial/limite do runtime.
+5. **Validar antes de considerar resolvido:** repetir o teste de pooler **em produção** e
+   confirmar que um deploy sob tráfego não gera mais 500/503 (reprodução exata da dor original).
+6. **Gatilho para o Pro:** quando o egress mensal passar de **~4 GB** ou o egress for restringido.
    US$ 25 compra 250 GB, backup diário de 7 dias e fim da pausa por inatividade.
+7. **Instrumentar o egress como recurso escasso:** descobrir quanto do consumo vem de página
+   pública e quanto vem do ETL local. Sem esse número, não há decisão econômica defensável.
 
 ---
 
