@@ -163,6 +163,33 @@ Vercel.
 3. **SCCs** de Vercel/Sentry não assinados (P1-03).
 4. **Revisão jurídica humana** de Termos, Política de Privacidade e RIPD antes de
    campanha.
+5. **Pool de conexões do banco — fragilidade em deploy (novo, 2026-10-12).**
+   Logo após publicar duas vezes seguidas (CLI + Git), páginas dinâmicas passaram
+   a responder **HTTP 500** por ~1–2 min. Causa exata capturada no erro do
+   Prisma:
+
+   ```
+   FATAL: (EMAXCONNSESSION) max clients reached in session mode
+   - max clients are limited to pool_size: 15
+   ```
+
+   O `DATABASE_URL` aponta para o **pooler Supabase em session mode**
+   (`aws-0-sa-east-1.pooler.supabase.com:5432`), limitado a **15 clientes**, e o
+   [`prisma.ts`](../../apps/web/src/lib/prisma.ts) não define
+   `connection_limit`. Cada instância serverless nova abre conexões próprias —
+   dois deploys em sequência somam instâncias suficientes para esgotar o pool, e
+   a instabilidade do pooler é a mesma que interrompeu as cargas em §3.
+
+   **Recomendação (não aplicada — altera runtime de produção):** usar o
+   **transaction pooler** na porta **6543** com
+   `?pgbouncer=true&connection_limit=1` no `DATABASE_URL` de produção (padrão
+   Supabase + Prisma para serverless). O código é compatível: a única
+   transação existente é em lote
+   ([`api/consent/route.ts`](../../apps/web/src/app/api/consent/route.ts#L50),
+   `$transaction([...])`), suportada em transaction mode — não há transação
+   interativa. Os scripts de carga longa (`db:load-*`) podem continuar na
+   5432/direta. Alternativa mínima: manter a 5432 e apenas reduzir a pressão com
+   `?connection_limit=1`.
 
 ---
 
