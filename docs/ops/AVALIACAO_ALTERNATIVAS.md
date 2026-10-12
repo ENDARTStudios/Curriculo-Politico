@@ -270,42 +270,93 @@ A sondagem (§2.9) mostra **CDN do TSE e Querido Diário respondendo 200**. O te
 
 ### 7.2 A descoberta que destrava a Integridade (25% do IDIP)
 
-Durante esta avaliação foram **baixados e verificados** conjuntos oficiais que cobrem exatamente
-o que falta para `LegalRecord`:
+**Existe API pública, sem autenticação, do TCU**, com dados que a metodologia exige. Verificado
+por requisição direta em 12/10/2026, host `https://certidoes.apps.tcu.gov.br`, `POST` com corpo
+`{}` e **sem chave**:
 
-| Conjunto | Registros | Colunas-chave |
+| Endpoint (`POST`) | Registros | Conteúdo |
 |---|---|---|
-| TCU — **contas julgadas irregulares** | **47.980 linhas** (10,6 MB) | `Nome`, `CPF/CNPJ`, `UF`, `Município`, `Processo`, `Link do processo`, `Acórdãos`, **`Trânsito em julgado`** |
-| TCU — responsáveis **inidôneos** | 128 | inclui `Data final da sanção` |
-| TCU — responsáveis **inabilitados** | 781 | inclui `Data final da sanção` |
-| Portal da Transparência — **OpenAPI com 109 endpoints** | — | **`/ceis`**, **`/cnep`**, **`/ceaf`**, **`/peps`**, `/acordos-leniencia`, `/servidores` |
-| TSE — candidaturas **2026** | **21.013** (Dep. Federal 7.803) | eleição de **04/10/2026**, dados gerados em 11/10/2026 |
+| `/api/publico/responsaveis-contas-irregulares/exportar-para-csv?paginaAtual=1&tamanhoPagina=100000` | **47.978** | CADIRREG histórico |
+| `/api/publico/responsaveis-inidoneos/exportar-para-csv?...` | 127 | inidôneos |
+| `/api/publico/responsaveis-inabilitados/exportar-para-csv?...` | 780 | inabilitados |
+| `/api/publico/responsaveis-fins-eleitorais/exportar-para-csv?...&anoEleicao=2026` | **9.201** | Lista Eleitoral 2026 |
 
-O arquivo de contas irregulares tem **a coluna que a metodologia exige**: `Trânsito em julgado`.
-É o que separa "réu" de "condenação transitada em julgado" — a trava de integridade só pode
-disparar com decisão definitiva, conforme a Constituição do projeto.
+Colunas do CADIRREG: `Nome | CPF/CNPJ | UF | Município | Processo | Link do processo |
+Acórdãos | Trânsito em julgado`. Versões JSON paginadas trazem também o número do acórdão.
+Dados brutos preservados em `data/raw/tcu/` (gitignored).
 
-### 7.3 Como usar isso com segurança (procedimento proposto)
+**O achado decisivo para a promessa de presunção de inocência:** as quatro listas são, **por
+construção, apenas de decisões com trânsito em julgado** — o TCU exclui decisões não transitadas,
+arquivamentos terminativos, condenados só em multa e decisões anuladas ou suspensas. Ou seja: a
+trava de integridade pode ser aplicada **sem julgamento editorial caso a caso**, que é
+exatamente o que a metodologia exige.
 
-1. **Não armazenar CPF** (Constituição do projeto proíbe). O `LegalRecord` não tem campo de CPF —
-   usar CPF **apenas em memória** para casar, descartando antes de gravar.
-2. **Casar por CPF quando possível** (é o único identificador confiável) e, na ausência,
-   **nome normalizado + UF**, sempre com **fila de revisão humana** para média confiança — o
-   projeto já tem `resolve-identity.ts` com esse fluxo.
-3. Só aplicar **trava** onde `Trânsito em julgado` estiver preenchido; o resto vira registro
-   informativo com a linguagem jurídica estrita já adotada.
-4. **Fonte citada por linha** (`sourceUrl` do processo no TCU) — requisito de auditabilidade.
-5. Registrar a operação no RIPD (dados de natureza jurídica sobre pessoas identificadas).
+**Periodicidade:** a Lista Eleitoral de 2026 foi publicada em 04/08/2026 e é **atualizada
+diariamente até 18/12/2026** — nomes **entram e saem**. O ETL precisa **remover** quem saiu, não
+apenas inserir; e o cadastro histórico é de atualização contínua.
 
-**Isto não foi executado** — é recomendação. Carregar registros judiciais reais sobre pessoas
-nomeadas afeta reputação e exige decisão explícita do controlador, além de revisão humana dos
-matches por homônimo.
+**Armadilhas registradas:** `tamanhoPagina` é ignorado (é sempre *full dump*); encoding
+**Latin-1 com BOM**; `sep=|` na primeira linha e cabeçalho na segunda; o campo `Município` é o
+domicílio **residencial da Receita Federal**, não o eleitoral (não serve como sinal forte de
+identidade); não há SLA formal (é a API do front-end, não documentada) → **salvar o CSV bruto +
+SHA-256 por data** como prova de auditoria.
 
-### 7.4 Oportunidade de calendário
+### 7.3 Hipóteses descartadas por verificação
 
-A eleição foi em **04/10/2026** (há 8 dias) e há um turno em disputa. Os dados de candidaturas
-2026 já estão públicos. A plataforma ainda reflete a composição anterior — há uma janela clara
-de relevância editorial em incorporar o resultado eleitoral.
+| Hipótese inicial | Resultado da verificação |
+|---|---|
+| "Resolver o STF pelo CNJ DataJud" | **Descartada.** O alias `api_publica_stf` **não existe** (HTTP 404) — o STF não está no DataJud. Pior: o DataJud **não devolve nome de parte, advogado ou CPF**, só metadados do processo. **Valor para identificar parlamentar ≈ zero** |
+| "Usar o Corte Aberta do STF" | **Descartada para este fim.** O domínio antigo não resolve (NXDOMAIN); o painel atual é agregado (acervo, decisões, tempo de tramitação) **sem recorte por parlamentar** e depende de engine Qlik. O portal bloqueia automação (403) |
+| "Certidão do TCU automatizada" | **Descartada.** A emissão exige captcha (HTTP 412). As **listas** são automatizáveis; a **certidão** não |
+| "Querido Diário inutilizável" | **Parcialmente incorreta.** O host responde (301); neste ambiente houve falha de TLS — vale re-testar antes de descartar |
+
+**Conclusão do STF:** o caminho é **LAI/e-SIC** (Fala.BR, prazo de 20 + 10 dias) pedindo o rol de
+AP/Inq contra parlamentares. Não há atalho técnico — e insistir em scraping do portal do STF só
+gera 403 e risco jurídico.
+
+### 7.4 Portal da Transparência: chave gratuita e o que rende
+
+Spec OpenAPI completa e pública em `https://api.portaldatransparencia.gov.br/v3/api-docs`
+(109 rotas). Autenticação por header `chave-api-dados`; **a chave é gratuita** e obtida em
+`portaldatransparencia.gov.br/api-de-dados/cadastrar-email` — **o cadastro precisa ser feito no
+navegador** (há verificação humana). Endpoints úteis: `/ceis`, `/cnep`, `/ceaf`,
+`/acordos-leniencia`, `/peps` e `/servidores`.
+
+Os parâmetros aceitam busca por **`nomeSancionado`** — ou seja, **dá para consultar sem CPF**.
+Cobertura são sanções **federais** e atingem majoritariamente **pessoas jurídicas**, então o
+rendimento direto sobre parlamentares pessoa física é baixo; o valor real é flagrar
+**parlamentar sócio de empresa sancionada**.
+
+### 7.5 Como casar com os 594 parlamentares sem armazenar CPF
+
+A chave do problema: o projeto proíbe armazenar CPF, e as listas do TCU expõem CPF. Mas a
+**API da Câmara também expõe o CPF do deputado** (verificado:
+`GET dadosabertos.camara.leg.br/api/v2/deputados/{id}` → campo `cpf`). Isso permite:
+
+| Nível | Método | Qualidade | Veredito |
+|---|---|---|---|
+| **A** | **CPF efêmero, nunca persistido**: monta o índice em memória, faz o join exato, **descarta o CPF antes de gravar**. Persiste só `matched`, `matchMethod`, `matchScore`, `sourceUrl`, processo/acórdão/trânsito | **Determinística** | **Recomendado** |
+| B | Impressão não reversível: nome normalizado + nascimento + UF (TSE) | Boa, não determinística | Alternativa |
+| C | Só nome + UF | Fraca | **Último recurso, nunca pontuando** |
+
+**Risco de homônimos é o maior risco jurídico do projeto:** o CADIRREG tem 28.559 pessoas
+distintas, com muitos nomes comuns. Mitigações obrigatórias: exigir **≥ 2 atributos
+independentes** concordantes; limiar alto (≥ 0,95 automático, 0,88–0,95 para **revisão humana**);
+**nome isolado nunca pontua**; tolerar falso negativo em vez de falso positivo; canal de
+retificação (LGPD art. 18) e histórico de correções; `soft delete` para quem sai da lista.
+Linguagem jurídica estrita já adotada no projeto.
+
+**Expectativa realista:** o público dessas listas é majoritariamente municipal. O cruzamento com
+594 parlamentares federais deve gerar **poucos matches** — isso é resultado legítimo, não falha.
+Para dar densidade à dimensão, somar CEIS/CNEP por `nomeSancionado` e, se houver apetite, a LAI
+ao STF.
+
+### 7.6 Oportunidade de calendário
+
+A eleição foi em **04/10/2026** (há 8 dias) e há turno em disputa. Os dados de candidaturas 2026
+já estão públicos (`consulta_cand_2026.zip`, 21.013 registros) e a **Lista Eleitoral do TCU é
+atualizada diariamente até a diplomação (18/12/2026)**. A plataforma ainda reflete a composição
+anterior — há uma janela clara de relevância editorial.
 
 ---
 
