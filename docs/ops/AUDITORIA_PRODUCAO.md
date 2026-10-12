@@ -28,7 +28,7 @@ banco em 2026-10-12:
 | VerifiedClaim | — | **13** |
 | LegalRecord | — | **0** ⚠️ (ver §0.6) |
 
-### 0.2 Deploy automático da Vercel — estava quebrado 🔴 → corrigido
+### 0.2 Deploy automático da Vercel — Root Directory corrigido; publicação ainda bloqueada por integração 🔴
 
 **Sintoma.** O deployment por Git de `main` falhava *depois* de um build Next.js
 íntegro:
@@ -52,15 +52,32 @@ qualquer push novo em `main` falharia.
 — o projeto agora aponta para o diretório real da aplicação, alinhado ao
 `apps/web/.vercelignore` e ao `package.json` autocontido.
 
-> ⚠️ **Verificação pendente de plataforma.** Em 2026-10-12 a Vercel estava em
-> **incidente parcial de build/deploy** ("Increased build and deployment
-> failures", investigado às 13:35 UTC, em monitoramento a partir das 19:56 UTC).
-> Na janela do incidente, **todo** deployment novo — por Git e por CLI, em
-> qualquer configuração — retornava `Resource provisioning failed`, inclusive
-> reexecuções do commit corrigido. A correção de Root Directory está aplicada,
-> mas a reexecução do pipeline por push precisa ser confirmada após o
-> incidente encerrar. Produção permaneceu no último deployment íntegro
-> (`pa4ah9vn4`), sem interrupção de serviço.
+> ⚠️ **Segundo bloqueio, independente e ainda aberto (12/10).** Com o Root
+> Directory corrigido, a verificação do deploy revelou **outra** falha, de
+> natureza externa: o deployment é criado e falha em **~0,7 s** com
+> `Resource provisioning failed` (`errorCode: BUILD_FAILED`), antes de qualquer
+> log de build. Investigação:
+>
+> | Evidência | Resultado |
+> |---|---|
+> | `integrations` do deployment | `{"status":"error"}` — contra `{"status":"ready"}` no último deploy íntegro (`46TKRzo`) |
+> | Mesmo commit, Git **e** CLI | falham igualmente (não é o tipo de deploy) |
+> | Com e sem `rootDirectory` | falham igualmente (não é o Root Directory) |
+> | Projetos irmãos do time (`media-rate`, `almanaque-dos-clubes`), **mesmo padrão `rootDirectory=apps/web`** | implantam com sucesso hoje (17:15–17:21) |
+> | `media-rate` | `integrations: null` |
+> | Incidente Vercel "Increased build and deployment failures" (13:35–20:11 UTC) | resolvido, mas a falha persiste depois disso |
+>
+> **Conclusão:** o projeto tem instalada a integração de marketplace **Supabase**
+> (`icfg_7Nph5H6cNiIJ59SlYbamdoQb`, instalada em 29/09), e é o webhook de
+> provisionamento dessa integração que está retornando erro — bloqueando
+> qualquer deployment do projeto, com qualquer origem e configuração.
+> **Ação necessária (fora do repositório):** no painel da Vercel, reconectar/
+> reautorizar a integração Supabase do projeto
+> (*Integrations → Supabase → Manage → reconectar o projeto*), ou abrir chamado
+> no suporte Vercel citando o id do deployment e `integrations.status: error`.
+> Enquanto isso, produção permanece no último deployment íntegro (`pa4ah9vn4`),
+> sem interrupção de serviço — **as correções deste commit estão em `main`, mas
+> ainda não publicadas**.
 
 ### 0.3 Snapshot mensal — datação corrigida
 
