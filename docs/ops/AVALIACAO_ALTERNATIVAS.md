@@ -15,7 +15,7 @@ repositório, sondagem das fontes oficiais e consulta a documentação oficial d
 | # | Decisão recomendada | Custo | Esforço | Resolve |
 |---|---|---|---|---|
 | **R1** | Rodar as funções na **região `gru1` (São Paulo)**, co-localizadas com o banco | US$ 0 | 10 min | Latência de todas as páginas dinâmicas |
-| **R2** | **Cache/read model** para as páginas que hoje são `force-dynamic` | US$ 0 | 1–2 dias | Latência **e** o gargalo de egress |
+| **R2** | **Read model + `unstable_cache`** nas páginas hoje `force-dynamic` (**não** `use cache`, que é experimental no Next 15 e não sobrevive a deploy) | US$ 0 | 1–2 dias | Latência **e** o gargalo de egress |
 | **R3** | **Transaction pooler (6543)** + `connection_limit=1` | US$ 0 | 30 min | Queda de 500/503 a cada deploy |
 | **R4** | **Backup real** (`pg_dump` semanal para storage privado) | US$ 0 | 2 h | Perda total de dados + afirmação incorreta no RIPD |
 | **R5** | **Supabase Pro** quando houver tráfego real | US$ 25/mês | 15 min | Egress 5→250 GB, backup diário, sem pausa |
@@ -241,31 +241,54 @@ Ou seja: a página `/apoie` **não** torna o projeto comercial. **Vira comercial
 anúncios, link de afiliado como propósito principal, venda de produto/serviço, ou pagamento a
 alguém para criar/manter o site. **Esse é o gatilho documentado para migrar de plano.**
 
-Limites do Hobby relevantes: 100 GB de transferência, 1M invocações, **4 CPU-hrs**, 100
-deploys/dia, **logs de runtime de apenas 1 hora**, sem suporte por e-mail. Middleware em Edge
+Limites do Hobby relevantes: 100 GB de transferência, 10 GB de origem, 1M invocações, **4 CPU-hrs**,
+100 deploys/dia, **logs de runtime de apenas 1 hora**, sem suporte por e-mail. Middleware em Edge
 tem teto de fair use de **50 ms de CPU em média** — relevante porque o middleware atual faz
 verificação de JWT (`getToken`) e roda em **todas** as rotas.
+
+**O limite mais duro do Hobby não é comercial, é de cron:** cron na Vercel roda **apenas 1× por
+dia**, e uma expressão mais frequente **faz o deploy falhar** (`Hobby accounts are limited to
+daily cron jobs`). Consequência prática: **manter os crons no GitHub Actions não é gambiarra — é
+a decisão correta**, e qualquer plano de "cron na Vercel atualizando o read model de hora em hora"
+é impossível neste plano. O `monthly-snapshot.yml` e o `production-smoke.yml` já estão no lugar
+certo.
+
+**E o risco real de estouro:** o Hobby **não tem pay-as-you-go** — ao estourar uma cota,
+*"you will have to wait until 30 days have passed before you can use the feature again"*. Isso
+eleva bastante a aposta do teto de egress (§2.2): não é uma conta inesperada, é **um mês de
+plataforma parada**. É o argumento mais forte para cache (R2) e para instrumentar o consumo.
 
 ### 5.2 A correção mais barata: região
 
 A Vercel permite **escolher a região única** no Hobby (`regions: ["gru1"]` no `vercel.json`, ou
-Settings → Functions). Com o banco em `sa-east-1`, rodar em `gru1` (São Paulo) elimina a
-travessia do continente em cada query. **Custo zero, sem mudança de código, reversível.**
+Settings → Functions) — confirmado no changelog oficial *"Hobby customers can now select their
+preferred region for Serverless Functions"* e na tabela de limites do plano (Hobby = região
+única). Com o banco em `sa-east-1`, rodar em `gru1` (São Paulo) elimina a travessia do continente
+em cada query. **Custo zero, sem mudança de código, reversível — e é a melhor relação
+ganho/risco de toda esta avaliação.**
 
 ### 5.3 Alternativas de plataforma
 
-| Opção | Custo estimado | Next.js 15 App Router + middleware + Prisma | Migração | Risco |
+| Opção | Custo estimado | Next.js 15 + middleware + Prisma | Migração | Risco |
 |---|---|---|---|---|
-| **Vercel Hobby (atual)** | US$ 0 | nativo | — | logs de 1 h; teto de CPU no middleware |
-| Vercel Pro | US$ 20/usuário + uso | nativo | 0 | custo fixo para projeto sem receita |
-| Cloudflare Workers/Pages (OpenNext) | faixa gratuita generosa | **parcial** — adaptador, nem tudo é suportado | alto | reescrever bordas; Prisma precisa de driver HTTP |
-| Netlify / Railway / Render | US$ 0–20 | bom | médio | ecossistema menor para App Router |
-| VPS + Coolify/Dokploy | US$ 5–10 | você opera | alto | vira sysadmin: deploy, TLS, backup, patch |
+| **Vercel Hobby (atual)** | **US$ 0** | nativo | — | cron 1×/dia; logs de 1 h; teto de CPU no middleware; estouro = 30 dias de espera |
+| **Vercel Pro** (gatilho) | **US$ 20** (fee, com US$ 20 de crédito e Flat Rate CDN de 1 TB + 1M req) | nativo | zero | custo fixo recorrente |
+| Cloudflare Workers + OpenNext | ~US$ 5 | **bom com ressalvas**: exige **client Prisma por request** (singleton falha), não suporta `runtime = "edge"`, ISR precisa de R2 + Durable Object + D1, **ETLs Python não rodam**; piso Next ≥ 15.5.27 | **1–3 dias** | **estratégico**: a Cloudflare passou a recomendar **vinext** (beta) e reposicionou o OpenNext como manutenção → risco de **segunda migração** em 1–2 anos |
+| Railway (Hobby) | US$ 5 + consumo | bom (Next standalone) | baixo-médio | **sem região de compute no Brasil**; egress a US$ 0,05/GB |
+| Render / Fly.io / Netlify / Amplify | não confirmado | parcial | baixo–alto | free do Render **hiberna**; preços não verificados |
+| VPS + Coolify/Dokploy | não confirmado | você opera | alto | vira SRE: TLS, backup, patch, HA, sem SLA |
 
-**Recomendação:** **permanecer no Hobby**, aplicar `gru1` e cache. Migrar para **Pro** apenas no
-gatilho comercial ou de limite. Migrar de plataforma **não** resolve o problema de hoje: o
-gargalo é arquitetural (banco remoto por request), e isso se resolve com cache — não com outro
-hospedeiro.
+**Cloudflare na frente da Vercel:** é **permitido** (Verified Proxy Lite, com `CF-Connecting-IP`),
+mas a Vercel **não recomenda** — a CDN perde visibilidade do tráfego, ataque no proxy vira
+**consumo de cota sua**, e um SSL/TLS em modo *Flexible* gera loop de redirecionamento (só
+*Full (strict)* funciona). Cachear as páginas `force-dynamic` ali **não funciona**: elas saem com
+`no-store` exatamente para não serem cacheadas por intermediários.
+
+**Recomendação:** **permanecer no Hobby**, aplicar `gru1` e cache. Ir para **Pro** no gatilho
+mensurável (transferência > 80 GB, origem > 8 GB, invocações > 800 mil) ou se surgir receita que
+não seja doação. Migrar de plataforma **não** resolve o problema de hoje: o gargalo é arquitetural
+(banco remoto por request) e se resolve com região + cache. O custo de migrar (1–3 dias + risco de
+segunda migração) é maior que os ~US$ 15/mês que se economizaria.
 
 ---
 
@@ -275,22 +298,57 @@ O problema: páginas dinâmicas consultam o Supabase a cada visita, atravessando
 consomem cota de egress proporcional ao tráfego. O conteúdo, porém, **muda quando os scores são
 recalculados** (mensal ou manualmente) — não a cada segundo.
 
-**Solução compatível com o build sem banco** (não quebra o CI):
+### 6.1 A correção técnica que evita perder horas
 
-1. Manter `force-dynamic` e envolver as leituras em **`unstable_cache`** (ou `use cache`) com
-   `revalidate` (ex.: 1 h) e **tags** por domínio (`ranking`, `partidos`, `politico:<id>`).
-2. Após `recalculate-scores`/`db:snapshot`, chamar **`revalidateTag`** por uma rota interna
-   protegida por token — publica a mudança na hora, sem esperar o TTL.
-3. Reduzir o que trafega: a query de `/ranking` já foi enxugada com `select`; o próximo passo é
-   **não buscar 594 linhas por request** — paginar no banco (já há paginação de 100) e cachear.
+Há três crenças comuns sobre cache no Next 15, e **as três estão erradas**:
+
+| Crença | Realidade (documentação oficial) |
+|---|---|
+| "`force-dynamic` desliga todo cache" | **Não.** `force-dynamic` equivale a marcar `fetch()` como `{ cache: 'no-store' }` — é uma afirmação sobre **`fetch`**. O **Data Cache** continua ativo, e `unstable_cache` usa exatamente esse cache: *"persist the result across requests and deployments"* |
+| "Basta `export const revalidate = 3600`" | **Não funciona junto com `force-dynamic`** — são mutuamente exclusivos e `force-dynamic` vence. ISR de rota inteira exigiria remover `force-dynamic`, o que **quebraria o build no CI** (que roda sem banco) |
+| "Usar `use cache`, que é o novo" | **Não no Next 15.** `use cache` só estabilizou no **Next 16** (flag `cacheComponents`); no 15 é experimental. Pior para o nosso caso: a chave de cache **inclui o Build ID**, então as entradas **não sobrevivem a um deploy** — a própria doc orienta `unstable_cache` para dados que precisam persistir entre deploys |
+
+**Conclusão:** a brecha é **`unstable_cache` dentro de uma rota `force-dynamic`**. Isso mantém o
+build sem banco (CI intacto) e tira o banco do caminho crítico ao mesmo tempo.
+
+### 6.2 Estratégia em três camadas — sem Redis e sem trocar de plataforma
+
+1. **Read model materializado.** O ETL (que roda localmente/Actions) grava o ranking já pronto:
+   tabela `ranking_snapshot` ou JSON versionado no repositório. Transforma a agregação de 594
+   linhas em um `SELECT` de uma linha — ou em **zero** consultas, se o JSON for servido do
+   repositório.
+2. **`unstable_cache` na leitura.** Um wrapper único (`lib/data.ts`) por consulta, com **tags**
+   por domínio (`ranking`, `partidos`, `politico:<id>`) e `revalidate` longo. Uma ida ao banco por
+   janela, não por request.
+3. **Invalidação dirigida pelo GitHub Actions.** Ao final do ETL, o workflow chama um Route
+   Handler protegido por secret que executa `revalidateTag`. Isso contorna a limitação de cron do
+   Hobby (§5.2) e mantém o dado fresco em minutos, não em 24 h.
+
+**Cuidados que evitam bugs silenciosos:**
+- `revalidate` precisa ser **estaticamente analisável** (`3600` funciona; `60 * 60` não).
+- `unstable_cache` **não pode** chamar `cookies()`/`headers()` por dentro — leia fora e passe como
+  argumento (o valor entra na chave de cache).
+- A rota de revalidação **sem secret é vetor de DoS** — qualquer um força revalidação infinita.
+- Não usar `NEXT_PUBLIC_` no secret de revalidação.
+
+**Por que não Redis (Upstash) agora:** cabe no gratuito (500 mil comandos/mês) e é a resposta
+certa quando houver várias instâncias compartilhando cache — mas adiciona um serviço, um ponto de
+falha, uma região a mais (latência contra sa-east-1) e mais uma camada de invalidação para manter
+coerente. `unstable_cache` resolve o mesmo problema dentro da Vercel. **Redis não entra nesta
+fase.**
+
+**Sobre avalanche de requisições:** ISR e `unstable_cache` usam *stale-while-revalidate* — quem
+chega depois do vencimento recebe a versão anterior e a regeneração acontece em segundo plano,
+sem avalanche de queries. Um TTL simples de Redis faz o oposto (todos os requests concorrentes
+erram ao mesmo tempo). O header `x-nextjs-cache` (`HIT`/`STALE`/`MISS`/`REVALIDATED`) permite
+medir o efeito real.
 
 **Ganho esperado:** `/ranking` sai de ~1,7 s para dezenas de ms e o egress da rota cai a
-praticamente zero no regime de cache — resolvendo simultaneamente a latência (§2.1) e o teto de
-egress (§2.2). Isso é o que permite continuar no plano gratuito com tráfego real.
+praticamente zero no regime de cache — resolvendo **ao mesmo tempo** a latência (§2.1) e o teto de
+egress (§2.2). É isso que permite continuar no plano gratuito com tráfego real.
 
-**Alternativa complementar:** read model materializado (tabela `RankingCache` ou JSON gerado no
-pipeline mensal e servido do edge). Ganho parecido, mas exige mais código e um passo de
-invalidação — começar pelo cache de dados, que é menor e reversível.
+**Ordem por ganho/risco:** região (minutos) → read model (1 dia) → `unstable_cache` (1 dia) →
+invalidação (meio dia).
 
 ---
 
