@@ -110,8 +110,10 @@ export default async function StatusPage() {
 
       <p className="mt-4 text-xs leading-relaxed text-slate-500">
         Monitoramento externo de uptime é executado por serviço independente
-        (UptimeRobot). Fontes bloqueadas no momento: TCU, STF, CDN do TSE e
-        Querido Diário — pipelines prontos para reexecução.
+        (UptimeRobot). Câmara, Senado, TSE e Querido Diário estão acessíveis —
+        seus pipelines podem ser reexecutados a qualquer momento. A coleta
+        jurídica segue pendente: as listas públicas do TCU já foram localizadas,
+        e o STF não expõe dados abertos automatizáveis (depende de pedido via LAI).
       </p>
     </main>
   );

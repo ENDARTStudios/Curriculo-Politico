@@ -78,9 +78,9 @@ const FONTES_STATUS = [
   { fonte: "Proposições de autoria (Câmara)", status: "ativa", detalhe: "50 mil autorias, últimas 100 por deputado" },
   { fonte: "Presença em Sessões Deliberativas (Câmara)", status: "ativa", detalhe: "apenas-positivos (API não registra ausências)" },
   { fonte: "Cadastro (Câmara/Senado)", status: "ativa", detalhe: "nome, partido, UF, foto, mandato" },
-  { fonte: "Receitas de campanha (TSE)", status: "pendente", detalhe: "aguardando acesso ao CDN do TSE" },
+  { fonte: "Receitas de campanha (TSE)", status: "ativa", detalhe: "CDN do TSE acessível (verificado em 12/10/2026)" },
   { fonte: "Despesas e cota parlamentar (Câmara)", status: "pendente", detalhe: "dimensiona Custo/Benefício e Transparência" },
-  { fonte: "Registros jurídicos (STF/STJ/TSE/CNJ)", status: "pendente", detalhe: "alimenta Integridade e as travas reais" },
+  { fonte: "Registros jurídicos (TCU/STF/CNJ)", status: "pendente", detalhe: "alimenta Integridade e as travas reais — listas do TCU são públicas; o STF depende de pedido via LAI" },
 ];
 
 export default function MetodologiaPage() {
@@ -472,7 +472,7 @@ export default function MetodologiaPage() {
               </thead>
               <tbody className="text-slate-400">
                 {[
-                  ["Integridade", "25%", "⚪ baseline — ativa com fontes judiciais (TCU/STF, hoje bloqueadas)"],
+                  ["Integridade", "25%", "⚪ baseline — ativa com fontes judiciais; listas do TCU são públicas, o STF depende de LAI"],
                   ["Produção", "18%", "✅ medida — autorias reais (50k+)"],
                   ["Aprovação", "15%", "⚪ baseline — requer tramitação de proposições"],
                   ["Fiscalização", "10%", "⚪ baseline — requer pedidos/inquéritos estruturados"],
