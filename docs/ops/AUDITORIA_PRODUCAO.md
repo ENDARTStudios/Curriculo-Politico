@@ -28,7 +28,7 @@ banco em 2026-10-12:
 | VerifiedClaim | — | **13** |
 | LegalRecord | — | **0** ⚠️ (ver §0.6) |
 
-### 0.2 Deploy automático da Vercel — Root Directory corrigido; publicação ainda bloqueada por integração 🔴
+### 0.2 Deploy automático da Vercel — Root Directory e integração suspensa, ambos resolvidos ✅
 
 **Sintoma.** O deployment por Git de `main` falhava *depois* de um build Next.js
 íntegro:
@@ -52,32 +52,39 @@ qualquer push novo em `main` falharia.
 — o projeto agora aponta para o diretório real da aplicação, alinhado ao
 `apps/web/.vercelignore` e ao `package.json` autocontido.
 
-> ⚠️ **Segundo bloqueio, independente e ainda aberto (12/10).** Com o Root
-> Directory corrigido, a verificação do deploy revelou **outra** falha, de
-> natureza externa: o deployment é criado e falha em **~0,7 s** com
+> ✅ **Segundo bloqueio, independente — diagnosticado e resolvido (12/10).**
+> Com o Root Directory corrigido, a verificação do deploy revelou **outra**
+> falha: o deployment era criado e falhava em **~0,7 s** com
 > `Resource provisioning failed` (`errorCode: BUILD_FAILED`), antes de qualquer
 > log de build. Investigação:
 >
 > | Evidência | Resultado |
 > |---|---|
 > | `integrations` do deployment | `{"status":"error"}` — contra `{"status":"ready"}` no último deploy íntegro (`46TKRzo`) |
-> | Mesmo commit, Git **e** CLI | falham igualmente (não é o tipo de deploy) |
-> | Com e sem `rootDirectory` | falham igualmente (não é o Root Directory) |
-> | Projetos irmãos do time (`media-rate`, `almanaque-dos-clubes`), **mesmo padrão `rootDirectory=apps/web`** | implantam com sucesso hoje (17:15–17:21) |
+> | Mesmo commit, Git **e** CLI | falhavam igualmente (não era o tipo de deploy) |
+> | Com e sem `rootDirectory` | falhavam igualmente (não era o Root Directory) |
+> | Projetos irmãos do time (`media-rate`, `almanaque-dos-clubes`), **mesmo padrão `rootDirectory=apps/web`** | implantavam com sucesso no mesmo horário |
 > | `media-rate` | `integrations: null` |
-> | Incidente Vercel "Increased build and deployment failures" (13:35–20:11 UTC) | resolvido, mas a falha persiste depois disso |
+> | Incidente Vercel "Increased build and deployment failures" (13:35–20:11 UTC) | resolvido, mas a falha persistia depois disso |
+> | `vercel integration list curriculo-politico` | **recurso `supabase-curriculo-politico` (`store_gEQUMEo790M6LY97`) com status `Suspended`** |
+> | Variáveis de ambiente do projeto | **23 manuais, 0 geridas pela integração** (`configurationId` ausente em todas, inclusive `DATABASE_URL`) — o app não lê nenhuma `SUPABASE_*`/`POSTGRES_*` |
+> | Projeto Supabase `rwglxjovfhfnycgceubp` | `ACTIVE_HEALTHY`, `person.count = 594` — banco íntegro e em uso |
 >
-> **Conclusão:** o projeto tem instalada a integração de marketplace **Supabase**
-> (`icfg_7Nph5H6cNiIJ59SlYbamdoQb`, instalada em 29/09), e é o webhook de
-> provisionamento dessa integração que está retornando erro — bloqueando
-> qualquer deployment do projeto, com qualquer origem e configuração.
-> **Ação necessária (fora do repositório):** no painel da Vercel, reconectar/
-> reautorizar a integração Supabase do projeto
-> (*Integrations → Supabase → Manage → reconectar o projeto*), ou abrir chamado
-> no suporte Vercel citando o id do deployment e `integrations.status: error`.
-> Enquanto isso, produção permanece no último deployment íntegro (`pa4ah9vn4`),
-> sem interrupção de serviço — **as correções deste commit estão em `main`, mas
-> ainda não publicadas**.
+> **Causa raiz:** o recurso da integração Supabase vinculado ao projeto estava
+> **suspenso**; todo deployment tentava provisioná-lo, falhava no webhook
+> (`integrations.status: error`) e era abortado antes do build — em qualquer
+> origem e com qualquer configuração de projeto.
+>
+> **Correção (12/10):**
+> `vercel integration resource disconnect supabase-curriculo-politico curriculo-politico`.
+> Ação sem impacto funcional — a integração não injetava nenhuma variável
+> (todas as 23 são manuais), o app não consome `SUPABASE_*`/`POSTGRES_*` e o
+> projeto Supabase e seus dados não são afetados. É **reversível**:
+> `vercel integration resource connect supabase-curriculo-politico curriculo-politico`
+> (requer o recurso ativo no painel *Stores*).
+>
+> **Resultado:** deployment publicado (`f1eftiacn`, 2 min, `Ready`) e promovido
+> para `www.curriculopolitico.org`. As correções das §0.3 a §0.6 estão **no ar**.
 
 ### 0.3 Snapshot mensal — datação corrigida
 
@@ -117,7 +124,8 @@ quando renderizado em BRT. O novo `apps/web/src/lib/snapshot.ts` fixa
 1,5 MB / ~3,1 s → **100 linhas por página** (`?pagina=N`) e aba própria para os
 85 parlamentares com confiança < 60 (`?grupo=insuficientes`), antes renderizados
 na mesma tabela de 594 linhas. A ordem e a semântica (último mandato, último
-score, corte de confiança em 60) não mudaram.
+score, corte de confiança em 60) não mudaram. Medido em produção após a
+publicação: **1.506 KB → 270 KB** (82% menos), com `/ranking?pagina=6` em 43 KB.
 
 ### 0.5 Higiene de dados fictícios
 
