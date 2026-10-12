@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { mesAnoSnapshot } from "@/lib/snapshot";
 
 export const dynamic = "force-dynamic";
 
@@ -63,7 +64,7 @@ export default async function StatusPage() {
     {
       rotulo: "Último snapshot mensal",
       valor: ultimoSnapshot
-        ? ultimoSnapshot.snapshotDate.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })
+        ? mesAnoSnapshot(ultimoSnapshot.snapshotDate)
         : "ainda sem snapshot",
     },
     { rotulo: "Checagens de agências", valor: checagens !== null ? checagens.toLocaleString("pt-BR") : null },

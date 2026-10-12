@@ -1,6 +1,7 @@
 "use client";
 
 import type { ScoreSnapshot } from "@prisma/client";
+import { diaSnapshot, mesAbrevSnapshot, mesCurtoSnapshot } from "@/lib/snapshot";
 
 interface TimelineChartProps {
   snapshots: ScoreSnapshot[];
@@ -35,8 +36,7 @@ export function TimelineChart({ snapshots }: TimelineChartProps) {
   const chartHeight = 200;
   const chartWidth = Math.max(ordered.length * 60, 420);
   const plotWidth = chartWidth - 50;
-  const fmtMes = (d: Date) =>
-    d.toLocaleDateString("pt-BR", { month: "short", year: "numeric" }).replace(". de ", "/");
+  const fmtMes = (d: Date) => mesCurtoSnapshot(d);
 
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
@@ -109,10 +109,10 @@ export function TimelineChart({ snapshots }: TimelineChartProps) {
                   textAnchor="middle"
                   className="fill-slate-500 text-[10px]"
                 >
-                  {new Date(s.snapshotDate).toLocaleDateString("pt-BR", { month: "short" })}
+                  {mesAbrevSnapshot(s.snapshotDate)}
                 </text>
                 <title>
-                  {new Date(s.snapshotDate).toLocaleDateString("pt-BR")}:{" "}
+                  {diaSnapshot(s.snapshotDate)}:{" "}
                   {s.finalScore.toFixed(1)} (confiança {s.confidenceScore.toFixed(0)}%)
                 </title>
               </g>

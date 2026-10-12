@@ -414,8 +414,10 @@ export default function MetodologiaPage() {
             Cada político com score ativo tem um gráfico de linha com a
             evolução da nota — snapshots mensais coletados automaticamente
             (cron do GitHub Actions no dia 1º de cada mês) desde o bootstrap
-            de setembro de 2026. Parlamentares fora do ranking (sem dados
-            suficientes) ainda não acumulam snapshots.
+            de setembro de 2026. Cada ponto é datado pelo <strong>primeiro dia
+            do mês de referência, em UTC</strong> — rótulo estável e
+            independente de fuso horário. Parlamentares fora do ranking (sem
+            dados suficientes) ainda não acumulam snapshots.
           </p>
           <div className="grid gap-4 md:grid-cols-2">
             <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4">

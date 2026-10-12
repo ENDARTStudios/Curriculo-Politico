@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { chaveDiaSnapshot } from "@/lib/snapshot";
 import { Termometro } from "@/components/Termometro";
 import { IdeologyBadge } from "@/components/IdeologyBadge";
 import {
@@ -46,7 +47,7 @@ export default async function PartidoPage({ params }: Props) {
 
   const porData = new Map<string, { scores: number[]; date: Date }>();
   for (const s of snapshots) {
-    const key = s.snapshotDate.toISOString().slice(0, 10);
+    const key = chaveDiaSnapshot(s.snapshotDate);
     const acc = porData.get(key) ?? { scores: [], date: s.snapshotDate };
     acc.scores.push(s.finalScore);
     porData.set(key, acc);

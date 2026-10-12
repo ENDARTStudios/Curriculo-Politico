@@ -1,5 +1,7 @@
 "use client";
 
+import { mesCurtoSnapshot } from "@/lib/snapshot";
+
 export interface SnapshotPoint {
   date: string;
   avgScore: number;
@@ -35,8 +37,7 @@ export function PartyPerformanceChart({
   const chartWidth = Math.max(ordered.length * 80, 400);
   const plotWidth = chartWidth - 50;
   const cor = partyColor || "#0ea5e9";
-  const fmt = (d: string | Date) =>
-    new Date(d).toLocaleDateString("pt-BR", { month: "short", year: "numeric" });
+  const fmt = (d: string | Date) => mesCurtoSnapshot(d);
 
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
