@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Currículo Político">
+  <title>Currículo Político</title>
+  <!--
+    Marca do projeto. Sem asset de marca existente no repositório, este ícone
+    foi desenhado para o que o produto é: um ranking de desempenho.
+
+    A leitura é um gráfico de barras ascendente (o ranking) completado por um
+    "check" na base de cada barra (a verificação em dados públicos). Os vãos
+    entre as barras formam o próprio check, então não há dois símbolos
+    competindo.
+
+    Duas cores só: fundo escuro da marca (slate-950, igual ao do body) e o
+    acento sky da interface, para o ícone não parecer de outro produto. O
+    traço claro de 20px de largura cria uma faixa que evita o problema clássico
+    de favicon — desaparecer quando a barra de abas é escura.
+  -->
+  <rect width="32" height="32" rx="7" fill="#020618"/>
+  <rect x="4" y="3" width="8" height="20" rx="2" fill="#00a6f4"/>
+  <rect x="14" y="3" width="8" height="26" rx="2" fill="#00a6f4"/>
+  <rect x="24" y="3" width="4" height="11" rx="2" fill="#00a6f4"/>
+  <rect x="3" y="9.5" width="26" height="12" fill="none" stroke="#f1f5f9" stroke-width="2.5" stroke-linecap="square"/>
+</svg>
