@@ -8,7 +8,7 @@ import Image from "next/image";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Ranking Personalizado por Afinidade — Currículo Político",
+  title: "Ranking Personalizado por Afinidade",
 };
 
 interface Props {

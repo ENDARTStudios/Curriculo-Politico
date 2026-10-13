@@ -1,9 +1,18 @@
+import type { Metadata } from "next";
 import type { ReliabilityStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { Termometro } from "@/components/Termometro";
 import { LegalDisclaimer } from "@/components/LegalDisclaimer";
 import Image from "next/image";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Ranking IDIP",
+  description:
+    "Ranking completo de políticos brasileiros pela nota IDIP, com o Termômetro de Confiabilidade ao lado de cada nota. Metodologia aberta e auditável.",
+  alternates: { canonical: "/ranking" },
+};
+
 
 export const dynamic = "force-dynamic";
 

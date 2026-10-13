@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Supremo Tribunal Federal — Currículo Político",
+  title: "Supremo Tribunal Federal",
   description:
     "Estrutura do IDIP-STF: pontuação objetiva dos ministros por produtividade jurídica, consistência, transparência e celeridade.",
 };

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Metodologia IDIP — Currículo Político",
+  title: "Metodologia IDIP",
   description:
     "Como o IDIP é calculado: 5 pilares, pesos por cargo, travas de integridade, termômetro de confiabilidade, neutralidade algorítmica e a fórmula de confiança dos dados.",
 };

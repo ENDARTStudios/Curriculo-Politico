@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Política de Cookies — Currículo Político",
+  title: "Política de Cookies",
   description:
     "Cookies que o Currículo Político utiliza: essenciais de sessão e armazenamento local de preferências. Sem rastreadores de terceiros.",
 };

@@ -1,7 +1,16 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { IdeologyBadge } from "@/components/IdeologyBadge";
 import Link from "next/link";
 import type { ReliabilityStatus } from "@prisma/client";
+
+export const metadata: Metadata = {
+  title: "Partidos",
+  description:
+    "Desempenho agregado dos partidos brasileiros: nota IDIP média, parlamentares avaliados e distribuição do Termômetro de Confiabilidade.",
+  alternates: { canonical: "/partidos" },
+};
+
 
 export const dynamic = "force-dynamic";
 

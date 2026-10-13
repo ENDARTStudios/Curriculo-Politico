@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Ranking Histórico — Currículo Político",
+  title: "Ranking Histórico",
   description:
     "Avaliação educacional de figuras históricas da política brasileira por legado institucional, estabilidade democrática e fatos documentados, com critérios adaptados por era.",
 };

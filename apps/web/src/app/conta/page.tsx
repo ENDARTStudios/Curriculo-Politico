@@ -9,7 +9,7 @@ import { CONTATO, mailto } from "@/lib/contato";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Minha Conta — Currículo Político",
+  title: "Minha Conta",
   robots: { index: false },
 };
 

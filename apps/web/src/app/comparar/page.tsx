@@ -1,5 +1,14 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { ComparacaoCards } from "@/components/ComparacaoCards";
+
+export const metadata: Metadata = {
+  title: "Comparar",
+  description:
+    "Compare dois políticos lado a lado: nota IDIP por dimensão, Termômetro de Confiabilidade, presença, produção legislativa e custo.",
+  alternates: { canonical: "/comparar" },
+};
+
 
 export const dynamic = "force-dynamic";
 

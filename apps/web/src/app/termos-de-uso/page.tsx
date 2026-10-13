@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { CONTATO } from "@/lib/contato";
 
 export const metadata: Metadata = {
-  title: "Termos de Uso — Currículo Político",
+  title: "Termos de Uso",
   description:
     "Termos de Uso do Currículo Político: aceitação, definições, natureza dos dados, conduta do usuário, responsabilidade, LGPD e foro.",
 };

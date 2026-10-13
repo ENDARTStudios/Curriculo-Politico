@@ -1,8 +1,17 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { ProjetoFilters } from "@/components/ProjetoFilters";
 import type { Prisma } from "@prisma/client";
+
+export const metadata: Metadata = {
+  title: "Projetos de Lei",
+  description:
+    "Proposições legislativas federais com resumo em linguagem simples e o impacto para o cidadão. Filtre por tema, tipo e ano.",
+  alternates: { canonical: "/projetos" },
+};
+
 
 export const dynamic = "force-dynamic";
 

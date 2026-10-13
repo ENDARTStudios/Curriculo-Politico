@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CONTATO, mailto } from "@/lib/contato";
 
 export const metadata: Metadata = {
-  title: "LGPD — Currículo Político",
+  title: "LGPD",
   description:
     "Como o Currículo Político trata dados pessoais em conformidade com a LGPD: dados públicos vs. pessoais, base legal, direitos dos titulares e Encarregado (DPO).",
 };

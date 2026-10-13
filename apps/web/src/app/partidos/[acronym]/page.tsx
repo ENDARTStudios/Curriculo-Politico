@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -14,6 +15,31 @@ export const dynamic = "force-dynamic";
 
 interface Props {
   params: Promise<{ acronym: string }>;
+}
+
+/** Metadata do partido: sigla e nome completo, como as pessoas pesquisam. */
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { acronym: raw } = await params;
+  const acronym = decodeURIComponent(raw);
+  const party = await prisma.party.findUnique({
+    where: { acronym },
+    select: { acronym: true, name: true, ideology: true, position: true },
+  });
+
+  if (!party) return { title: "Partido não encontrado" };
+
+  const perfil = [party.ideology, party.position?.replace(/_/g, " ")]
+    .filter(Boolean)
+    .join(" · ");
+
+  return {
+    title: `${party.acronym} — ${party.name}`,
+    description:
+      `Desempenho do ${party.name} (${party.acronym}): nota IDIP média dos ` +
+      `parlamentares avaliados e distribuição do Termômetro de Confiabilidade.` +
+      (perfil ? ` ${perfil}.` : ""),
+    alternates: { canonical: `/partidos/${encodeURIComponent(acronym)}` },
+  };
 }
 
 export default async function PartidoPage({ params }: Props) {

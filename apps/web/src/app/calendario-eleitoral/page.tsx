@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Calendário Eleitoral — Currículo Político",
+  title: "Calendário Eleitoral",
   description:
     "Eleições brasileiras: calendário de eleições gerais e municipais, cargos em disputa e regras do sistema eleitoral.",
 };

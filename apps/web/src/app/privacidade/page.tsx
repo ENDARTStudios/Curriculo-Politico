@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CONTATO, mailto } from "@/lib/contato";
 
 export const metadata: Metadata = {
-  title: "Política de Privacidade — Currículo Político",
+  title: "Política de Privacidade",
   description:
     "Política de Privacidade do Currículo Político: tratamento de dados de usuários e agentes públicos, base legal LGPD, direitos do titular, segurança e protocolo de incidentes.",
 };

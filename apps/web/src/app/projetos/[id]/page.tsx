@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -14,6 +15,43 @@ interface Props {
  * Página de um Projeto de Lei: dados da proposição + votação popular
  * (camada de engajamento pessoal, separada do IDIP).
  */
+/**
+ * Metadata da proposição. Usa o resumo em linguagem simples quando existe —
+ * é o texto escrito para o cidadão entender, então é o melhor candidato a
+ * aparecer num resultado de busca.
+ */
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const bill = await prisma.bill.findFirst({
+    where: { OR: [{ id }, { externalId: id }] },
+    select: {
+      title: true,
+      type: true,
+      status: true,
+      simpleSummary: true,
+      citizenImpact: true,
+    },
+  });
+
+  if (!bill) return { title: "Projeto não encontrado" };
+
+  const base =
+    bill.simpleSummary?.trim() ||
+    bill.citizenImpact?.trim() ||
+    `Situação: ${bill.status ?? "não informada"}.`;
+
+  // Descrições de ~150-160 caracteres são o que os buscadores exibem sem
+  // truncar; cortamos no limite de palavra para não terminar no meio.
+  const descricao =
+    base.length > 155 ? `${base.slice(0, 152).replace(/\s+\S*$/, "")}...` : base;
+
+  return {
+    title: bill.title,
+    description: descricao,
+    alternates: { canonical: `/projetos/${id}` },
+  };
+}
+
 export default async function ProjetoPage({ params }: Props) {
   const { id } = await params;
 

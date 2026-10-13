@@ -3,6 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 
+// A metadata desta rota vive em `layout.tsx`: este é um Client Component e o
+// Next proíbe exportar `metadata` daqui.
+
 interface FAQ {
   pergunta: string;
   resposta: React.ReactNode;

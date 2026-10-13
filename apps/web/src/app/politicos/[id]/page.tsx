@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -12,11 +13,62 @@ import { TimelineChart } from "@/components/TimelineChart";
 import { IdeologyBadge } from "@/components/IdeologyBadge";
 import { VerifiedClaims } from "@/components/VerifiedClaims";
 import { PoliticianCost } from "@/components/PoliticianCost";
+import { STATUS_VISUAL } from "@/lib/status-visual";
 
 export const dynamic = "force-dynamic";
 
 interface Props {
   params: Promise<{ id: string }>;
+}
+
+/**
+ * Metadata do perfil. O título usa o nome político porque é exatamente o que a
+ * pessoa digita na busca. A descrição é factual: informa cargo, partido e a
+ * nota auditada, sem adjetivo sobre a pessoa — a plataforma descreve estado,
+ * não emite juízo (ver AGENTS.md, regras de neutralidade).
+ */
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const pessoa = await prisma.person.findFirst({
+    where: { OR: [{ id }, { externalId: id }] },
+    select: {
+      politicalName: true,
+      terms: {
+        orderBy: { startYear: "desc" },
+        take: 1,
+        select: {
+          office: { select: { name: true } },
+          party: { select: { acronym: true } },
+          scores: {
+            orderBy: { calculatedAt: "desc" },
+            take: 1,
+            select: { finalScore: true, reliabilityStatus: true },
+          },
+        },
+      },
+    },
+  });
+
+  if (!pessoa) return { title: "Político não encontrado" };
+
+  const termo = pessoa.terms[0];
+  const nota = termo?.scores[0];
+  const cargo = termo?.office.name;
+  const partido = termo?.party?.acronym;
+
+  const contexto = [cargo, partido].filter(Boolean).join(" · ");
+  const notaTexto = nota
+    ? ` Nota IDIP ${nota.finalScore.toFixed(1)}. ${STATUS_VISUAL[nota.reliabilityStatus].label}.`
+    : "";
+
+  return {
+    title: contexto ? `${pessoa.politicalName} — ${contexto}` : pessoa.politicalName,
+    description:
+      `Votações, proposições, presença e gastos de ${pessoa.politicalName}` +
+      (contexto ? ` (${contexto})` : "") +
+      `.${notaTexto} Dados públicos da Câmara, do Senado e do TSE.`,
+    alternates: { canonical: `/politicos/${id}` },
+  };
 }
 
 export default async function PoliticoPage({ params }: Props) {

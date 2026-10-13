@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CONTATO, mailto } from "@/lib/contato";
 
 export const metadata: Metadata = {
-  title: "Contato — Currículo Político",
+  title: "Contato",
   description:
     "Canais oficiais do Currículo Político: retificação de dados, privacidade e DPO, imprensa, suporte, colaboração open source e segurança.",
 };

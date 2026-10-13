@@ -5,6 +5,10 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { POLITICAL_CONSENT_TEXTO } from "@/lib/consent";
 
+// A metadata desta rota vive em `layout.tsx`: este é um Client Component e o
+// Next proíbe exportar `metadata` daqui.
+
+
 export default function SigninPage() {
   const [modo, setModo] = useState<"login" | "registrar">("login");
   const [email, setEmail] = useState("");

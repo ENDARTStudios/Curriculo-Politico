@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Sobre — Currículo Político",
+  title: "Sobre",
   description:
     "Missão, compromisso ético, fontes de dados e conformidade com a LGPD do Currículo Político.",
 };

@@ -5,7 +5,7 @@ import { mesAnoSnapshot } from "@/lib/snapshot";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Status — Currículo Político",
+  title: "Status",
   description: "Saúde do sistema: volumes de dados, último snapshot e status das fontes.",
 };
 

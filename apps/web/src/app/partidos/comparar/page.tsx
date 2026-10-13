@@ -1,7 +1,16 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { ComparacaoPartidos } from "@/components/ComparacaoPartidos";
 import Link from "next/link";
 import type { ReliabilityStatus } from "@prisma/client";
+
+export const metadata: Metadata = {
+  title: "Comparar Partidos",
+  description:
+    "Compare o desempenho de dois partidos: nota IDIP média, parlamentares avaliados e distribuição do Termômetro.",
+  alternates: { canonical: "/partidos/comparar" },
+};
+
 
 export const dynamic = "force-dynamic";
 

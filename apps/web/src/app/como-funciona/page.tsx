@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Como Funciona a Política Brasileira — Currículo Político",
+  title: "Como Funciona a Política Brasileira",
   description:
     "Entenda os três poderes, as esferas de governo, os sistemas eleitorais e a hierarquia de cargos para avaliar seus representantes com conhecimento de causa.",
 };
