@@ -1,16 +1,51 @@
 # BACKUP_DR — Backup e recuperação de desastre
 
-**Projeto:** Currículo Político · **Data:** 2026-10-12
-**Status:** 🔴 **NÃO EXISTE BACKUP. NÃO EXISTE TESTE DE RESTAURAÇÃO.**
+**Projeto:** Currículo Político · **Data:** 2026-10-12 · **Atualizado:** 2026-10-13
+**Status:** 🟡 **EXISTE BACKUP CONTÍNUO (PITR) — O TESTE DE RESTAURAÇÃO AINDA NÃO FOI FEITO.**
 **Fonte dos números:** [`AVALIACAO_ALTERNATIVAS.md`](./AVALIACAO_ALTERNATIVAS.md) §2.2, §2.5, §2.8, §4, §5.1 (medições de 2026-10-12)
 
-> Este documento tem duas partes: o que **não** existe (§§1–3, que é quase tudo)
-> e o que **precisa ser feito** (§§4–7). A ordem importa: o diagnóstico primeiro,
-> porque a ausência de backup é um achado de conformidade, não só de operação.
+> ## ⚠️ Atualização de 2026-10-13 — o diagnóstico abaixo mudou em parte
+>
+> O diagnóstico original (plano Supabase **Free**) era: *não existe backup algum*.
+> Isso foi resolvido provisionando **Postgres 18 no Railway (plano Pro)** com
+> **point-in-time recovery habilitado e verificado**. Estado medido no momento
+> desta atualização:
+>
+> | Item | Estado verificado |
+> |---|---|
+> | PITR | ✅ `enabled` |
+> | Bucket de arquivamento | ✅ `Bucket wired: yes` |
+> | Archiver de WAL | ✅ `enabled` — último arquivamento `2026-10-13 03:24:11+00` |
+> | Conjuntos de backup | 1 (mais recente `2026-10-13T03:16:07+00:00`) |
+> | Cobertura de WAL | `000000010000000000000001 .. 00000001000000000000000A` |
+> | Restaurável até | `2026-10-13 03:18:52+00:00` |
+> | Agendamento extra | diário (retenção 6 dias), semanal (27 dias), mensal (89 dias) |
+>
+> **Detalhe operacional que quase passou batido:** o PITR aparecia como
+> `enabled` **enquanto o archiver estava `unavailable`** — ou seja, a configuração
+> dizia "ligado" e o WAL não estava sendo arquivado. A causa era a ausência de uma
+> chave SSH **sem passphrase** em `~/.ssh/id_ed25519`, usada pela CLI para checar
+> o estado do arquivador. Só depois de gerar e registrar essa chave o archiver
+> passou a `enabled`. Fica registrado porque "PITR habilitado" **não** prova
+> "backup funcionando": são duas verificações distintas, e a segunda é a que
+> importa.
+>
+> **O que continua pendente e é o item mais grave deste documento:** o **teste de
+> restauração**. Backup nunca restaurado é backup presumido. O procedimento da §4
+> continua válido e deve ser executado; até então, RPO/RTO seguem **não medidos**.
+>
+> As seções §§1–3 abaixo preservam o diagnóstico original do Supabase Free, que
+> motivou a mudança — mantidas porque explicam *por que* a migração aconteceu e
+> servem de referência caso se volte ao Supabase.
+
+> Este documento tem duas partes: o que **não** existia (§§1–3, quando escrito
+> quase tudo) e o que **precisa ser feito** (§§4–7). A ordem importa: o
+> diagnóstico primeiro, porque a ausência de backup é um achado de conformidade,
+> não só de operação.
 
 ---
 
-## 1. O que existe hoje: nada
+## 1. O que existia em 2026-10-12: nada (no Supabase Free)
 
 | Item | Estado | Como foi verificado |
 |---|---|---|
