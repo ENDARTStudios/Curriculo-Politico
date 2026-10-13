@@ -53,18 +53,22 @@ test.describe("Consistência entre UI e motor IDIP @readonly", () => {
     ).toEqual([]);
   });
 
-  test("a home exibe a soma dos pesos dos dois perfis", async ({ page }) => {
+  test("a home exibe a soma dos pesos dos três perfis", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
     // Um conjunto de pesos que não fecha em 100% é defeito de metodologia, e a
     // home mostra a soma de propósito para que isso fique visível.
+    //
+    // São três perfis: Legislativo, Executivo e Judiciário (IDIP-STF). O
+    // Judiciário tem pesos próprios porque ministro do STF é nomeado, não
+    // eleito — as dimensões de mandato não se aplicam.
     //
     // Nota de manutenção: a asserção anterior usava
     // `locator("div").filter({ hasText: /^Legislativo/ })`, que casava com um
     // wrapper externo e não com o cartão — teste frágil que falhava sem haver
     // bug no produto. Aqui ancoramos no texto exato e na contagem de perfis.
     await expect(page.getByText("Como a nota é calculada")).toBeVisible();
-    await expect(page.getByText("Soma dos pesos:")).toHaveCount(2);
+    await expect(page.getByText("Soma dos pesos:")).toHaveCount(3);
     await expect(page.getByText("100%", { exact: false }).first()).toBeVisible();
   });
 });

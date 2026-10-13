@@ -5,6 +5,7 @@ import { carregarNumerosHero } from "@/lib/hero-stats";
 import {
   DIMENSOES_LEGISLATIVO,
   DIMENSOES_EXECUTIVO,
+  DIMENSOES_STF,
   METODOLOGIA_VERSAO,
   NOTA_MAXIMA_TRAVADA,
 } from "@/lib/methodology";
@@ -233,26 +234,22 @@ export default async function Home() {
               dimensoes={DIMENSOES_EXECUTIVO}
             />
             {/*
-              Por que o Judiciário aparece sem pesos, e não com pesos:
+              O Judiciário tem índice PRÓPRIO (IDIP-STF), e os pesos abaixo não
+              são os mesmos do Legislativo de propósito: ministro do STF é
+              nomeado, não eleito, então Aprovação/Campanha/Presença não se
+              aplicam, e o que importa num tribunal constitucional é produção,
+              coerência decisória, publicidade e conduta. Os pesos espelham os
+              campos de `StfScore` no schema — não há dimensão sem onde gravar.
 
-              Há duas razões independentes, e as duas são honestas de dizer.
-              (1) Escopo: o IDIP mede desempenho de quem é eleito e pode ser
-              responsabilizado nas urnas — o que é a pergunta que a plataforma
-              responde. Ministro do STF é nomeado, não eleito.
-              (2) Dados: a base do Judiciário existe no schema (StfJustice,
-              StfCase, StfVote, StfScore) mas está vazia — as decisões são
-              publicadas no DJE sem API consolidada, então o ETL é uma fase
-              própria ainda não construída.
-
-              Inventar uma fórmula para preencher o cartão violaria a regra de
-              que nenhuma regra entra na nota sem estar implementada em
-              scoring.ts. Dizer "não pontuamos (ainda)" custa menos credibilidade
-              do que um número inventado num produto cujo valor é a auditoria.
+              A coleta ainda não existe: as tabelas do STF estão vazias (as
+              decisões saem no DJE sem API consolidada). Os pesos são a
+              metodologia declarada; a nota entra quando o ETL entrar.
             */}
             <PesosCartao
               titulo="Judiciário"
-              descricao="Supremo Tribunal Federal"
-              nota="O IDIP não pontua o Judiciário. Ele mede desempenho de cargos eletivos, sujeitos a responsabilização nas urnas; ministro do STF é nomeado, não eleito. A base de decisões do STF já existe no schema, mas as decisões são publicadas no Diário de Justiça Eletrônico sem API consolidada — por isso a coleta é uma fase própria, ainda não construída, e preferimos declarar esse limite a preencher a lacuna com números."
+              descricao="Ministros do Supremo Tribunal Federal"
+              dimensoes={DIMENSOES_STF}
+              nota="Índice próprio (IDIP-STF), com pesos diferentes do Legislativo: ministro é nomeado, não eleito. A coleta das decisões do STF está em construção — elas são publicadas no Diário de Justiça Eletrônico sem API consolidada — então ainda não há nota publicada."
             />
           </div>
 
@@ -332,7 +329,7 @@ function PesosCartao({
       <h3 className="font-semibold text-slate-100">{titulo}</h3>
       <p className="mt-0.5 text-sm text-slate-400">{descricao}</p>
 
-      {dimensoes ? (
+      {dimensoes && (
         <>
           <ul className="mt-5 space-y-2.5">
             {dimensoes.map((d) => (
@@ -363,10 +360,12 @@ function PesosCartao({
             <span className="font-mono tabular-nums">{soma}%</span>
           </p>
         </>
-      ) : (
-        <div className="mt-5 border-t border-slate-800 pt-4">
+      )}
+
+      {nota && (
+        <div className="mt-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Sem nota IDIP
+            Sem nota publicada
           </p>
           <p className="mt-2 text-sm leading-relaxed text-slate-300">{nota}</p>
         </div>

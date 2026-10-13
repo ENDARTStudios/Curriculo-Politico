@@ -366,6 +366,9 @@ model StfScore {
   productivityScore Float
   consistencyScore  Float
   transparencyScore Float
+  /// IDIP-STF: mesma âncora de 25% do Legislativo/Executivo. Sem este campo o
+  /// peso de Integridade do índice não teria onde ser gravado.
+  integrityScore    Float      @default(50)
   calculatedAt      DateTime   @default(now())
 
   @@unique([justiceId, periodStart])

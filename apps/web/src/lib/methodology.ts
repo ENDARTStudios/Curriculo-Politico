@@ -51,7 +51,9 @@ export type ChaveDimensao =
   | "campaign"
   | "fiscalResponsibility"
   | "governmentDelivery"
-  | "governance";
+  | "governance"
+  // Exclusivas do IDIP-STF (ver DIMENSOES_STF abaixo).
+  | "consistency";
 
 export interface DimensaoMetodologia {
   /** Nome exibido, na ordem em que aparece na metodologia pública. */
@@ -95,6 +97,48 @@ export const DIMENSOES: Record<PerfilAvaliacao, readonly DimensaoMetodologia[]> 
   LEGISLATIVE: DIMENSOES_LEGISLATIVO,
   EXECUTIVE: DIMENSOES_EXECUTIVO,
 };
+
+/* ============================================================================
+   IDIP-STF — ministros do Supremo Tribunal Federal
+   ----------------------------------------------------------------------------
+   Por que o Judiciário precisa de um índice PRÓPRIO, e não de uma linha a mais
+   na tabela do Legislativo:
+
+   O IDIP mede desempenho de quem responde ao eleitor. Ministro do STF é
+   nomeado, não eleito — não há responsabilização nas urnas, e as dimensões que
+   fazem sentido para um mandato (Aprovação, Campanha, Presença em sessão
+   deliberativa) não existem aqui. Aplicar os pesos do Legislativo a um ministro
+   mediria a coisa errada com aparência de rigor.
+
+   O que É mensurável num tribunal constitucional é outra coisa: se ele produz,
+   se decide com coerência, se trabalha à luz do público, e se sua conduta
+   resiste ao escrutínio.
+   ============================================================================ */
+
+/**
+ * Dimensões do IDIP-STF. Espelha `StfScore` em `apps/web/prisma/schema.prisma`
+ * (`integrityScore`, `productivityScore`, `consistencyScore`,
+ * `transparencyScore`) — um peso aqui sem campo correspondente lá seria
+ * metodologia que o banco não consegue honrar.
+ *
+ * **Não existe dimensão de celeridade**, de propósito. A tabela `StfCase` tem
+ * `decisionDate`, mas não tem data de autuação/distribuição; sem o marco
+ * inicial não há como medir tempo até a decisão. A página `/stf` listava
+ * "Celeridade" antes desta definição, mas ela era imensurável com o schema real.
+ */
+export const DIMENSOES_STF: readonly DimensaoMetodologia[] = [
+  { label: "Integridade", key: "integrity", percent: 25 },
+  { label: "Produtividade", key: "productivity", percent: 25 },
+  { label: "Consistência", key: "consistency", percent: 30 },
+  { label: "Transparência", key: "transparency", percent: 20 },
+] as const;
+
+/** Chaves válidas do IDIP-STF. */
+export type ChaveDimensaoStf =
+  | "integrity"
+  | "productivity"
+  | "consistency"
+  | "transparency";
 
 /** Formata o peso como percentual para exibição ("25%"). */
 export function percentual(percent: number): string {
