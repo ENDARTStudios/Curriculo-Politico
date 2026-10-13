@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { consentimentoPoliticoAtivo } from "@/lib/consent";
+import {
+  consentimentoPoliticoAtivo,
+  consentimentoPoliticoDesatualizado,
+} from "@/lib/consent";
 
 export const dynamic = "force-dynamic";
 
@@ -114,6 +117,7 @@ export async function POST(
       createdAt: true,
       politicalConsentAt: true,
       politicalConsentWithdrawnAt: true,
+      politicalConsentVersion: true,
     },
   });
   const accountAge = Date.now() - (user?.createdAt.getTime() ?? 0);
@@ -131,6 +135,20 @@ export async function POST(
   // Gate LGPD (Art. 11): sem consentimento ESPECÍFICO ativo p/ dado
   // sensível (opinião política), a manifestação não é registrada.
   if (!user || !consentimentoPoliticoAtivo(user)) {
+    // Consentimento superado por uma versão nova do texto: exige NOVO aceite, e
+    // o código é distinto para a interface poder pedir o aceite em vez de
+    // parecer que a pessoa nunca consentiu. Os votos já registrados sob a versão
+    // anterior são preservados — foram coletados licitamente.
+    if (user && consentimentoPoliticoDesatualizado(user)) {
+      return NextResponse.json(
+        {
+          error: "CONSENT_OUTDATED",
+          message:
+            "O texto do consentimento para opinião política mudou. É necessário autorizar novamente para continuar registrando seus votos. Seus votos anteriores foram preservados.",
+        },
+        { status: 403 },
+      );
+    }
     return NextResponse.json(
       {
         error: "CONSENT_REQUIRED",
