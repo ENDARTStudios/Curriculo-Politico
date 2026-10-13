@@ -22,6 +22,13 @@ __pycache__/
 .DS_Store
 .vercel
 
+# Estado local do Supabase CLI: guarda apenas a ref do projeto linkado e a versão
+# do binário. É cache por máquina, não configuração do projeto — cada dev linka o
+# seu. O arquivo de configuração do Supabase, se um dia existir, é `config.toml`,
+# que fica fora daqui e pode ser versionado.
+supabase/.temp/
+supabase/.branches/
+
 # Artefatos locais de revisão de UI (capturas do @.design-review/capture.cjs).
 # O script de captura é versionado; as imagens geradas, não — são pesadas e
 # reproduzíveis a qualquer momento pelo próprio script.
