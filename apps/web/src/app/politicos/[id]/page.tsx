@@ -102,8 +102,9 @@ export default async function PoliticoPage({ params }: Props) {
         take: 20,
       },
       legalRecords: {
-        // LGPD / SECURITY_BASELINE.md §3: apenas registros ativos ou
-        // transitados em julgado; arquivados e absolvidos são ocultados.
+        // LGPD / docs/05-security-compliance/COMPLIANCE.md §7: apenas registros
+        // ativos ou transitados em julgado; arquivados e absolvidos são
+        // ocultados. (Citava `SECURITY_BASELINE.md`, que nunca existiu.)
         where: {
           status: { in: ["ATIVO", "TRANSITADO_EM_JULGADO"] },
           type: { not: "CLEARED" },

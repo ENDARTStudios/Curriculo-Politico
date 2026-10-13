@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { bancoIndisponivel } from "@/lib/api-erros";
 import type { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -25,26 +26,32 @@ export async function GET(request: NextRequest) {
     where.date = { gte: new Date(`${y}-01-01`), lte: new Date(`${y}-12-31`) };
   }
 
-  const [bills, total] = await Promise.all([
-    prisma.bill.findMany({
-      where,
-      include: {
-        authorships: { include: { person: true }, take: 3 },
-        _count: { select: { userVotes: true } },
-      },
-      orderBy: { date: "desc" },
-      skip: (page - 1) * limit,
-      take: limit,
-    }),
-    prisma.bill.count({ where }),
-  ]);
+  let bills, total, votacoes;
+  try {
+    [bills, total] = await Promise.all([
+      prisma.bill.findMany({
+        where,
+        include: {
+          authorships: { include: { person: true }, take: 3 },
+          _count: { select: { userVotes: true } },
+        },
+        orderBy: { date: "desc" },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.bill.count({ where }),
+    ]);
 
-  // Contagens de voto popular numa única query (não N queries por página)
-  const votacoes = await prisma.userBillVote.groupBy({
-    by: ["billId", "vote"],
-    where: { billId: { in: bills.map((b) => b.id) } },
-    _count: true,
-  });
+    // Contagens de voto popular numa única query (não N queries por página)
+    votacoes = await prisma.userBillVote.groupBy({
+      by: ["billId", "vote"],
+      where: { billId: { in: bills.map((b) => b.id) } },
+      _count: true,
+    });
+  } catch {
+    return bancoIndisponivel("GET /api/bills");
+  }
+
   const votosPorBill = new Map<string, { favor: number; contra: number }>();
   for (const v of votacoes) {
     const acc = votosPorBill.get(v.billId) ?? { favor: 0, contra: 0 };

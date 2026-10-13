@@ -2,7 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 /**
- * Segurança de borda (SECURITY_BASELINE.md §1):
+ * Segurança de borda — rate limiting por Token Bucket, CSP e headers.
+ *
+ * Controles de segurança com efeito de compliance estão descritos em
+ * `docs/05-security-compliance/COMPLIANCE.md` §9, e as medições de produção
+ * (latência, headers, limite por instância) em
+ * `docs/06-devops-deployment/AUDITORIA_PRODUCAO.md`.
+ *
+ * (O comentário anterior citava `SECURITY_BASELINE.md`, que nunca existiu no
+ * repositório — referência quebrada em 11 arquivos, corrigida em 2026-10-13.)
  *
  * Rate limiting por Token Bucket (permite picos legítimos, recarga contínua):
  * - Tier geral: 60 req/min em /api/* — chave = usuário autenticado (JWT

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { bancoIndisponivel } from "@/lib/api-erros";
 
 export const dynamic = "force-dynamic";
 
@@ -49,13 +50,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch {
-    return NextResponse.json(
-      {
-        error: "BANCO_INDISPONIVEL",
-        message: "Não foi possível acessar o banco de dados. Suba o Postgres com: docker compose up -d db",
-      },
-      { status: 503 },
-    );
+    return bancoIndisponivel("GET /api/rankings");
   }
 
   return NextResponse.json({

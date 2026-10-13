@@ -49,8 +49,11 @@ export async function GET(
     );
   }
 
-  // LGPD / SECURITY_BASELINE.md §3: registros judiciais arquivados ou com
-  // absolvição (CLEARED) são ocultados do perfil público automaticamente.
+  // LGPD / docs/05-security-compliance/COMPLIANCE.md §7: registros judiciais
+  // arquivados ou com absolvição (CLEARED) são ocultados do perfil público
+  // automaticamente — publicar registro não definitivo trataria a pessoa como
+  // culpada antes do trânsito em julgado.
+  // (Citava `SECURITY_BASELINE.md`, arquivo que nunca existiu no repositório.)
   const legalRecords = person.legalRecords
     .filter((record) => record.type !== "CLEARED" && record.status !== "ARQUIVADO")
     .map((record) => ({

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { bancoIndisponivel } from "@/lib/api-erros";
 
 export const dynamic = "force-dynamic";
 
@@ -24,22 +25,27 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const people = await prisma.person.findMany({
-    where: { id: { in: idList } },
-    include: {
-      terms: {
-        orderBy: { startYear: "desc" },
-        take: 1,
-        include: {
-          office: true,
-          party: true,
-          scores: { orderBy: { calculatedAt: "desc" }, take: 1 },
-          _count: { select: { actions: true, sessionAttendances: true } },
+  let people;
+  try {
+    people = await prisma.person.findMany({
+      where: { id: { in: idList } },
+      include: {
+        terms: {
+          orderBy: { startYear: "desc" },
+          take: 1,
+          include: {
+            office: true,
+            party: true,
+            scores: { orderBy: { calculatedAt: "desc" }, take: 1 },
+            _count: { select: { actions: true, sessionAttendances: true } },
+          },
         },
+        _count: { select: { billAuthorships: true } },
       },
-      _count: { select: { billAuthorships: true } },
-    },
-  });
+    });
+  } catch {
+    return bancoIndisponivel("GET /api/compare");
+  }
 
   const resultado = people.map((p) => {
     const term = p.terms[0];

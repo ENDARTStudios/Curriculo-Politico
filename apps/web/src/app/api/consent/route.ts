@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { POLITICAL_CONSENT_VERSION } from "@/lib/consent";
+import { bancoIndisponivel } from "@/lib/api-erros";
 
 export const dynamic = "force-dynamic";
 
@@ -27,15 +28,20 @@ export async function POST() {
     return NextResponse.json({ error: "AUTH_REQUIRED" }, { status: 401 });
   }
 
-  const user = await prisma.user.update({
-    where: { id: userId },
-    data: {
-      politicalConsentVersion: POLITICAL_CONSENT_VERSION,
-      politicalConsentAt: new Date(),
-      politicalConsentWithdrawnAt: null,
-    },
-    select: { politicalConsentAt: true, politicalConsentVersion: true },
-  });
+  let user;
+  try {
+    user = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        politicalConsentVersion: POLITICAL_CONSENT_VERSION,
+        politicalConsentAt: new Date(),
+        politicalConsentWithdrawnAt: null,
+      },
+      select: { politicalConsentAt: true, politicalConsentVersion: true },
+    });
+  } catch {
+    return bancoIndisponivel("POST /api/consent");
+  }
 
   return NextResponse.json({ consented: true, ...user });
 }
@@ -47,14 +53,20 @@ export async function DELETE() {
   }
 
   // Revogação: registra o timestamp e elimina a manifestação sensível
-  const [, user] = await prisma.$transaction([
-    prisma.userBillVote.deleteMany({ where: { userId } }),
-    prisma.user.update({
-      where: { id: userId },
-      data: { politicalConsentWithdrawnAt: new Date() },
-      select: { politicalConsentWithdrawnAt: true },
-    }),
-  ]);
+  let user;
+  try {
+    const [, atualizado] = await prisma.$transaction([
+      prisma.userBillVote.deleteMany({ where: { userId } }),
+      prisma.user.update({
+        where: { id: userId },
+        data: { politicalConsentWithdrawnAt: new Date() },
+        select: { politicalConsentWithdrawnAt: true },
+      }),
+    ]);
+    user = atualizado;
+  } catch {
+    return bancoIndisponivel("DELETE /api/consent");
+  }
 
   return NextResponse.json({ consented: false, ...user });
 }
