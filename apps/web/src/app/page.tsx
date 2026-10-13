@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { HeroStats } from "@/components/HeroStats";
 import { carregarNumerosHero } from "@/lib/hero-stats";
@@ -8,6 +9,14 @@ import {
   NOTA_MAXIMA_TRAVADA,
 } from "@/lib/methodology";
 import { STATUS_ORDEM, STATUS_VISUAL } from "@/lib/status-visual";
+
+export const metadata: Metadata = {
+  title: "Currículo Político",
+  description:
+    "Nota de 0 a 100 para cada parlamentar e governante brasileiro, calculada só com dados públicos da Câmara, do Senado e do TSE. Sem enquete, sem opinião.",
+  alternates: { canonical: "/" },
+};
+
 
 /**
  * A home é um funil em quatro estágios, nesta ordem:
@@ -223,7 +232,41 @@ export default async function Home() {
               descricao="Presidente e governadores"
               dimensoes={DIMENSOES_EXECUTIVO}
             />
+            {/*
+              Por que o Judiciário aparece sem pesos, e não com pesos:
+
+              Há duas razões independentes, e as duas são honestas de dizer.
+              (1) Escopo: o IDIP mede desempenho de quem é eleito e pode ser
+              responsabilizado nas urnas — o que é a pergunta que a plataforma
+              responde. Ministro do STF é nomeado, não eleito.
+              (2) Dados: a base do Judiciário existe no schema (StfJustice,
+              StfCase, StfVote, StfScore) mas está vazia — as decisões são
+              publicadas no DJE sem API consolidada, então o ETL é uma fase
+              própria ainda não construída.
+
+              Inventar uma fórmula para preencher o cartão violaria a regra de
+              que nenhuma regra entra na nota sem estar implementada em
+              scoring.ts. Dizer "não pontuamos (ainda)" custa menos credibilidade
+              do que um número inventado num produto cujo valor é a auditoria.
+            */}
+            <PesosCartao
+              titulo="Judiciário"
+              descricao="Supremo Tribunal Federal"
+              nota="O IDIP não pontua o Judiciário. Ele mede desempenho de cargos eletivos, sujeitos a responsabilização nas urnas; ministro do STF é nomeado, não eleito. A base de decisões do STF já existe no schema, mas as decisões são publicadas no Diário de Justiça Eletrônico sem API consolidada — por isso a coleta é uma fase própria, ainda não construída, e preferimos declarar esse limite a preencher a lacuna com números."
+            />
           </div>
+
+          <p className="mt-6 text-sm leading-relaxed text-slate-400">
+            O que a plataforma já acompanha sobre o STF, com fonte oficial, está
+            em{" "}
+            <Link
+              href="/stf"
+              className="font-medium text-sky-400 underline decoration-sky-800 underline-offset-2 transition hover:text-sky-300"
+            >
+              /stf
+            </Link>
+            .
+          </p>
         </section>
 
         {/* ──────────────────────────────────────────────────────────────────
@@ -261,49 +304,73 @@ export default async function Home() {
 /**
  * Cartão de pesos de um perfil.
  *
- * A soma é exibida no rodapé de propósito: pesos que não fecham em 100% são um
- * defeito de metodologia, e um defeito de metodologia deve ficar visível na
- * tela em vez de escondido no código.
+ * Aceita `nota` para representar um perfil que AINDA NÃO é pontuado. Sem isso, a
+ * única forma de falar do Judiciário seria inventar pesos — o que quebraria a
+ * regra do projeto de que nenhuma regra entra na nota sem estar implementada em
+ * `scoring.ts` (ver `.claude/skills/curriculo-idip`). Uma plataforma de
+ * auditoria não pode inventar metodologia para preencher um cartão.
+ *
+ * A soma dos pesos é exibida de propósito: pesos que não fecham em 100% são um
+ * defeito de metodologia, e defeito de metodologia deve ficar visível na tela
+ * em vez de escondido no código.
  */
 function PesosCartao({
   titulo,
   descricao,
   dimensoes,
+  nota,
 }: {
   titulo: string;
   descricao: string;
-  dimensoes: readonly { label: string; percent: number }[];
+  dimensoes?: readonly { label: string; percent: number }[];
+  nota?: string;
 }) {
-  const soma = dimensoes.reduce((total, d) => total + d.percent, 0);
+  const soma = dimensoes?.reduce((total, d) => total + d.percent, 0) ?? 0;
 
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
       <h3 className="font-semibold text-slate-100">{titulo}</h3>
       <p className="mt-0.5 text-sm text-slate-400">{descricao}</p>
-      <ul className="mt-5 space-y-2.5">
-        {dimensoes.map((d) => (
-          <li key={d.label} className="flex items-baseline justify-between gap-4">
-            <span className="text-sm text-slate-300">{d.label}</span>
-            <span className="flex flex-1 items-center gap-3">
-              <span
-                aria-hidden="true"
-                className="h-1 flex-1 overflow-hidden rounded-full bg-slate-800"
+
+      {dimensoes ? (
+        <>
+          <ul className="mt-5 space-y-2.5">
+            {dimensoes.map((d) => (
+              <li
+                key={d.label}
+                className="flex items-baseline justify-between gap-4"
               >
-                <span
-                  className="block h-full rounded-full bg-sky-500/70"
-                  style={{ width: `${d.percent * 3}%` }}
-                />
-              </span>
-              <span className="w-10 text-right font-mono text-sm tabular-nums text-slate-400">
-                {d.percent}%
-              </span>
-            </span>
-          </li>
-        ))}
-      </ul>
-      <p className="mt-5 border-t border-slate-800 pt-4 text-xs text-slate-400">
-        Soma dos pesos: <span className="font-mono tabular-nums">{soma}%</span>
-      </p>
+                <span className="text-sm text-slate-300">{d.label}</span>
+                <span className="flex flex-1 items-center gap-3">
+                  <span
+                    aria-hidden="true"
+                    className="h-1 flex-1 overflow-hidden rounded-full bg-slate-800"
+                  >
+                    <span
+                      className="block h-full rounded-full bg-sky-500/70"
+                      style={{ width: `${d.percent * 3}%` }}
+                    />
+                  </span>
+                  <span className="w-10 text-right font-mono text-sm tabular-nums text-slate-400">
+                    {d.percent}%
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-5 border-t border-slate-800 pt-4 text-xs text-slate-400">
+            Soma dos pesos:{" "}
+            <span className="font-mono tabular-nums">{soma}%</span>
+          </p>
+        </>
+      ) : (
+        <div className="mt-5 border-t border-slate-800 pt-4">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            Sem nota IDIP
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-slate-300">{nota}</p>
+        </div>
+      )}
     </div>
   );
 }
