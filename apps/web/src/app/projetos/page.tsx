@@ -97,13 +97,13 @@ export default async function ProjetosPage({ searchParams }: Props) {
       </p>
 
       <div className="mt-8">
-        <Suspense fallback={<div className="text-slate-500">Carregando filtros...</div>}>
+        <Suspense fallback={<div className="text-slate-400">Carregando filtros...</div>}>
           <ProjetoFilters tipos={tipos} anos={anos} />
         </Suspense>
       </div>
 
       {filtrosAtivos > 0 && (
-        <div className="mb-4 text-sm text-slate-500">
+        <div className="mb-4 text-sm text-slate-400">
           {total.toLocaleString("pt-BR")} resultado(s) com {filtrosAtivos}{" "}
           filtro(s) aplicado(s)
         </div>
@@ -132,7 +132,7 @@ export default async function ProjetosPage({ searchParams }: Props) {
                       </span>
                     )}
                     {bill.date && (
-                      <span className="text-xs text-slate-500">
+                      <span className="text-xs text-slate-400">
                         {new Date(bill.date).toLocaleDateString("pt-BR")}
                       </span>
                     )}
@@ -141,13 +141,13 @@ export default async function ProjetosPage({ searchParams }: Props) {
                     {bill.title}
                   </h3>
                   {bill.authorships.length > 0 && (
-                    <div className="mt-1 truncate text-sm text-slate-500">
+                    <div className="mt-1 truncate text-sm text-slate-400">
                       {bill.authorships.map((a) => a.person.politicalName).join(", ")}
                       {bill.authorships.length === 3 ? "…" : ""}
                     </div>
                   )}
                 </div>
-                <div className="whitespace-nowrap text-right text-xs text-slate-500">
+                <div className="whitespace-nowrap text-right text-xs text-slate-400">
                   Ver detalhes →
                 </div>
               </div>

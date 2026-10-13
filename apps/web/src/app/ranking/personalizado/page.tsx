@@ -79,7 +79,7 @@ export default async function RankingPersonalizadoPage({
                 <h2 className="text-lg font-bold text-slate-100">
                   Top {resultado.ranking.length} por autorias nos seus temas
                 </h2>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-slate-400">
                   {resultado.totalBillsAnalyzed.toLocaleString("pt-BR")}{" "}
                   projetos analisados
                 </span>
@@ -91,7 +91,7 @@ export default async function RankingPersonalizadoPage({
                     href={`/politicos/${p.id}`}
                     className="flex items-center gap-3 rounded-lg border border-slate-800 p-3 transition hover:border-slate-600"
                   >
-                    <div className="w-8 text-right font-mono text-sm text-slate-500">
+                    <div className="w-8 text-right font-mono text-sm text-slate-400">
                       {i + 1}º
                     </div>
                     <Image
@@ -106,7 +106,7 @@ export default async function RankingPersonalizadoPage({
                       <div className="truncate font-semibold text-slate-100">
                         {p.name}
                       </div>
-                      <div className="text-xs text-slate-500">
+                      <div className="text-xs text-slate-400">
                         {p.party ?? "—"} / {p.uf ?? "—"}
                       </div>
                     </div>
@@ -114,7 +114,7 @@ export default async function RankingPersonalizadoPage({
                       <div className="text-lg font-bold text-slate-100">
                         {p.matches}
                       </div>
-                      <div className="text-xs text-slate-500">autorias</div>
+                      <div className="text-xs text-slate-400">autorias</div>
                     </div>
                   </Link>
                 ))}

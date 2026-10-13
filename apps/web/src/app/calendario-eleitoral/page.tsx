@@ -111,7 +111,7 @@ export default function CalendarioEleitoralPage() {
                     {e.tipo}
                   </span>
                 </div>
-                {isPassada && <span className="text-xs text-slate-500">Realizada</span>}
+                {isPassada && <span className="text-xs text-slate-400">Realizada</span>}
                 {isProxima && (
                   <span className="rounded border border-sky-500/30 bg-sky-500/10 px-2 py-1 text-xs font-semibold text-sky-300">
                     Próxima
@@ -129,7 +129,7 @@ export default function CalendarioEleitoralPage() {
               </div>
 
               {e.observacao && (
-                <div className="mt-4 border-t border-slate-800 pt-3 text-xs italic text-slate-500">
+                <div className="mt-4 border-t border-slate-800 pt-3 text-xs italic text-slate-400">
                   {e.observacao}
                 </div>
               )}

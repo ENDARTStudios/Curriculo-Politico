@@ -117,7 +117,7 @@ export function BillVote({ billId }: BillVoteProps) {
     <div className="my-4 rounded-xl border border-slate-800 bg-slate-900/60 p-5">
       <div className="mb-3 flex items-center justify-between">
         <h4 className="font-semibold text-slate-100">Votação Popular</h4>
-        <span className="text-xs text-slate-500">{total} votos</span>
+        <span className="text-xs text-slate-400">{total} votos</span>
       </div>
 
       {/* Barra de progresso */}
@@ -149,7 +149,7 @@ export function BillVote({ billId }: BillVoteProps) {
               <strong className={state.me.vote === "FAVOR" ? "text-emerald-400" : "text-red-400"}>
                 {state.me.vote === "FAVOR" ? "👍 A Favor" : "👎 Contra"}
               </strong>{" "}
-              <span className="text-xs text-slate-500">(alterável)</span>
+              <span className="text-xs text-slate-400">(alterável)</span>
             </p>
           )}
 
@@ -213,7 +213,7 @@ export function BillVote({ billId }: BillVoteProps) {
               type="button"
               onClick={revogarConsentimento}
               disabled={enviando}
-              className="mt-2 text-xs text-slate-500 underline transition hover:text-slate-300"
+              className="mt-2 text-xs text-slate-400 underline transition hover:text-slate-300"
             >
               Revogar consentimento e apagar meus votos
             </button>
@@ -236,7 +236,7 @@ export function BillVote({ billId }: BillVoteProps) {
         </p>
       )}
 
-      <p className="mt-3 text-xs italic leading-relaxed text-slate-500">
+      <p className="mt-3 text-xs italic leading-relaxed text-slate-400">
         Voto pessoal requer login, conta com 24h+ (anti-bot) e consentimento
         específico para tratamento de opinião política (dado sensível) —
         revogável a qualquer momento.{" "}

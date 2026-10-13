@@ -33,7 +33,7 @@ export function PartyMembersChart({
       <div className="max-h-96 space-y-2 overflow-y-auto pr-2">
         {sorted.map((m, i) => (
           <div key={m.id} className="flex items-center gap-3">
-            <div className="w-7 text-right text-xs text-slate-500">{i + 1}º</div>
+            <div className="w-7 text-right text-xs text-slate-400">{i + 1}º</div>
             <div className="min-w-0 flex-1">
               <div className="mb-1 flex items-baseline justify-between gap-2">
                 <span className="truncate text-sm font-medium text-slate-200">
@@ -57,7 +57,7 @@ export function PartyMembersChart({
         ))}
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-4 text-xs text-slate-500">
+      <div className="mt-4 flex flex-wrap gap-4 text-xs text-slate-400">
         <span className="flex items-center gap-1">
           <span className="h-2 w-2 rounded-full bg-emerald-500" /> Confiável
         </span>

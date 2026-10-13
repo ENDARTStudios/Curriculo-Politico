@@ -13,7 +13,7 @@ export default function CookiesPage() {
       <h1 className="text-4xl font-bold tracking-tight text-slate-100">
         Política de Cookies
       </h1>
-      <p className="mt-2 text-sm text-slate-500">
+      <p className="mt-2 text-sm text-slate-400">
         Última atualização: setembro de 2026
       </p>
 
@@ -84,7 +84,7 @@ export default function CookiesPage() {
                   )
                 </li>
               </ul>
-              <p className="mt-2 text-xs italic text-slate-500">
+              <p className="mt-2 text-xs italic text-slate-400">
                 Pode ser limpo a qualquer momento pelas configurações do
                 navegador, sem afetar o login.
               </p>

@@ -60,7 +60,7 @@ export default function RootLayout({
 
           {children}
 
-          <footer className="border-t border-slate-800/80 py-8 text-center text-sm text-slate-500">
+          <footer className="border-t border-slate-800/80 py-8 text-center text-sm text-slate-400">
             <p>
               Código sob AGPL-3.0 · Documentação sob CC BY 4.0 · Fontes: Câmara
               dos Deputados, Senado Federal e TSE

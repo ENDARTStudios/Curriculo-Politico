@@ -23,7 +23,7 @@ export function BillDetails({ bill, authorships }: BillDetailsProps) {
           </span>
         )}
         {bill.date && (
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-slate-400">
             Apresentado em {new Date(bill.date).toLocaleDateString("pt-BR")}
           </span>
         )}
@@ -51,7 +51,7 @@ export function BillDetails({ bill, authorships }: BillDetailsProps) {
           <p className="text-sm leading-relaxed text-slate-300">
             {bill.simpleSummary}
           </p>
-          <p className="mt-2 text-xs italic text-slate-500">
+          <p className="mt-2 text-xs italic text-slate-400">
             Resumo pela categoria temática do projeto (não é análise do texto
             integral da lei).
           </p>

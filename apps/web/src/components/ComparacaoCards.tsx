@@ -147,14 +147,14 @@ export function ComparacaoCards({
                 <div className="truncate text-xs font-semibold text-slate-200">
                   {p.politicalName}
                 </div>
-                <div className="mt-0.5 truncate text-xs text-slate-500">
+                <div className="mt-0.5 truncate text-xs text-slate-400">
                   {p.party} / {p.uf} · {p.score.final.toFixed(1)}
                 </div>
               </button>
             );
           })}
           {filtrados.length === 0 && (
-            <p className="col-span-full text-sm text-slate-500">
+            <p className="col-span-full text-sm text-slate-400">
               Nenhum político corresponde aos filtros.
             </p>
           )}
@@ -185,7 +185,7 @@ export function ComparacaoCards({
                     >
                       {p.politicalName}
                     </Link>
-                    <div className="truncate text-sm text-slate-500">
+                    <div className="truncate text-sm text-slate-400">
                       {p.party} • {p.office} · {p.uf}
                     </div>
                   </div>
@@ -220,7 +220,7 @@ export function ComparacaoCards({
                   </div>
                 </div>
 
-                <p className="mt-4 text-xs leading-relaxed text-slate-500">
+                <p className="mt-4 text-xs leading-relaxed text-slate-400">
                   Métricas detalhadas (votos, autorias, presenças) no{" "}
                   <Link href={`/politicos/${p.id}`} className="text-sky-400 hover:underline">
                     perfil completo
@@ -275,7 +275,7 @@ export function ComparacaoCards({
               📊 Exportar CSV
             </button>
           </div>
-          <p className="mt-3 text-xs text-slate-500">
+          <p className="mt-3 text-xs text-slate-400">
             Quem abrir o link vê exatamente esta seleção. O CSV exporta nome,
             partido, UF, nota, confiança e status.
           </p>

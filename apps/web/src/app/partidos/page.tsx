@@ -112,7 +112,7 @@ export default async function PartidosPage() {
       <div className="mt-8 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-slate-800 text-xs uppercase tracking-wide text-slate-500">
+            <thead className="border-b border-slate-800 text-xs uppercase tracking-wide text-slate-400">
               <tr>
                 <th className="p-4">Partido</th>
                 <th className="p-4 text-center">Parlamentares</th>
@@ -132,7 +132,7 @@ export default async function PartidosPage() {
                     >
                       {party.acronym}
                     </Link>
-                    <div className="mt-0.5 max-w-[220px] truncate text-xs text-slate-500">
+                    <div className="mt-0.5 max-w-[220px] truncate text-xs text-slate-400">
                       {party.name}
                     </div>
                   </td>
@@ -141,18 +141,18 @@ export default async function PartidosPage() {
                     {party.position ? (
                       <IdeologyBadge position={party.position} ideology={party.ideology} />
                     ) : (
-                      <span className="text-xs text-slate-600">—</span>
+                      <span className="text-xs text-slate-400">—</span>
                     )}
                   </td>
                   <td className="p-4 text-center">
                     <div className="text-lg font-bold text-slate-100">
                       {party.partyScore !== null ? party.partyScore.toFixed(1) : "—"}
                     </div>
-                    <div className="text-xs text-slate-500">
+                    <div className="text-xs text-slate-400">
                       {party.rankedCount}/{party.memberCount} ranqueados
                     </div>
                   </td>
-                  <td className="p-4 text-center text-slate-500">
+                  <td className="p-4 text-center text-slate-400">
                     {party.avgConfidence.toFixed(0)}%
                   </td>
                   <td className="p-4">

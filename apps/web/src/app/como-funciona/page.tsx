@@ -10,7 +10,7 @@ const PODERES = [
   {
     emoji: "⚖️",
     nome: "Executivo",
-    borda: "border-t-sky-500",
+    cor: "bg-sky-500",
     funcao: "Administra o Estado e executa políticas públicas",
     agentes: [
       "Presidente da República",
@@ -23,7 +23,7 @@ const PODERES = [
   {
     emoji: "🏛️",
     nome: "Legislativo",
-    borda: "border-t-purple-500",
+    cor: "bg-purple-500",
     funcao: "Cria leis, fiscaliza o Executivo e representa o povo",
     agentes: [
       "Senadores (81)",
@@ -36,7 +36,7 @@ const PODERES = [
   {
     emoji: "⚔️",
     nome: "Judiciário",
-    borda: "border-t-emerald-500",
+    cor: "bg-emerald-500",
     funcao: "Interpreta e aplica as leis, resolve conflitos",
     agentes: [
       "STF (11 ministros)",
@@ -121,10 +121,17 @@ export default function ComoFuncionaPage() {
           {PODERES.map((poder) => (
             <div
               key={poder.nome}
-              className={`rounded-xl border border-slate-800 border-t-4 bg-slate-900/60 p-6 ${poder.borda}`}
+              className="rounded-xl border border-slate-800 bg-slate-900/60 p-6"
             >
               <div className="mb-3 text-4xl">{poder.emoji}</div>
-              <h3 className="mb-2 text-xl font-bold text-slate-100">
+              <h3 className="mb-2 flex items-center gap-2 text-xl font-bold text-slate-100">
+                {/* O ponto carrega a cor do poder. Um filete grosso no topo do
+                    card era o "side-tab", tell clássico de UI gerada por IA;
+                    o ponto preserva a codificação sem o clichê. */}
+                <span
+                  aria-hidden="true"
+                  className={`h-2.5 w-2.5 shrink-0 rounded-full ${poder.cor}`}
+                />
                 Poder {poder.nome}
               </h3>
               <p className="mb-4 text-sm italic text-slate-400">{poder.funcao}</p>
@@ -136,7 +143,7 @@ export default function ComoFuncionaPage() {
                   <li key={a}>• {a}</li>
                 ))}
               </ul>
-              <div className="border-t border-slate-800 pt-3 text-xs text-slate-500">
+              <div className="border-t border-slate-800 pt-3 text-xs text-slate-400">
                 <strong className="text-slate-400">Forma de acesso:</strong>{" "}
                 {poder.eleicao}
               </div>
@@ -162,7 +169,7 @@ export default function ComoFuncionaPage() {
                 <div className={`h-12 w-1 rounded ${e.barra}`} />
                 <div>
                   <h3 className="text-xl font-bold text-slate-100">{e.esfera}</h3>
-                  <p className="text-sm text-slate-500">{e.escopo}</p>
+                  <p className="text-sm text-slate-400">{e.escopo}</p>
                 </div>
               </div>
               <div className="ml-4">
@@ -199,7 +206,7 @@ export default function ComoFuncionaPage() {
               </div>
             ))}
           </div>
-          <p className="mt-6 text-center text-xs italic text-slate-500">
+          <p className="mt-6 text-center text-xs italic text-slate-400">
             Pirâmide por abrangência territorial. Não há hierarquia funcional —
             todos são autônomos em suas competências constitucionais.
           </p>

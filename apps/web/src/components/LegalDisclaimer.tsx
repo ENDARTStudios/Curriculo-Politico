@@ -1,6 +1,6 @@
 export function LegalDisclaimer() {
   return (
-    <div className="my-8 rounded-r-lg border-l-4 border-sky-500 bg-slate-900/60 p-4">
+    <div className="my-8 rounded-xl border border-slate-800 bg-slate-900/60 p-5">
       <h3 className="mb-2 font-bold text-slate-100">
         Transparência e Auditabilidade
       </h3>

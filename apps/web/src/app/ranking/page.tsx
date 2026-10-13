@@ -48,7 +48,7 @@ function LinhaRanking({ row, posicao }: { row: RankingRow; posicao: number | nul
 
   return (
     <tr className={`transition hover:bg-slate-800/40 ${destaque ? "" : "opacity-60"}`}>
-      <td className="p-4 font-mono text-slate-500">
+      <td className="p-4 font-mono text-slate-400">
         {posicao !== null ? `${posicao}º` : "—"}
       </td>
       <td className="p-4">
@@ -72,7 +72,7 @@ function LinhaRanking({ row, posicao }: { row: RankingRow; posicao: number | nul
           </span>
         </Link>
       </td>
-      <td className={destaque ? "p-4 text-slate-400" : "p-4 text-slate-500"}>
+      <td className={destaque ? "p-4 text-slate-400" : "p-4 text-slate-400"}>
         {row.party ?? "—"} / {row.jurisdiction ?? "—"}
       </td>
       <td className="p-4 text-center">
@@ -85,7 +85,7 @@ function LinhaRanking({ row, posicao }: { row: RankingRow; posicao: number | nul
       >
         {row.score ? row.score.finalScore.toFixed(1) : "—"}
       </td>
-      <td className={`p-4 text-center ${destaque ? "text-slate-500" : "text-slate-600"}`}>
+      <td className={`p-4 text-center ${destaque ? "text-slate-400" : "text-slate-400"}`}>
         {row.score ? `${row.score.confidenceScore.toFixed(0)}%` : "—"}
       </td>
     </tr>
@@ -103,7 +103,7 @@ function Aba({ grupo, ativo, total }: { grupo: Grupo; ativo: boolean; total: num
           : "border-slate-800 bg-slate-900/60 text-slate-400 hover:text-slate-200"
       }`}
     >
-      {rotulo} <span className="font-normal text-slate-500">({total})</span>
+      {rotulo} <span className="font-normal text-slate-400">({total})</span>
     </Link>
   );
 }
@@ -203,7 +203,7 @@ export default async function RankingPage({
       <div className="mt-4 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-slate-800 text-xs uppercase tracking-wide text-slate-500">
+            <thead className="border-b border-slate-800 text-xs uppercase tracking-wide text-slate-400">
               <tr>
                 <th className="p-4">#</th>
                 <th className="p-4">Político</th>
@@ -223,7 +223,7 @@ export default async function RankingPage({
               ))}
               {visiveis.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-slate-500">
+                  <td colSpan={6} className="p-8 text-center text-slate-400">
                     Nenhum registro nesta lista.
                   </td>
                 </tr>
@@ -246,12 +246,12 @@ export default async function RankingPage({
               ← Anterior
             </Link>
           ) : (
-            <span className="rounded-lg border border-slate-800/50 px-4 py-2 text-slate-600">
+            <span className="rounded-lg border border-slate-800/50 px-4 py-2 text-slate-400">
               ← Anterior
             </span>
           )}
 
-          <span className="text-slate-500">
+          <span className="text-slate-400">
             Página {pagina} de {totalPaginas} · {lista.length} registros
           </span>
 
@@ -263,14 +263,14 @@ export default async function RankingPage({
               Próxima →
             </Link>
           ) : (
-            <span className="rounded-lg border border-slate-800/50 px-4 py-2 text-slate-600">
+            <span className="rounded-lg border border-slate-800/50 px-4 py-2 text-slate-400">
               Próxima →
             </span>
           )}
         </nav>
       )}
 
-      <p className="mt-4 text-xs text-slate-600">
+      <p className="mt-4 text-xs text-slate-400">
         Nota provisória para políticos com dados insuficientes: baseline neutro
         (50) — não representa desempenho real. Ela é recalculada conforme o
         pipeline ingere votações, proposições e dados financeiros.

@@ -63,7 +63,7 @@ export function ComparacaoPartidos({ parties }: { parties: PartyComparavel[] }) 
                 }`}
               >
                 <div className="text-lg font-bold text-slate-100">{p.acronym}</div>
-                <div className="truncate text-xs text-slate-500">
+                <div className="truncate text-xs text-slate-400">
                   {p.memberCount} parl. ·{" "}
                   {p.avgScore !== null ? p.avgScore.toFixed(1) : "—"}
                 </div>
@@ -93,7 +93,7 @@ export function ComparacaoPartidos({ parties }: { parties: PartyComparavel[] }) 
                   >
                     {party.acronym}
                   </Link>
-                  <div className="mt-1 truncate text-sm text-slate-500">{party.name}</div>
+                  <div className="mt-1 truncate text-sm text-slate-400">{party.name}</div>
                 {party.position && (
                   <div className="mt-2">
                     <span className="rounded-full border border-slate-600 bg-slate-800/60 px-2 py-0.5 text-xs text-slate-300">
@@ -108,11 +108,11 @@ export function ComparacaoPartidos({ parties }: { parties: PartyComparavel[] }) 
                     <div className="text-3xl font-bold text-slate-100">
                       {party.avgScore !== null ? party.avgScore.toFixed(1) : "—"}
                     </div>
-                    <div className="text-xs text-slate-500">Nota média (ranqueados)</div>
+                    <div className="text-xs text-slate-400">Nota média (ranqueados)</div>
                   </div>
                   <div>
                     <div className="text-3xl font-bold text-slate-100">{party.memberCount}</div>
-                    <div className="text-xs text-slate-500">Parlamentares</div>
+                    <div className="text-xs text-slate-400">Parlamentares</div>
                   </div>
                 </div>
 
@@ -132,7 +132,7 @@ export function ComparacaoPartidos({ parties }: { parties: PartyComparavel[] }) 
                         />
                       ))}
                   </div>
-                  <div className="mt-1 flex justify-between text-xs text-slate-500">
+                  <div className="mt-1 flex justify-between text-xs text-slate-400">
                     <span>🟢 {party.distribution.GREEN}</span>
                     <span>🟡 {party.distribution.YELLOW}</span>
                     <span>🔴 {party.distribution.RED}</span>

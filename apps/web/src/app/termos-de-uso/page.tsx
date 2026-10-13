@@ -163,7 +163,7 @@ export default function TermosDeUsoPage() {
       <h1 className="text-4xl font-bold tracking-tight text-slate-100">
         Termos de Uso
       </h1>
-      <p className="mt-2 text-sm text-slate-500">
+      <p className="mt-2 text-sm text-slate-400">
         Última atualização: setembro de 2026
       </p>
 

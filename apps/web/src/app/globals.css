@@ -1,1 +1,112 @@
 @import "tailwindcss";
+
+/* ============================================================================
+   Currículo Político — camada de design tokens
+   ----------------------------------------------------------------------------
+   Tailwind v4 lê `@theme` e gera as utilities correspondentes. Estes tokens
+   codificam as decisões de docs/design/estrategia-marketing.md e da skill
+   `.dsh/skills/curriculo-design-system`. Regra: se um valor novo é recorrente,
+   ele nasce como token aqui — não como classe solta em cada componente.
+
+   Os estados de confiabilidade (GREEN/YELLOW/RED/GRAY) NÃO viram tokens de
+   marca: eles derivam de `enum ReliabilityStatus` e são aplicados como classes
+   semânticas no componente (ver `components/Termometro.tsx`). Um token de cor
+   fixo para "verde" convidaria a usá-lo fora do significado de estado.
+   ============================================================================ */
+
+@theme {
+  /* --- Movimento ------------------------------------------------------- */
+  /* Curvas e durações únicas para toda a UI, para que a animação não varie
+     de componente para componente. */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Entrada dos blocos da hero. Usada em cascata; respeita reduced-motion
+     porque a regra em `@layer base` desliga a animação. */
+  --animate-rise: rise 0.6s var(--ease-out-soft) both;
+  --animate-fade: fade 0.8s var(--ease-out-soft) both;
+
+  /* Brilho muito lento do fundo da hero: dá profundidade sem chamar atenção. */
+  --animate-aurora: aurora 26s var(--ease-in-out-soft) infinite alternate;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes aurora {
+  from {
+    opacity: 0.35;
+    transform: translate3d(-2%, -1%, 0) scale(1);
+  }
+  to {
+    opacity: 0.7;
+    transform: translate3d(2%, 2%, 0) scale(1.12);
+  }
+}
+
+@layer base {
+  /* Acessibilidade: nenhuma animação/transição sobrevive a reduced-motion.
+     `!important` é intencional — precisa vencer as utilities `animate-*`. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Foco visível consistente em todo o app (WCAG 2.4.7). Nunca remova sem
+     substituir por um indicador equivalente. */
+  :focus-visible {
+    outline: 2px solid var(--color-sky-400);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* ── Links dentro de texto corrido (WCAG 1.4.1) ──────────────────────────
+     Um link que se distingue do texto ao redor **apenas pela cor** reprova no
+     critério 1.4.1 quando o contraste entre o link e o texto vizinho é menor
+     que 3:1. No nosso caso: `sky-400` (#00bcff) sobre `slate-400` (#90a1b9) dá
+     1.2:1, muito abaixo do mínimo. O `hover:underline` não ajuda — o critério
+     exige distinção no estado de repouso.
+
+     A correção é um sublinhado permanente, e é aplicada por contexto: só em
+     `p`, `li` e `td`, onde o link está de fato imerso em texto. Navegação,
+     botões e cards ficam intocados de propósito — sublinhar todos os links do
+     app seria pior para a leitura e mudaria a identidade visual sem ganho.
+
+     Medido: 44 links em 24 arquivos eram afetados. A regra resolve todos de
+     uma vez; se um link de texto precisar não ter sublinhado, use
+     `.link-sem-sublinhado` e justifique o contraste ≥ 3:1 no comentário. */
+  p a:not([class*="rounded"]):not([class*="block"]),
+  li a:not([class*="rounded"]):not([class*="block"]),
+  td a:not([class*="rounded"]):not([class*="block"]) {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+}
+
+@utility link-sem-sublinhado {
+  text-decoration: none;
+}

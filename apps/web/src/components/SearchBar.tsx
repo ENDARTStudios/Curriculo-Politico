@@ -150,7 +150,7 @@ export function SearchBar() {
 
   const sectionClass = "border-t border-slate-800 p-2 first:border-t-0";
   const headerClass =
-    "px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500";
+    "px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400";
   const itemClass = (active: boolean) =>
     `flex items-center gap-3 rounded-lg p-2 transition ${
       active ? "bg-slate-800" : "hover:bg-slate-800/60"
@@ -167,10 +167,10 @@ export function SearchBar() {
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder="Buscar políticos, partidos, projetos... (Ctrl+K)"
-          className="w-full rounded-lg border border-slate-700 bg-slate-950 py-2 pl-9 pr-8 text-sm text-slate-100 placeholder-slate-500 focus:border-sky-500 focus:outline-none"
+          className="w-full rounded-lg border border-slate-700 bg-slate-950 py-2 pl-9 pr-8 text-sm text-slate-100 placeholder-slate-400 focus:border-sky-500 focus:outline-none"
         />
         <svg
-          className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"
+          className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -192,7 +192,7 @@ export function SearchBar() {
       {open && query.length >= 2 && (
         <div className="absolute top-full z-50 mt-2 max-h-[70vh] w-full overflow-y-auto rounded-xl border border-slate-700 bg-slate-950 shadow-xl">
           {!hasResults && !loading ? (
-            <div className="p-6 text-center text-sm text-slate-500">
+            <div className="p-6 text-center text-sm text-slate-400">
               Nenhum resultado encontrado para &quot;{query}&quot;
             </div>
           ) : (
@@ -219,7 +219,7 @@ export function SearchBar() {
                         <div className="truncate font-medium text-slate-100">
                           {p.name}
                         </div>
-                        <div className="truncate text-xs text-slate-500">
+                        <div className="truncate text-xs text-slate-400">
                           {p.party} • {p.office}
                         </div>
                       </div>
@@ -249,7 +249,7 @@ export function SearchBar() {
                         <div className="truncate font-medium text-slate-100">
                           {p.acronym}
                         </div>
-                        <div className="truncate text-xs text-slate-500">
+                        <div className="truncate text-xs text-slate-400">
                           {p.memberCount} parlamentares
                         </div>
                       </div>
@@ -279,7 +279,7 @@ export function SearchBar() {
                           {b.title}
                         </div>
                         {b.authors.length > 0 && (
-                          <div className="mt-0.5 truncate text-xs text-slate-500">
+                          <div className="mt-0.5 truncate text-xs text-slate-400">
                             {b.authors.join(", ")}
                           </div>
                         )}
@@ -312,7 +312,7 @@ export function SearchBar() {
                         <div className="truncate font-medium text-slate-100">
                           {h.name}
                         </div>
-                        <div className="truncate text-xs text-slate-500">
+                        <div className="truncate text-xs text-slate-400">
                           {h.office} • {h.era}
                         </div>
                       </div>
@@ -328,7 +328,7 @@ export function SearchBar() {
 
               {/* Rodapé */}
               <div className="border-t border-slate-800 p-2">
-                <div className="flex items-center justify-between px-3 py-1.5 text-xs text-slate-500">
+                <div className="flex items-center justify-between px-3 py-1.5 text-xs text-slate-400">
                   <span>↑↓ navegar · Enter abrir · Esc fechar</span>
                   <Link
                     href={`/projetos?q=${encodeURIComponent(query)}`}

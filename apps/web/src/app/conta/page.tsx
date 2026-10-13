@@ -73,22 +73,22 @@ export default async function ContaPage() {
         <h2 className="mb-4 text-lg font-semibold text-slate-100">Conta</h2>
         <dl className="grid gap-3 text-sm md:grid-cols-2">
           <div>
-            <dt className="text-slate-500">E-mail</dt>
+            <dt className="text-slate-400">E-mail</dt>
             <dd className="text-slate-200">{user.email ?? "—"}</dd>
           </div>
           <div>
-            <dt className="text-slate-500">Nome</dt>
+            <dt className="text-slate-400">Nome</dt>
             <dd className="text-slate-200">{user.name ?? "(não informado)"}</dd>
           </div>
           <div>
-            <dt className="text-slate-500">Conta criada em</dt>
+            <dt className="text-slate-400">Conta criada em</dt>
             <dd className="text-slate-200">{fmt(user.createdAt)}</dd>
           </div>
           <div>
-            <dt className="text-slate-500">Termos de Uso / Privacidade</dt>
+            <dt className="text-slate-400">Termos de Uso / Privacidade</dt>
             <dd className="text-slate-200">
               aceitos em {fmt(user.termsAcceptedAt)}{" "}
-              <span className="text-slate-500">(versão {user.termsVersion ?? "—"})</span>
+              <span className="text-slate-400">(versão {user.termsVersion ?? "—"})</span>
             </dd>
           </div>
         </dl>
@@ -104,7 +104,7 @@ export default async function ContaPage() {
             <p>
               <strong className="text-emerald-400">Ativo</strong> desde{" "}
               {fmt(user.politicalConsentAt)}{" "}
-              <span className="text-slate-500">
+              <span className="text-slate-400">
                 (versão {user.politicalConsentVersion})
               </span>
             </p>
@@ -122,7 +122,7 @@ export default async function ContaPage() {
             </p>
           )}
         </div>
-        <p className="mt-3 text-xs leading-relaxed text-slate-500">
+        <p className="mt-3 text-xs leading-relaxed text-slate-400">
           O voto FAVOR/CONTRA é tratado como opinião política (dado sensível,
           Art. 5º, II da LGPD): nunca compartilhado individualmente, nunca usado
           no IDIP, eliminado imediatamente na revogação.
@@ -133,12 +133,12 @@ export default async function ContaPage() {
       <section className="mt-6 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
         <h2 className="mb-4 text-lg font-semibold text-slate-100">
           Meus votos{" "}
-          <span className="text-sm font-normal text-slate-500">
+          <span className="text-sm font-normal text-slate-400">
             ({user._count.billVotes})
           </span>
         </h2>
         {user.billVotes.length === 0 ? (
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-400">
             Nenhum voto registrado.
           </p>
         ) : (
@@ -149,7 +149,7 @@ export default async function ContaPage() {
                   href={`/projetos/${v.bill.id}`}
                   className="flex-1 text-slate-300 transition hover:text-sky-400"
                 >
-                  <span className="text-slate-500">{v.bill.type}</span>{" "}
+                  <span className="text-slate-400">{v.bill.type}</span>{" "}
                   {v.bill.title.slice(0, 90)}
                   {v.bill.title.length > 90 ? "…" : ""}
                 </Link>
@@ -169,7 +169,7 @@ export default async function ContaPage() {
       {/* Ações */}
       <ContaAcoes consentido={consentido} />
 
-      <p className="mt-6 text-xs leading-relaxed text-slate-500">
+      <p className="mt-6 text-xs leading-relaxed text-slate-400">
         Para acessar, corrigir ou portar dados, ou para qualquer direito do
         Art. 18 sem login, use o canal{" "}
         <Link href="/retificacao" className="text-sky-400 hover:underline">

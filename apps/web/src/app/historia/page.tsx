@@ -85,7 +85,7 @@ export default async function HistoriaPage() {
                 <span className="text-lg font-bold text-emerald-400">{i + 1}º</span>
                 <div className="min-w-0 flex-1">
                   <div className="truncate font-semibold text-slate-100">{p.name}</div>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs text-slate-400">
                     {p.office} ({p.startYear}–{p.endYear ?? "atual"})
                   </div>
                 </div>
@@ -110,7 +110,7 @@ export default async function HistoriaPage() {
                 <span className="text-lg font-bold text-red-400">{i + 1}º</span>
                 <div className="min-w-0 flex-1">
                   <div className="truncate font-semibold text-slate-100">{p.name}</div>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs text-slate-400">
                     {p.office} ({p.startYear}–{p.endYear ?? "atual"})
                   </div>
                 </div>
@@ -140,10 +140,10 @@ export default async function HistoriaPage() {
                 <div className="mb-3 flex items-start justify-between">
                   <div>
                     <h3 className="font-bold text-slate-100">{p.name}</h3>
-                    <div className="text-xs text-slate-500">
+                    <div className="text-xs text-slate-400">
                       {p.office} • {p.party}
                     </div>
-                    <div className="text-xs text-slate-500">
+                    <div className="text-xs text-slate-400">
                       {p.startYear}–{p.endYear ?? "atual"}
                     </div>
                   </div>
@@ -155,7 +155,7 @@ export default async function HistoriaPage() {
                 </div>
 
                 {p.historicalScore === null && (
-                  <div className="mb-2 rounded border border-slate-700 px-2 py-1 text-xs italic text-slate-500">
+                  <div className="mb-2 rounded border border-slate-700 px-2 py-1 text-xs italic text-slate-400">
                     Mandato em curso — sem nota até a conclusão
                   </div>
                 )}

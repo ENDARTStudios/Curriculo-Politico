@@ -25,7 +25,7 @@ export function ScoreBreakdown({
       <h2 className="mb-1 text-xl font-bold text-slate-100">
         Composição da Nota (IDIP)
       </h2>
-      <p className="mb-4 text-xs text-slate-500">
+      <p className="mb-4 text-xs text-slate-400">
         Eixos principais — versão {score.version}
       </p>
       <div className="space-y-4">
@@ -38,7 +38,7 @@ export function ScoreBreakdown({
                   {d.label}{" "}
                   {!real && (
                     <span
-                      className="ml-1 rounded border border-slate-600 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-slate-500"
+                      className="ml-1 rounded border border-slate-600 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-slate-400"
                       title="Sem dados suficientes nesta dimensão — valor neutro (50) por baseline, não desempenho medido"
                     >
                       sem dados · neutro
@@ -61,7 +61,7 @@ export function ScoreBreakdown({
           );
         })}
       </div>
-      <p className="mt-5 text-xs leading-relaxed text-slate-500">
+      <p className="mt-5 text-xs leading-relaxed text-slate-400">
         Dimensões marcadas como “sem dados · neutro” exibem o baseline 50 por
         ausência de dados na fonte correspondente — <strong>não</strong>{" "}
         representam desempenho medido. Elas ativam automaticamente quando o

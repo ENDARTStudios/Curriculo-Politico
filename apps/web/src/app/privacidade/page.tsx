@@ -27,7 +27,7 @@ export default function PrivacidadePage() {
       <h1 className="text-4xl font-bold tracking-tight text-slate-100">
         Política de Privacidade
       </h1>
-      <p className="mt-2 text-sm text-slate-500">
+      <p className="mt-2 text-sm text-slate-400">
         Última atualização: setembro de 2026 · Em revisão jurídica
       </p>
 
@@ -59,7 +59,7 @@ export default function PrivacidadePage() {
                 {CONTROLLER.dpo}
               </a>
             </p>
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-slate-400">
               Encarregado designado nos termos do Art. 41 da LGPD e da Resolução
               CD/ANPD nº 18/2024, Art. 4º. A identificação empresarial completa
               (CNPJ e endereço) será adicionada quando a entidade jurídica for
@@ -73,7 +73,7 @@ export default function PrivacidadePage() {
           <h2 className="mb-1 text-2xl font-bold text-slate-100">
             2. Universo A — Dados Públicos de Agentes Políticos
           </h2>
-          <p className="mb-3 text-xs uppercase tracking-wide text-slate-500">
+          <p className="mb-3 text-xs uppercase tracking-wide text-slate-400">
             Base legal: LAI (Lei 12.527/2011) + CF/88 Art. 37 (publicidade administrativa) + LGPD Art. 7º, §4º (dados manifestamente públicos)
           </p>
           <p className="mb-3 text-sm leading-relaxed text-slate-400">
@@ -95,7 +95,7 @@ export default function PrivacidadePage() {
           <h2 className="mb-1 text-2xl font-bold text-slate-100">
             3. Universo B — Dados de Usuários Cadastrados
           </h2>
-          <p className="mb-2 text-xs uppercase tracking-wide text-slate-500">
+          <p className="mb-2 text-xs uppercase tracking-wide text-slate-400">
             Base legal: LGPD Art. 7º, I (consentimento) + Art. 7º, IX (legítimo interesse p/ segurança)
           </p>
           <p className="mb-4 text-sm leading-relaxed text-slate-400">
@@ -227,7 +227,7 @@ export default function PrivacidadePage() {
               </tbody>
             </table>
           </div>
-          <p className="mt-3 text-xs italic text-slate-500">
+          <p className="mt-3 text-xs italic text-slate-400">
             Programas de certificação estrangeiros (como o EU-US Data Privacy
             Framework) não constituem, por si, decisão de adequação da ANPD — a
             base da transferência são as Cláusulas Padrão Contratuais brasileiras,

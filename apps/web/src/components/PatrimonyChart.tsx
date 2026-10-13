@@ -38,7 +38,7 @@ export function PatrimonyChart({ history }: PatrimonyChartProps) {
         <div className="flex gap-4 text-xs">
           {ordered.length > 1 && (
             <div className="text-center">
-              <div className="text-slate-500">Variação total</div>
+              <div className="text-slate-400">Variação total</div>
               <div
                 className={`font-bold ${
                   variacao > 10
@@ -54,7 +54,7 @@ export function PatrimonyChart({ history }: PatrimonyChartProps) {
             </div>
           )}
           <div className="text-center">
-            <div className="text-slate-500">Mais recente</div>
+            <div className="text-slate-400">Mais recente</div>
             <div className="font-bold text-slate-200">
               {formatBRL(ordered[ordered.length - 1].declaredValue)}
             </div>
@@ -139,12 +139,12 @@ export function PatrimonyChart({ history }: PatrimonyChartProps) {
           <div key={h.id} className="rounded bg-slate-800/60 p-2">
             <div className="font-semibold text-slate-200">{h.electionYear}</div>
             <div className="text-slate-400">{formatBRL(h.declaredValue)}</div>
-            <div className="text-slate-500">{h.assetCount} bens</div>
+            <div className="text-slate-400">{h.assetCount} bens</div>
           </div>
         ))}
       </div>
 
-      <p className="mt-4 text-xs italic leading-relaxed text-slate-500">
+      <p className="mt-4 text-xs italic leading-relaxed text-slate-400">
         Valores declarados ao TSE em cada eleição disputada. Não inclui bens não
         declarados nem transferências entre pleitos. Fonte:
         dadosabertos.tse.jus.br

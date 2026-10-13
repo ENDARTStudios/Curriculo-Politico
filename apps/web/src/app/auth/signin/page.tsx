@@ -111,7 +111,7 @@ export default function SigninPage() {
                 <div className="w-full border-t border-slate-700" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-slate-900 px-2 text-slate-500">ou</span>
+                <span className="bg-slate-900 px-2 text-slate-400">ou</span>
               </div>
             </div>
           </>
@@ -159,7 +159,7 @@ export default function SigninPage() {
               className={inputClass}
             />
             {modo === "registrar" && (
-              <p className="mt-1 text-xs text-slate-500">Mínimo de 8 caracteres.</p>
+              <p className="mt-1 text-xs text-slate-400">Mínimo de 8 caracteres.</p>
             )}
           </div>
 
@@ -258,7 +258,7 @@ export default function SigninPage() {
         </div>
       </div>
 
-      <p className="mt-4 text-center text-xs leading-relaxed text-slate-500">
+      <p className="mt-4 text-center text-xs leading-relaxed text-slate-400">
         No cadastro, o aceite dos{" "}
         <Link href="/termos-de-uso" className="underline hover:text-slate-300">
           Termos de Uso

@@ -15,7 +15,7 @@ export function Proposicoes({ autorias, total }: ProposicoesProps) {
         <h2 className="mb-4 text-xl font-bold text-slate-100">
           Proposições Autorais
         </h2>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-400">
           Nenhuma proposição de autoria registrada no período coberto pela
           coleta.
         </p>
@@ -39,7 +39,7 @@ export function Proposicoes({ autorias, total }: ProposicoesProps) {
                 <span className="rounded border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 text-xs text-purple-300">
                   {autoria.bill.type ?? "Tipo não informado"}
                 </span>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-slate-400">
                   {autoria.bill.date
                     ? new Date(autoria.bill.date).toLocaleDateString("pt-BR")
                     : "Data não informada"}
@@ -60,7 +60,7 @@ export function Proposicoes({ autorias, total }: ProposicoesProps) {
           </div>
         ))}
       </div>
-      <p className="mt-4 text-xs italic text-slate-500">
+      <p className="mt-4 text-xs italic text-slate-400">
         Exibindo as {autorias.length} proposições mais recentes de {total}{" "}
         registradas na coleta atual.
       </p>

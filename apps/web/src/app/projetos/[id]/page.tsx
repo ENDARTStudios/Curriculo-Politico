@@ -39,7 +39,7 @@ export default async function ProjetoPage({ params }: Props) {
 
       <BillVote billId={bill.id} />
 
-      <p className="mt-4 text-xs leading-relaxed text-slate-500">
+      <p className="mt-4 text-xs leading-relaxed text-slate-400">
         A votação popular é uma camada de engajamento pessoal e{" "}
         <strong className="text-slate-400">não altera a nota IDIP</strong> dos
         autores — conforme a{" "}

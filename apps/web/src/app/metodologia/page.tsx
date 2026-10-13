@@ -103,7 +103,7 @@ export default function MetodologiaPage() {
         </a>
         .
       </p>
-      <p className="mt-3 max-w-3xl rounded-lg border border-slate-800 bg-slate-900/60 p-3 text-xs leading-relaxed text-slate-500">
+      <p className="mt-3 max-w-3xl rounded-lg border border-slate-800 bg-slate-900/60 p-3 text-xs leading-relaxed text-slate-400">
         Esta página separa explicitamente o que o algoritmo{" "}
         <strong className="text-emerald-300">faz hoje</strong> do que está{" "}
         <strong className="text-amber-300">planejado</strong>. Nenhuma regra
@@ -137,7 +137,7 @@ export default function MetodologiaPage() {
               <p className="mt-2 pl-3 text-sm leading-relaxed text-slate-400">
                 {pilar.desc}
               </p>
-              <p className="mt-1 pl-3 text-xs text-slate-500">{pilar.hoje}</p>
+              <p className="mt-1 pl-3 text-xs text-slate-400">{pilar.hoje}</p>
             </div>
           ))}
         </div>
@@ -199,7 +199,20 @@ export default function MetodologiaPage() {
             A Confiança (0–100%) mede quanta informação necessária conseguimos
             coletar — nunca gera nota fictícia. Fórmula vigente:
           </p>
-          <pre className="mb-4 overflow-x-auto rounded-lg bg-slate-950 p-4 font-mono text-xs text-slate-300">
+          {/*
+            `tabIndex={0}` é obrigatório aqui, não decoração: o bloco rola
+            horizontalmente no mobile (a fórmula é mais larga que a tela), e uma
+            região rolável precisa ser alcançável por teclado (WCAG 2.1.1). Sem
+            isto, quem não usa mouse fica sem acesso ao resto da fórmula — o axe
+            sinaliza `scrollable-region-focusable`. O `role` e o rótulo dão
+            contexto ao leitor de tela ao entrar no bloco.
+          */}
+          <pre
+            tabIndex={0}
+            role="region"
+            aria-label="Fórmula do cálculo de confiança"
+            className="mb-4 overflow-x-auto rounded-lg bg-slate-950 p-4 font-mono text-xs text-slate-300"
+          >
 {`confiança = min(95,
   30                                  // base: cadastro verificado
   + min(30, taxa_participação × 30)   // votos ÷ sessões nominais
@@ -338,7 +351,7 @@ export default function MetodologiaPage() {
                 <strong className="text-slate-200">+15 pontos:</strong>{" "}
                 Transparência de Campanha (TSE 100% regular)
               </li>
-              <li className="italic text-slate-500">
+              <li className="italic text-slate-400">
                 Os outros 65 pontos são conquistados mês a mês com dados reais
                 de mandato.
               </li>
@@ -437,7 +450,7 @@ export default function MetodologiaPage() {
               </div>
             </div>
           </div>
-          <p className="mt-4 text-xs italic text-slate-500">
+          <p className="mt-4 text-xs italic text-slate-400">
             Exemplo futuro: 🏆 Melhor Ano: 2023 — Nota 88 | ⚠️ Pior Ano: 2025 —
             Nota 42
           </p>
@@ -490,7 +503,7 @@ export default function MetodologiaPage() {
               </tbody>
             </table>
           </div>
-          <p className="mt-3 text-xs leading-relaxed text-slate-500">
+          <p className="mt-3 text-xs leading-relaxed text-slate-400">
             Consequência prática: a nota final de um parlamentar com todas as
             dimensões em baseline tende a gravitar próximo de 50 por construção
             — confira sempre a <strong>Confiança</strong> exibida e os selos de
@@ -521,11 +534,11 @@ export default function MetodologiaPage() {
                   {f.status}
                 </span>
                 <span className="text-slate-300">{f.fonte}</span>
-                <span className="text-slate-500">— {f.detalhe}</span>
+                <span className="text-slate-400">— {f.detalhe}</span>
               </li>
             ))}
           </ul>
-          <p className="mt-4 text-xs leading-relaxed text-slate-500">
+          <p className="mt-4 text-xs leading-relaxed text-slate-400">
             Dimensões sem fonte ativa usam baseline neutro (50). Elas entram
             automaticamente quando o respectivo pipeline é ativado — a nota é
             recalculada em massa e versionada.

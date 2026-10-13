@@ -21,7 +21,7 @@ export function PartyPerformanceChart({
         <h2 className="mb-4 text-xl font-bold text-slate-100">
           Evolução da Nota Média
         </h2>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-400">
           Histórico ainda insuficiente. Os snapshots são coletados mensalmente
           (rastreamento temporal).
         </p>

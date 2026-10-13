@@ -70,7 +70,7 @@ export default async function STFPage() {
                 </div>
                 <div className="text-xs font-bold text-sky-400">{d.peso}%</div>
               </div>
-              <div className="mt-1 text-xs text-slate-500">{d.desc}</div>
+              <div className="mt-1 text-xs text-slate-400">{d.desc}</div>
             </div>
           ))}
         </div>
@@ -97,7 +97,7 @@ export default async function STFPage() {
             >
               <h3 className="mb-2 font-bold text-slate-100">{j.name}</h3>
               {j.appointedBy && (
-                <div className="mb-3 text-xs text-slate-500">
+                <div className="mb-3 text-xs text-slate-400">
                   Indicado por: {j.appointedBy}
                 </div>
               )}
@@ -106,7 +106,7 @@ export default async function STFPage() {
                   {j.scores[0].finalScore.toFixed(1)}
                 </div>
               ) : (
-                <div className="text-sm italic text-slate-500">
+                <div className="text-sm italic text-slate-400">
                   Sem pontuação ainda
                 </div>
               )}

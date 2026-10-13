@@ -42,7 +42,7 @@ export function PartyScoreBreakdown({
             </span>
             <span className="text-sm font-bold text-slate-200">
               {membersComponent.toFixed(1)}{" "}
-              <span className="text-xs text-slate-500">de 70</span>
+              <span className="text-xs text-slate-400">de 70</span>
             </span>
           </div>
           <div className="mb-1 h-2 w-full rounded-full bg-slate-800">
@@ -51,7 +51,7 @@ export function PartyScoreBreakdown({
               style={{ width: `${(membersComponent / 70) * 100}%` }}
             />
           </div>
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-slate-400">
             {rankedCount}/{memberCount} membros com dados suficientes • Média:{" "}
             {avgMembersScore.toFixed(1)}
           </div>
@@ -65,7 +65,7 @@ export function PartyScoreBreakdown({
             </span>
             <span className="text-sm font-bold text-slate-200">
               {transparencyComponent.toFixed(1)}{" "}
-              <span className="text-xs text-slate-500">de 20</span>
+              <span className="text-xs text-slate-400">de 20</span>
             </span>
           </div>
           <div className="mb-1 h-2 w-full rounded-full bg-slate-800">
@@ -74,7 +74,7 @@ export function PartyScoreBreakdown({
               style={{ width: `${(transparencyComponent / 20) * 100}%` }}
             />
           </div>
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-slate-400">
             Prestação de contas ao TSE, portal próprio, estatuto público —{" "}
             <span className="text-amber-300/80">placeholder (50) até integração TSE</span>
           </div>
@@ -88,7 +88,7 @@ export function PartyScoreBreakdown({
             </span>
             <span className="text-sm font-bold text-slate-200">
               {complianceComponent.toFixed(1)}{" "}
-              <span className="text-xs text-slate-500">de 10</span>
+              <span className="text-xs text-slate-400">de 10</span>
             </span>
           </div>
           <div className="mb-1 h-2 w-full rounded-full bg-slate-800">
@@ -97,7 +97,7 @@ export function PartyScoreBreakdown({
               style={{ width: `${(complianceComponent / 10) * 100}%` }}
             />
           </div>
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-slate-400">
             Contas julgadas pelo TSE nos últimos 4 anos —{" "}
             <span className="text-amber-300/80">placeholder (50) até integração TSE</span>
           </div>

@@ -14,7 +14,7 @@ export function TimelineChart({ snapshots }: TimelineChartProps) {
         <h2 className="mb-4 text-xl font-bold text-slate-100">
           Evolução Histórica
         </h2>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-400">
           Sem histórico suficiente para exibir o gráfico. Os snapshots são
           coletados mensalmente (rastreamento temporal —{" "}
           <a href="/metodologia" className="text-sky-400 hover:underline">
@@ -121,7 +121,7 @@ export function TimelineChart({ snapshots }: TimelineChartProps) {
         </svg>
       </div>
 
-      <p className="mt-4 text-xs italic text-slate-500">
+      <p className="mt-4 text-xs italic text-slate-400">
         Snapshots mensais do IDIP. Quedas bruscas podem indicar eventos
         jurídicos ou mudança de padrão de votações.
       </p>

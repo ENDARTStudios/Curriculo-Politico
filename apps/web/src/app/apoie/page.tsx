@@ -30,11 +30,11 @@ export default function ApoiePage() {
             Qualquer valor ajuda a manter os servidores e APIs funcionando.
           </p>
           <div className="rounded-lg bg-slate-800/60 p-4 text-center">
-            <p className="mb-2 text-xs text-slate-500">Chave Pix (CNPJ):</p>
+            <p className="mb-2 text-xs text-slate-400">Chave Pix (CNPJ):</p>
             {pixKey ? (
               <p className="font-mono text-lg font-bold text-slate-100">{pixKey}</p>
             ) : (
-              <p className="text-sm italic text-slate-500">
+              <p className="text-sm italic text-slate-400">
                 Chave em configuração
               </p>
             )}
@@ -81,7 +81,7 @@ export default function ApoiePage() {
             <h4 className="font-semibold text-slate-100">
               Contribuir com Código
             </h4>
-            <p className="mt-1 text-xs leading-relaxed text-slate-500">
+            <p className="mt-1 text-xs leading-relaxed text-slate-400">
               Somos open source. Veja o{" "}
               <a
                 href="https://github.com/ENDARTStudios/Curriculo-Politico/blob/main/CONTRIBUTING.md"
@@ -97,14 +97,14 @@ export default function ApoiePage() {
           <div className="rounded-lg bg-slate-800/60 p-4">
             <div className="mb-2 text-2xl">📢</div>
             <h4 className="font-semibold text-slate-100">Divulgar</h4>
-            <p className="mt-1 text-xs leading-relaxed text-slate-500">
+            <p className="mt-1 text-xs leading-relaxed text-slate-400">
               Compartilhe o site nas redes sociais e com amigos.
             </p>
           </div>
           <div className="rounded-lg bg-slate-800/60 p-4">
             <div className="mb-2 text-2xl">🐛</div>
             <h4 className="font-semibold text-slate-100">Reportar Erros</h4>
-            <p className="mt-1 text-xs leading-relaxed text-slate-500">
+            <p className="mt-1 text-xs leading-relaxed text-slate-400">
               Encontrou dados incorretos?{" "}
               <Link href="/retificacao" className="text-sky-400 hover:underline">
                 Avise-nos
@@ -126,11 +126,11 @@ export default function ApoiePage() {
           <li>• Revisão jurídica e contábil</li>
           <li>• Ferramentas de desenvolvimento</li>
         </ul>
-        <p className="mt-3 text-xs italic text-slate-500">
+        <p className="mt-3 text-xs italic text-slate-400">
           A prestação de contas pública será publicada nesta página conforme o
           projeto receber doações.
         </p>
-        <p className="mt-3 text-xs leading-relaxed text-slate-500">
+        <p className="mt-3 text-xs leading-relaxed text-slate-400">
           Doação não é compra de serviço: não há contrapartida, vantagem ou
           influência sobre notas, rankings ou conteúdo editorial. Desistiu ou
           doou por engano? Escreva para{" "}

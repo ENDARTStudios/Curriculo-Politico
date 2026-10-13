@@ -136,7 +136,7 @@ export default async function PoliticoPage({ params }: Props) {
             {politician.politicalName}
           </h1>
           {politician.civilName !== politician.politicalName && (
-            <p className="mt-1 text-sm italic text-slate-500">
+            <p className="mt-1 text-sm italic text-slate-400">
               ({politician.civilName})
             </p>
           )}
@@ -165,7 +165,7 @@ export default async function PoliticoPage({ params }: Props) {
             )}
           </div>
 
-          <div className="mt-4 text-xs text-slate-500">
+          <div className="mt-4 text-xs text-slate-400">
             <p>Fonte: {politician.externalId ? `ID ${politician.externalId}` : "sem fonte integrada"}</p>
             <p>Nascimento: {politician.birthYear ?? "não informado"}</p>
           </div>
@@ -179,10 +179,10 @@ export default async function PoliticoPage({ params }: Props) {
               <div className="text-5xl font-bold text-slate-100">
                 {score.finalScore.toFixed(1)}
               </div>
-              <div className="mt-1 text-xs text-slate-500">
+              <div className="mt-1 text-xs text-slate-400">
                 IDIP v{score.version}
               </div>
-              <div className="mt-1 text-xs text-slate-500">
+              <div className="mt-1 text-xs text-slate-400">
                 Confiança: {score.confidenceScore.toFixed(0)}%
               </div>
             </div>
@@ -209,7 +209,7 @@ export default async function PoliticoPage({ params }: Props) {
             }}
           />
         ) : (
-          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 text-sm text-slate-500">
+          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 text-sm text-slate-400">
             Este político ainda não possui nota IDIP calculada.
           </div>
         )}
@@ -219,7 +219,7 @@ export default async function PoliticoPage({ params }: Props) {
             Registros Jurídicos Públicos
           </h2>
           {politician.legalRecords.length === 0 ? (
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-400">
               Nenhum registro público ativo ou transitado em julgado encontrado
               nas fontes oficiais integradas.
             </p>
@@ -230,7 +230,7 @@ export default async function PoliticoPage({ params }: Props) {
                   <div className="text-sm font-medium text-slate-200">
                     {rec.type.replace("_", " ")}
                   </div>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs text-slate-400">
                     {rec.court ?? "órgão não informado"} · {rec.status.replace(/_/g, " ").toLowerCase()}
                   </div>
                   {rec.sourceUrl && (
@@ -247,7 +247,7 @@ export default async function PoliticoPage({ params }: Props) {
               ))}
             </ul>
           )}
-          <p className="mt-4 text-xs italic text-slate-600">
+          <p className="mt-4 text-xs italic text-slate-400">
             Processos arquivados ou com absolvição são ocultados por
             conformidade LGPD.
           </p>
@@ -261,7 +261,7 @@ export default async function PoliticoPage({ params }: Props) {
             </h2>
             <div className="mb-5 grid grid-cols-2 gap-4">
               <div>
-                <div className="text-sm text-slate-500">Total arrecadado</div>
+                <div className="text-sm text-slate-400">Total arrecadado</div>
                 <div className="text-2xl font-bold text-slate-100">
                   R${" "}
                   {finance.totalReceived.toLocaleString("pt-BR", {
@@ -270,7 +270,7 @@ export default async function PoliticoPage({ params }: Props) {
                 </div>
               </div>
               <div>
-                <div className="text-sm text-slate-500">Receitas registradas</div>
+                <div className="text-sm text-slate-400">Receitas registradas</div>
                 <div className="text-2xl font-bold text-slate-100">
                   {finance.donorCount}
                 </div>
@@ -296,7 +296,7 @@ export default async function PoliticoPage({ params }: Props) {
                 </ul>
               </div>
             )}
-            <p className="mt-4 text-xs italic text-slate-600">
+            <p className="mt-4 text-xs italic text-slate-400">
               Fonte: TSE — Prestação de Contas {finance.year}. Não inclui
               fundo eleitoral rateado a futuras prestações.
             </p>

@@ -89,7 +89,7 @@ export function ProjetoFilters({ tipos, anos }: ProjetoFiltersProps) {
         </div>
       </div>
 
-      {isPending && <div className="mt-4 text-sm text-slate-500">Atualizando...</div>}
+      {isPending && <div className="mt-4 text-sm text-slate-400">Atualizando...</div>}
     </div>
   );
 }

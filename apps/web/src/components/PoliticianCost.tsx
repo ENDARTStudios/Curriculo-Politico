@@ -101,20 +101,20 @@ export function PoliticianCost({
 
       <div className="mb-6 grid grid-cols-2 gap-4 rounded-lg bg-slate-800/60 p-4">
         <div>
-          <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
             Custo Anual Total
           </div>
           <div className="text-2xl font-bold text-slate-100">{formatBRL(custoAnual)}</div>
-          <div className="text-xs text-slate-500">{formatBRL(custoAnual / 12)}/mês</div>
+          <div className="text-xs text-slate-400">{formatBRL(custoAnual / 12)}/mês</div>
         </div>
         <div>
-          <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">
             Patrimônio Declarado (TSE 2022)
           </div>
           <div className="text-2xl font-bold text-slate-100">
             {patrimonio > 0 ? formatBRL(patrimonio) : "—"}
           </div>
-          <div className="text-xs text-slate-500">contexto, não é gasto público</div>
+          <div className="text-xs text-slate-400">contexto, não é gasto público</div>
         </div>
       </div>
 
@@ -135,13 +135,13 @@ export function PoliticianCost({
               </div>
               <div className="text-sm font-bold text-slate-100">{formatBRL(valor)}</div>
             </div>
-            <div className="text-xs text-slate-500">{formatBRL(valor / 12)}/mês</div>
+            <div className="text-xs text-slate-400">{formatBRL(valor / 12)}/mês</div>
           </div>
         ))}
       </div>
 
       <div className="mt-6 rounded-lg bg-slate-800/60 p-3">
-        <p className="text-xs leading-relaxed text-slate-500">
+        <p className="text-xs leading-relaxed text-slate-400">
           <strong className="text-slate-400">Como calculamos:</strong> o status
           considera a razão entre o custo anual estimado e a produtividade do
           político (nota IDIP). Custo elevado com baixa produtividade reduz a

@@ -88,7 +88,7 @@ export function ContaAcoes({ consentido }: { consentido: boolean }) {
           {mensagem}
         </p>
       )}
-      <p className="mt-3 text-xs text-slate-500">
+      <p className="mt-3 text-xs text-slate-400">
         A exclusão técnica da conta é imediata (cascade no banco); o prazo
         contratual máximo é de 30 dias, conforme a Política de Privacidade.
       </p>

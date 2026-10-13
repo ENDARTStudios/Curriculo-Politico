@@ -18,7 +18,7 @@ export function VotosRecentes({ votos, total }: VotosRecentesProps) {
     return (
       <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
         <h2 className="mb-4 text-xl font-bold text-slate-100">Votos em Plenário</h2>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-400">
           Nenhum voto nominal registrado nas sessões plenárias do período.
         </p>
       </div>
@@ -39,7 +39,7 @@ export function VotosRecentes({ votos, total }: VotosRecentesProps) {
                 <div className="truncate text-sm font-medium text-slate-200">
                   Votação {voto.billId}
                 </div>
-                <div className="mt-0.5 text-xs text-slate-500">
+                <div className="mt-0.5 text-xs text-slate-400">
                   {voto.date
                     ? new Date(voto.date).toLocaleDateString("pt-BR")
                     : "Data não informada"}
@@ -61,7 +61,7 @@ export function VotosRecentes({ votos, total }: VotosRecentesProps) {
           );
         })}
       </div>
-      <p className="mt-4 text-xs italic text-slate-500">
+      <p className="mt-4 text-xs italic text-slate-400">
         Exibindo os {votos.length} votos mais recentes de {total} registrados
         nesta legislatura. Cada voto é auditável na fonte oficial da votação.
       </p>

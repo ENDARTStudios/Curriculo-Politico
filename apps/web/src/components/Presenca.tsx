@@ -12,7 +12,7 @@ export function Presenca({ presencas, total }: PresencaProps) {
         <h2 className="mb-4 text-xl font-bold text-slate-100">
           Presença em Sessões
         </h2>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-400">
           Nenhum registro de presença em sessões deliberativas.
         </p>
       </div>
@@ -41,11 +41,11 @@ export function Presenca({ presencas, total }: PresencaProps) {
 
       <div className="mb-5 grid grid-cols-2 gap-4">
         <div>
-          <div className="text-sm text-slate-500">Total de presenças</div>
+          <div className="text-sm text-slate-400">Total de presenças</div>
           <div className="text-3xl font-bold text-slate-100">{total}</div>
         </div>
         <div>
-          <div className="text-sm text-slate-500">
+          <div className="text-sm text-slate-400">
             Média mensal ({meses.length} meses com registro)
           </div>
           <div className="text-3xl font-bold text-slate-100">{mediaMensal}</div>
@@ -79,7 +79,7 @@ export function Presenca({ presencas, total }: PresencaProps) {
         })}
       </div>
 
-      <p className="mt-4 text-xs italic text-slate-500">
+      <p className="mt-4 text-xs italic text-slate-400">
         A API da Câmara registra apenas presenças (eventos com participação
         confirmada). Ausências não são contabilizadas — este número não é uma
         taxa de assiduidade.

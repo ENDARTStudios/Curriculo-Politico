@@ -108,7 +108,7 @@ export default async function StatusPage() {
         </table>
       </div>
 
-      <p className="mt-4 text-xs leading-relaxed text-slate-500">
+      <p className="mt-4 text-xs leading-relaxed text-slate-400">
         Monitoramento externo de uptime é executado por serviço independente
         (UptimeRobot). Câmara, Senado, TSE e Querido Diário estão acessíveis —
         seus pipelines podem ser reexecutados a qualquer momento. A coleta

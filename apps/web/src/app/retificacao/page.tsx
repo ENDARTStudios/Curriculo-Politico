@@ -236,7 +236,7 @@ export default function RetificacaoPage() {
           >
             {enviando ? "Enviando…" : "Enviar solicitação"}
           </button>
-          <p className="text-xs leading-relaxed text-slate-500">
+          <p className="text-xs leading-relaxed text-slate-400">
             Os dados deste formulário (nome, e-mail e conteúdo da solicitação)
             são tratados exclusivamente para responder ao pedido, com base no
             Art. 18 da LGPD, e mantidos pelo prazo de resposta e eventual
@@ -303,7 +303,7 @@ export default function RetificacaoPage() {
             3. A nota é recalculada e versionada — nunca editada manualmente.
           </li>
         </ol>
-        <p className="mt-3 text-xs italic text-slate-500">
+        <p className="mt-3 text-xs italic text-slate-400">
           Registros judiciais arquivados ou com absolvição já são ocultados
           automaticamente do perfil público, conforme nossa política de LGPD.
         </p>

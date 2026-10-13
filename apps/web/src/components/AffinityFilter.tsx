@@ -106,7 +106,7 @@ export function AffinityFilter() {
                 </span>
                 <span className="font-medium text-slate-100">{topic.label}</span>
               </button>
-              <div className="mb-2 text-xs text-slate-500">{topic.desc}</div>
+              <div className="mb-2 text-xs text-slate-400">{topic.desc}</div>
               {isSelected && (
                 <div className="flex gap-2">
                   <button
@@ -152,7 +152,7 @@ export function AffinityFilter() {
         </button>
       </div>
 
-      <p className="mt-3 text-xs italic text-slate-500">
+      <p className="mt-3 text-xs italic text-slate-400">
         Suas preferências são salvas apenas no seu navegador.{" "}
         <strong className="text-slate-400">
           Nunca alteram a nota factual (IDIP) dos políticos.

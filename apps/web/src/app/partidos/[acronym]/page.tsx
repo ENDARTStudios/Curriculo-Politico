@@ -107,19 +107,19 @@ export default async function PartidoPage({ params }: Props) {
             size="md"
           />
           {party.foundedYear && (
-            <span className="text-sm text-slate-500">
+            <span className="text-sm text-slate-400">
               Fundado em {party.foundedYear}
             </span>
           )}
           {party.tseNumber && (
-            <span className="text-sm text-slate-500">
+            <span className="text-sm text-slate-400">
               Nº TSE: {party.tseNumber}
             </span>
           )}
         </div>
         <div className="mt-4 flex gap-8">
           <div>
-            <div className="text-xs uppercase tracking-wide text-slate-500">
+            <div className="text-xs uppercase tracking-wide text-slate-400">
               Parlamentares
             </div>
             <div className="text-2xl font-bold text-slate-100">
@@ -127,7 +127,7 @@ export default async function PartidoPage({ params }: Props) {
             </div>
           </div>
           <div>
-            <div className="text-xs uppercase tracking-wide text-slate-500">
+            <div className="text-xs uppercase tracking-wide text-slate-400">
               Nota média (ranqueados)
             </div>
             <div className="text-2xl font-bold text-slate-100">
@@ -148,7 +148,7 @@ export default async function PartidoPage({ params }: Props) {
             finalScore={partyScore}
           />
         ) : (
-          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 text-sm text-slate-500">
+          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 text-sm text-slate-400">
             Nenhum membro ranqueado ainda — a nota do partido aparece quando
             houver membros com confiança ≥ 60%.
           </div>
@@ -173,7 +173,7 @@ export default async function PartidoPage({ params }: Props) {
                 />
                 <span className="text-sm text-slate-400">{party.ideology}</span>
               </div>
-              <p className="mt-2 text-xs italic text-slate-500">
+              <p className="mt-2 text-xs italic text-slate-400">
                 Classificação baseada em fontes públicas (registro TSE,
                 programas partidários e ciência política consolidada). É
                 contexto informativo — nunca influencia a nota IDIP.
@@ -198,7 +198,7 @@ export default async function PartidoPage({ params }: Props) {
       {/* Tabela ranqueados + GRAY */}
       <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-slate-800 text-xs uppercase tracking-wide text-slate-500">
+          <thead className="border-b border-slate-800 text-xs uppercase tracking-wide text-slate-400">
             <tr>
               <th className="p-4">#</th>
               <th className="p-4">Político</th>
@@ -210,7 +210,7 @@ export default async function PartidoPage({ params }: Props) {
           <tbody className="divide-y divide-slate-800/70">
             {ranked.map((m, i) => (
               <tr key={m.term.id} className="transition hover:bg-slate-800/40">
-                <td className="p-4 font-mono text-slate-500">{i + 1}º</td>
+                <td className="p-4 font-mono text-slate-400">{i + 1}º</td>
                 <td className="p-4">
                   <Link
                     href={`/politicos/${m.person.id}`}
@@ -232,7 +232,7 @@ export default async function PartidoPage({ params }: Props) {
             ))}
             {insufficient.map((m) => (
               <tr key={m.term.id} className="opacity-60 transition hover:bg-slate-800/40">
-                <td className="p-4 text-slate-600">—</td>
+                <td className="p-4 text-slate-400">—</td>
                 <td className="p-4">
                   <Link
                     href={`/politicos/${m.person.id}`}
@@ -241,7 +241,7 @@ export default async function PartidoPage({ params }: Props) {
                     {m.person.politicalName}
                   </Link>
                 </td>
-                <td className="p-4 text-slate-500">
+                <td className="p-4 text-slate-400">
                   {m.term.office.name} · {m.term.office.jurisdiction}
                 </td>
                 <td className="p-4 text-center">

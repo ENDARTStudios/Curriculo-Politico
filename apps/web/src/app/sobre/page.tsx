@@ -168,7 +168,7 @@ export default function SobrePage() {
             {FONTES.map((fonte) => (
               <div key={fonte.name} className="border-l-4 border-sky-500/60 py-1 pl-3">
                 <div className="text-sm font-medium text-slate-200">{fonte.name}</div>
-                <div className="text-xs text-slate-500">{fonte.desc}</div>
+                <div className="text-xs text-slate-400">{fonte.desc}</div>
               </div>
             ))}
           </div>
@@ -212,7 +212,7 @@ export default function SobrePage() {
               <li>• <strong>Absolvido/Arquivado:</strong> Dado ocultado ou marcado como limpo</li>
             </ul>
           </div>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-400">
             Termos completos em{" "}
             <Link href="/termos-de-uso" className="text-sky-400 hover:underline">
               /termos-de-uso
@@ -259,7 +259,7 @@ export default function SobrePage() {
               </ul>
             </div>
           </div>
-          <p className="mt-4 text-sm text-slate-500">
+          <p className="mt-4 text-sm text-slate-400">
             Política completa em{" "}
             <Link href="/privacidade" className="text-sky-400 hover:underline">
               /privacidade
@@ -306,7 +306,7 @@ export default function SobrePage() {
               </span>
             </li>
           </ul>
-          <p className="mt-4 text-xs italic text-slate-500">
+          <p className="mt-4 text-xs italic text-slate-400">
             O Currículo Político se compromete a atualizar o dado assim que a
             retificação for comprovada documentalmente na fonte oficial.
           </p>
