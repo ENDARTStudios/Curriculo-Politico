@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "StfScore" ADD COLUMN     "integrityScore" DOUBLE PRECISION NOT NULL DEFAULT 50;
