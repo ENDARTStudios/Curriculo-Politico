@@ -1,0 +1,56 @@
+name: Acessibilidade (WCAG 2.2 AA)
+
+# ── Por que um workflow separado do ci.yml ───────────────────────────────────
+# O job `verify` do ci.yml roda sem banco real e sem browser, o que o mantém
+# rápido (é o gate de PR). Uma suíte de browser precisa de um servidor servindo
+# páginas renderizadas — colocá-la ali atrasaria todo PR e traria flakiness para
+# o caminho crítico. Aqui ela roda de forma independente contra o deploy, que é
+# exatamente o ambiente cujo estado queremos afirmar.
+#
+# O alvo é a PRODUÇÃO, não um build local, pelo mesmo motivo que o
+# production-smoke.yml existe: auditar o que as pessoas realmente usam. As
+# asserções são todas `@readonly` — nenhuma escreve no banco.
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 30 min depois do smoke de produção (que roda a cada 6h), para não competir
+    - cron: '30 */6 * * *'
+
+jobs:
+  a11y:
+    runs-on: ubuntu-latest
+    env:
+      # www por padrão: o apex responde 308 e a suíte validaria redirect
+      E2E_BASE_URL: ${{ vars.PROD_URL || 'https://www.curriculopolitico.org' }}
+      # Não sobe servidor local: testamos o deploy
+      E2E_NO_SERVER: '1'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Gerar cliente Prisma (o config importa tipos do schema)
+        run: npx prisma generate --schema=apps/web/prisma/schema.prisma
+
+      # O package `@playwright/test` NÃO baixa browsers desde a v1.38, então o
+      # passo acima é leve. Este passo instala só o Chrome usado pela suíte.
+      - name: Instalar browser do Playwright
+        run: npx playwright install --with-deps chrome
+
+      - name: Auditar acessibilidade e funil contra produção
+        run: npx playwright test --grep @readonly --reporter=list
+
+      - name: Publicar relatório
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14

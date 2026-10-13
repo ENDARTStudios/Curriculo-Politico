@@ -21,3 +21,41 @@ __pycache__/
 # Sistema / Deploy
 .DS_Store
 .vercel
+
+# Artefatos locais de revisão de UI (capturas do @.design-review/capture.cjs).
+# O script de captura é versionado; as imagens geradas, não — são pesadas e
+# reproduzíveis a qualquer momento pelo próprio script.
+.design-review/*.png
+
+# Impeccable: estado efêmero, cache de hook e overrides por máquina.
+# Os artefatos compartilhados (config.json, design.json, surfaces/, critique/)
+# seguem versionados de propósito — são o contrato de design do projeto.
+**/.impeccable/config.local.json
+**/.impeccable/hook.cache.json
+**/.impeccable/hook.pending.json
+**/.impeccable/*.png
+**/.impeccable/review/
+**/.impeccable/questions/
+**/.impeccable/live/server.json
+**/.impeccable/live/sessions/
+**/.impeccable/live/previews/
+**/.impeccable/live/annotations/
+**/.impeccable/live/cache/
+**/.impeccable/live/manual-edit-apply-transaction.json
+**/.impeccable/live/manual-edit-events.jsonl
+**/.impeccable/live/manual-edit-evidence/
+**/.impeccable/live/pending-manual-edits.json
+**/.impeccable/live/deferred-svelte-component-accepts.json
+**/.impeccable/live/*.png
+
+# O engine do Impeccable é um binário de ~20 MB por plataforma. Ele é
+# rebaixado automaticamente pelo launcher na primeira execução, então não
+# precisa viajar no repositório (e não deve: é específico de SO/arquitetura).
+.dsh/skills/impeccable/scripts/bin/
+
+# Artefatos do Playwright: relatórios, traces e capturas de falha são
+# reproduzíveis pelo próprio `npm run e2e` e não pertencem ao repositório.
+test-results/
+playwright-report/
+blob-report/
+.playwright/

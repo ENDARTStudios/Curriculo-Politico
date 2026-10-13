@@ -13,6 +13,17 @@ import {
   type ExecutiveMetrics,
 } from "@cp/idip";
 
+/**
+ * Módulo de metodologia exibido na UI. Importado por caminho relativo de
+ * propósito: `apps/pipeline` não depende de `@cp/web` (que é uma aplicação
+ * Next, não uma biblioteca), e adicionar essa dependência só para ler uma
+ * constante inverteria a direção correta entre app e pipeline.
+ */
+import {
+  DIMENSOES as DIMENSOES_WEB,
+  METODOLOGIA_VERSAO as METODOLOGIA_VERSAO_WEB,
+} from "../../web/src/lib/methodology";
+
 let failures = 0;
 
 function check(name: string, condition: boolean, detail: string): void {
@@ -145,6 +156,62 @@ console.log("\nValidação de entrada");
 
   const piso = applySecretVotePenalty(10, 5, 5);
   check("penalidade nunca gera nota negativa", piso === 0, `obtido ${piso}`);
+}
+
+/**
+ * WEB-001 — sincronia entre a metodologia exibida na UI e o motor.
+ *
+ * A home renderiza os pesos a partir de `apps/web/src/lib/methodology.ts`, e não
+ * de `WEIGHTS`: `@cp/idip` publica apenas TypeScript não compilado, e importá-lo
+ * no build do Next exigiria `transpilePackages`. Essa cópia só é aceitável
+ * enquanto houver um teste que a mantenha honesta — sem isto, a UI volta a
+ * divergir do motor em silêncio.
+ *
+ * Já aconteceu: a home exibia "IDIP v1.0" com Produção 20% e Custo/Benefício 5%
+ * enquanto o motor rodava v1.1 (18% e 7%). Numa plataforma cujo diferencial é
+ * "algoritmos abertos", isso é o defeito mais caro possível.
+ *
+ * O teste importa o módulo real, então também garante que ele continua
+ * carregável (um erro de sintaxe ali quebra o CI aqui antes de quebrar o build).
+ */
+console.log("\nSincronia UI ↔ motor (WEB-001)");
+{
+  const perfis = [
+    { nome: "LEGISLATIVE", web: DIMENSOES_WEB.LEGISLATIVE },
+    { nome: "EXECUTIVE", web: DIMENSOES_WEB.EXECUTIVE },
+  ] as const;
+
+  for (const { nome, web } of perfis) {
+    const motor = WEIGHTS[nome as keyof typeof WEIGHTS] as Record<string, number>;
+
+    for (const dimensao of web) {
+      const esperado = Math.round(motor[dimensao.key] * 100);
+      check(
+        `${nome}.${dimensao.key} = ${esperado}%`,
+        dimensao.percent === esperado,
+        `UI exibe ${dimensao.percent}% e o motor usa ${esperado}%`,
+      );
+    }
+
+    // Nenhuma dimensão do motor pode ficar sem representação na UI: uma
+    // dimensão omitida faria os pesos exibidos não fecharem em 100%.
+    const chavesMotor = Object.keys(motor).sort();
+    const chavesWeb = web.map((d) => d.key).sort();
+    check(
+      `${nome}: UI cobre todas as ${chavesMotor.length} dimensões do motor`,
+      chavesMotor.join(",") === chavesWeb.join(","),
+      `motor [${chavesMotor.join(", ")}] × UI [${chavesWeb.join(", ")}]`,
+    );
+
+    const somaUI = web.reduce((total, d) => total + d.percent, 0);
+    check(`${nome}: pesos exibidos somam 100%`, somaUI === 100, `soma ${somaUI}%`);
+  }
+
+  check(
+    "versão exibida é 1.1",
+    METODOLOGIA_VERSAO_WEB === "1.1",
+    `obtido ${METODOLOGIA_VERSAO_WEB}`,
+  );
 }
 
 if (failures > 0) {
