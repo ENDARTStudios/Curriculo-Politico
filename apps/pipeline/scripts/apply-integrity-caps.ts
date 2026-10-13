@@ -50,6 +50,10 @@ async function applyCaps() {
       campaign: 50,
       hasFinalCondemnation: hasCondemnation,
       hasRejectedAccounts: hasAccountsRejected,
+      // `hasImpeachment` era calculado acima e NÃO repassado: o motor caía no
+      // ramo sem trava e a nota do impeachment não era limitada a 39.9. A
+      // detecção existia, o efeito não.
+      hasImpeachment,
       dataCompleteness: currentScore.confidenceScore,
     };
     const result = calculateIDIP(metrics);

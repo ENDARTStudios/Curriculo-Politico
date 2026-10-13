@@ -34,6 +34,22 @@ export interface LegislativeMetrics {
   campaign: number;
   hasFinalCondemnation: boolean;
   hasRejectedAccounts: boolean;
+  /**
+   * Trava de integridade (§4). `apply-integrity-caps.ts` JÁ detectava impeachment
+   * nos registros, mas o sinal nunca chegava ao motor — a trava constava da
+   * metodologia pública e não do cálculo. Opcional para não quebrar chamadas
+   * existentes; ausente é tratado como false.
+   */
+  hasImpeachment?: boolean;
+  /**
+   * Trava de integridade (§4) para inelegibilidade **declarada pela Justiça
+   * Eleitoral**. Ainda não há `LegalStatus.INELEGIBILITY` no schema nem coleta
+   * que produza este sinal, então hoje ele nunca chega. O campo existe para que
+   * a trava já esteja implementada no motor quando a coleta chegar — em vez de
+   * virar mais uma regra só declarada em documentação. Inelegibilidade por
+   * contas rejeitadas já entra por `hasRejectedAccounts`.
+   */
+  hasIneligibility?: boolean;
   /** 0–100. % dos dados necessários que conseguimos coletar. */
   dataCompleteness: number;
 }
@@ -51,6 +67,9 @@ export interface ExecutiveMetrics {
   governance: number;
   hasFinalCondemnation: boolean;
   hasRejectedAccounts: boolean;
+  /** Ver a nota em `LegislativeMetrics`: impeachment e inelegibilidade (§4). */
+  hasImpeachment?: boolean;
+  hasIneligibility?: boolean;
   dataCompleteness: number;
 }
 
@@ -129,10 +148,21 @@ export function calculateIDIP(
   }
   assertMetric(numericMetrics.dataCompleteness, "dataCompleteness");
 
-  // 1. Travas de integridade (Hard Caps): Condenação TJ, contas rejeitadas,
-  //    impeachment ou inelegibilidade zeram a Integridade (§4).
+  // 1. Travas de integridade (Hard Caps) — §4. As QUATRO condições da
+  //    metodologia pública zeram a Integridade e limitam a nota a HARD_CAP:
+  //    condenação transitada em julgado, contas rejeitadas, impeachment e
+  //    inelegibilidade declarada pela Justiça Eleitoral.
+  //
+  //    Antes desta correção o motor só honrava as duas primeiras. O impeachment
+  //    era detectado em `apply-integrity-caps.ts` e simplesmente não era
+  //    passado adiante, então a trava constava da metodologia e não do cálculo —
+  //    exatamente o tipo de divergência que a plataforma não pode ter.
   let integrityScore = numericMetrics.integrity;
-  const hardCapApplied = metrics.hasFinalCondemnation || metrics.hasRejectedAccounts;
+  const hardCapApplied =
+    metrics.hasFinalCondemnation ||
+    metrics.hasRejectedAccounts ||
+    metrics.hasImpeachment === true ||
+    metrics.hasIneligibility === true;
   if (hardCapApplied) {
     integrityScore = 0;
   }

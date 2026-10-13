@@ -21,6 +21,7 @@ import {
  */
 import {
   DIMENSOES as DIMENSOES_WEB,
+  DIMENSOES_STF as DIMENSOES_STF_WEB,
   METODOLOGIA_VERSAO as METODOLOGIA_VERSAO_WEB,
 } from "../../web/src/lib/methodology";
 
@@ -117,6 +118,73 @@ console.log("\nPerfil Executivo");
   check(`executivo condenado limitado a ${HARD_CAP}`, condenado.finalScore === HARD_CAP, `obtido ${condenado.finalScore}`);
 }
 
+/**
+ * Travas de integridade — as QUATRO condições da §4.
+ *
+ * Regressão real: o motor honrava apenas condenação e contas rejeitadas. O
+ * impeachment era DETECTADO em `apply-integrity-caps.ts` e nunca repassado, e
+ * inelegibilidade não existia como sinal. Ou seja, a metodologia pública
+ * prometia quatro travas e o cálculo aplicava duas — numa plataforma cujo
+ * diferencial é a auditabilidade, essa é a pior classe de defeito.
+ *
+ * Estes casos falham se qualquer uma das quatro deixar de zerar a Integridade e
+ * de limitar a nota a HARD_CAP.
+ */
+console.log("\nTravas de integridade (§4)");
+{
+  const travas: Array<[string, Partial<typeof cleanLegislative>]> = [
+    ["condenação transitada em julgado", { hasFinalCondemnation: true }],
+    ["contas rejeitadas", { hasRejectedAccounts: true }],
+    ["impeachment", { hasImpeachment: true }],
+    ["inelegibilidade (Justiça Eleitoral)", { hasIneligibility: true }],
+  ];
+
+  for (const [nome, patch] of travas) {
+    const r = calculateIDIP({ ...cleanLegislative, ...patch });
+    check(
+      `${nome}: nota limitada a ${HARD_CAP}`,
+      r.finalScore === HARD_CAP,
+      `obtido ${r.finalScore}`,
+    );
+    check(
+      `${nome}: Integridade zerada`,
+      r.breakdown.integrity.rawValue === 0,
+      `obtido ${r.breakdown.integrity.rawValue}`,
+    );
+    check(
+      `${nome}: termômetro RED`,
+      r.reliability === "RED",
+      `obtido ${r.reliability}`,
+    );
+    check(
+      `${nome}: hardCapApplied sinalizado para auditoria`,
+      r.hardCapApplied === true,
+      `obtido ${r.hardCapApplied}`,
+    );
+  }
+
+  // Grupo de controle: sem nenhuma trava, a nota NÃO pode ser limitada — senão
+  // o teste acima passaria por acidente (tudo capado).
+  const limpo = calculateIDIP(cleanLegislative);
+  check(
+    "sem trava: nota NÃO limitada (controle)",
+    limpo.finalScore > HARD_CAP && limpo.hardCapApplied === false,
+    `obtido ${limpo.finalScore}, hardCap=${limpo.hardCapApplied}`,
+  );
+
+  // Compatibilidade: campos opcionais ausentes não podem quebrar o cálculo.
+  const semCampos = calculateIDIP({
+    integrity: 100, productivity: 85, approval: 70, oversight: 90,
+    presence: 95, transparency: 100, costEfficiency: 80, campaign: 90,
+    hasFinalCondemnation: false, hasRejectedAccounts: false, dataCompleteness: 95,
+  });
+  check(
+    "campos novos ausentes não quebram o cálculo",
+    semCampos.hardCapApplied === false && semCampos.finalScore > HARD_CAP,
+    `obtido ${semCampos.finalScore}, hardCap=${semCampos.hardCapApplied}`,
+  );
+}
+
 console.log("\nValidação de entrada");
 {
   let threw = false;
@@ -211,6 +279,79 @@ console.log("\nSincronia UI ↔ motor (WEB-001)");
     "versão exibida é 1.1",
     METODOLOGIA_VERSAO_WEB === "1.1",
     `obtido ${METODOLOGIA_VERSAO_WEB}`,
+  );
+}
+
+/**
+ * WEB-002 — integridade do IDIP-STF (Judiciário).
+ *
+ * O IDIP-STF não passa por `WEIGHTS` do motor, porque `calculateIDIP` só conhece
+ * os perfis LEGISLATIVE e EXECUTIVE (a coleta de decisões do STF ainda não
+ * existe). Isso significa que os pesos do Judiciário NÃO têm a rede de proteção
+ * do WEB-001 — então precisam da própria, senão viram números soltos na UI, sem
+ * nada que os prenda a uma estrutura de dados.
+ *
+ * O que este bloco trava:
+ *  1. os pesos exibidos somam exatamente 100%;
+ *  2. as quatro dimensões correspondem 1:1 aos campos de `StfScore`
+ *     (`integrityScore`, `productivityScore`, `consistencyScore`,
+ *     `transparencyScore`) — um peso sem campo onde gravar seria metodologia
+ *     decorativa;
+ *  3. Integridade mantém os mesmos 25% do Legislativo e do Executivo, porque é
+ *     a âncora do índice e as travas de integridade valem igualmente no STF.
+ *
+ * O campo `integrityScore` foi ADICIONADO ao schema nesta mudança justamente
+ * para que esta checagem pudesse existir; antes, um peso de Integridade de 25%
+ * não teria onde ser persistido.
+ */
+console.log("\nIntegridade do IDIP-STF (WEB-002)");
+{
+  const stf = DIMENSOES_STF_WEB;
+
+  const camposStfScore = [
+    "integrityScore",
+    "productivityScore",
+    "consistencyScore",
+    "transparencyScore",
+  ];
+  const chaves = stf.map((d) => `${d.key}Score`).sort();
+
+  check(
+    "IDIP-STF: as 4 dimensões mapeiam 1:1 nos campos de StfScore",
+    chaves.join(",") === [...camposStfScore].sort().join(","),
+    `UI [${chaves.join(", ")}] × StfScore [${[...camposStfScore].sort().join(", ")}]`,
+  );
+
+  const somaStf = stf.reduce((total, d) => total + d.percent, 0);
+  check("IDIP-STF: pesos somam 100%", somaStf === 100, `soma ${somaStf}%`);
+
+  const integridadeStf = stf.find((d) => d.key === "integrity")?.percent;
+  const integridadeLeg = WEIGHTS.LEGISLATIVE.integrity * 100;
+  const integridadeExec = WEIGHTS.EXECUTIVE.integrity * 100;
+  check(
+    "IDIP-STF: Integridade mantém 25% como nos outros perfis",
+    integridadeStf === integridadeLeg && integridadeStf === integridadeExec,
+    `STF ${integridadeStf}% × Legislativo ${integridadeLeg}% × Executivo ${integridadeExec}%`,
+  );
+
+  // Consistência é a dimensão de maior peso de propósito: previsibilidade é o
+  // que se espera de um tribunal constitucional, e o teste guarda essa intenção
+  // contra um ajuste futuro que a rebaixe sem perceber.
+  const consistencia = stf.find((d) => d.key === "consistency")?.percent ?? 0;
+  const maior = Math.max(...stf.map((d) => d.percent));
+  check(
+    "IDIP-STF: Consistência é a dimensão de maior peso",
+    consistencia === maior,
+    `consistência ${consistencia}% × maior peso ${maior}%`,
+  );
+
+  // Celeridade foi deliberadamente excluída: `StfCase` tem `decisionDate`, mas
+  // não a data de autuação, então tempo até a decisão é imensurável. Se alguém
+  // reintroduzir a dimensão sem adicionar o marco inicial ao schema, isto falha.
+  check(
+    "IDIP-STF: não há dimensão imensurável (celeridade)",
+    !stf.some((d) => /celer/i.test(d.key) || /celer/i.test(d.label)),
+    `dimensões: ${stf.map((d) => d.label).join(", ")}`,
   );
 }
 
