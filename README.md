@@ -19,7 +19,7 @@ Plataforma open-source de transparência política que agrega dados públicos fe
 │   └── pipeline/       Dados: scripts TS de carga/recálculo + ETLs Python (Câmara/Senado/TSE)
 ├── packages/
 │   └── idip/           Motores puros compartilhados: cálculo IDIP + resolução de identidade (@cp/idip)
-├── docs/               Documentação (security/, ops/)
+├── docs/               Documentação (05-security-compliance/, 06-devops-deployment/, ops/anexos/)
 ├── data/               Cache local de dados brutos do ETL (gitignored)
 ├── docker-compose.yml  Infra local de dev (Postgres 15432 + Redis 16379)
 └── .github/workflows   CI · snapshot mensal de scores · smoke de produção (6h)
@@ -98,13 +98,14 @@ npm run build             # Build de produção
 ## Compliance
 
 - **Linguagem jurídica estrita:** apenas "Réu em Ação Penal" / "Condenação Transitada em Julgado"; nunca "crime" sem trânsito em julgado.
-- **LGPD:** minimização de dados (nenhum CPF, endereço, dado familiar); registros judiciais arquivados/absolvidos ocultados automaticamente; consentimento específico versionado para a votação (dado sensível). Ver [`docs/security/RIPD.md`](docs/security/RIPD.md).
+- **LGPD:** minimização de dados (nenhum CPF, endereço, dado familiar); registros judiciais arquivados/absolvidos ocultados automaticamente; consentimento específico versionado para a votação (dado sensível). Ver [`docs/05-security-compliance/RIPD.md`](docs/05-security-compliance/RIPD.md) e [`docs/05-security-compliance/COMPLIANCE.md`](docs/05-security-compliance/COMPLIANCE.md).
 - **Direito de resposta:** canal de retificação com protocolo rastreável (`/retificacao`).
 
 ## Documentação
 
-- [`docs/security/`](docs/security/) — RIPD e auditorias jurídicas
-- [`docs/ops/`](docs/ops/) — auditorias técnicas de produção
+- [`docs/05-security-compliance/`](docs/05-security-compliance/) — RIPD, LGPD/compliance, modelagem de ameaças (STRIDE), resposta a incidentes, identidade e acessos (IAM/IGA, RBAC, RLS, MFA, ZTNA, NAC), revisão de segurança e divulgação de vulnerabilidades
+- [`docs/06-devops-deployment/`](docs/06-devops-deployment/) — CI/CD, deploy de produção e preview, QA/testes, backup e recuperação de desastre, code review, FinOps e auditorias técnicas de produção
+- [`docs/ops/`](docs/ops/) — apenas [`anexos/`](docs/ops/anexos/) (relatórios de pesquisa brutos; ver [`docs/ops/README.md`](docs/ops/README.md))
 - [`apps/web/README.md`](apps/web/README.md) · [`apps/pipeline/README.md`](apps/pipeline/README.md)
 
 ## Licenças

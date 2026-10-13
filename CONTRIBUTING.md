@@ -35,7 +35,8 @@ npm run build                 # build limpo
   julgamento ideológico no IDIP. A nota mede atividade, integridade e
   transparência — nunca o conteúdo das votações.
 - **Linguagem jurídica estrita:** "Réu em Ação Penal", nunca "criminoso" sem
-  trânsito em julgado (ver `05-security-compliance/SECURITY_BASELINE.md`).
+  trânsito em julgado (ver
+  [`docs/05-security-compliance/COMPLIANCE.md`](docs/05-security-compliance/COMPLIANCE.md) §7).
 - **Fontes oficiais apenas:** todo dado novo precisa de ETL com URL da fonte
   e `retrievedAt`.
 - **LGPD:** nunca adicione CPF, endereço, telefone ou dados de familiares.

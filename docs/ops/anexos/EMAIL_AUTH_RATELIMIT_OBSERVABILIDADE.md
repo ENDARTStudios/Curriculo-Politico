@@ -1,5 +1,5 @@
 > **Nota de correção (2026-10-12).** Este relatório é **material de pesquisa** e foi
-> incorporado, verificado e corrigido em [docs/ops/AVALIACAO_ALTERNATIVAS.md](../AVALIACAO_ALTERNATIVAS.md).
+> incorporado, verificado e corrigido em [docs/06-devops-deployment/AVALIACAO_ALTERNATIVAS.md](../../06-devops-deployment/AVALIACAO_ALTERNATIVAS.md).
 >
 > **Correção do §"ALERTA QUE EXIGE AÇÃO HOJE":** as duas CVEs do NextAuth citadas
 > (GHSA-x445-f3h2-j279 e GHSA-7rqj-j65f-68wh) **são reais**, mas o projeto **já está na versão

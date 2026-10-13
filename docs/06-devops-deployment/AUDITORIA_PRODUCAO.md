@@ -159,7 +159,7 @@ Vercel.
    (DPO), `+direitos` (Art. 18), `+security` (incidentes), `+contato`
    (institucional/imprensa), `+suporte` e `+reembolso`. Endereços
    `@curriculopolitico.org` substituídos por não terem caixa postal ativa.
-   Ver `docs/security/RIPD.md` §5 e §6.1.
+   Ver [`../05-security-compliance/RIPD.md`](../05-security-compliance/RIPD.md) §5 e §6.1.
 3. **SCCs** de Vercel/Sentry não assinados (P1-03).
 4. **Revisão jurídica humana** de Termos, Política de Privacidade e RIPD antes de
    campanha.
@@ -194,7 +194,7 @@ Vercel.
 
    **Correção de premissa:** o `pool_size: 15` **não** é teto do plano gratuito, e sim um
    **default configurável** no painel (teto do compute Nano: 60 conexões diretas / 200 via pooler).
-   Análise completa em [`AVALIACAO_ALTERNATIVAS.md`](AVALIACAO_ALTERNATIVAS.md) §2.4 e §3.
+   Análise completa em [`AVALIACAO_ALTERNATIVAS.md`](./AVALIACAO_ALTERNATIVAS.md) §2.4 e §3.
 
    **Validação antes de tocar em produção:** o pooler foi testado com o Prisma isolado e depois
    com a aplicação inteira rodando localmente contra a 6543 — **sem janela de indisponibilidade**.

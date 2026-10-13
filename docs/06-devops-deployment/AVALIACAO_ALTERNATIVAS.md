@@ -136,7 +136,7 @@ prioridade que a primeira medição sugeria.
 
 | Onde | O que diz |
 |---|---|
-| `docs/security/RIPD.md` §4 | Mitigação do risco de vazamento inclui "**backups Supabase**" |
+| [`../05-security-compliance/RIPD.md`](../05-security-compliance/RIPD.md) §4 | Mitigação do risco de vazamento inclui "**backups Supabase**" |
 | Realidade | **Não existe nenhum backup**: nenhum `pg_dump`, nenhum workflow, e o **plano Free do Supabase não inclui backup automático** (confirmado na tabela oficial de preços: Free = "Automatic backups: Not included"; Pro = 7 dias) |
 
 98 MB de dados curados (31.815 proposições, 166.825 presenças) e, no futuro, votos de usuários
@@ -496,7 +496,7 @@ internacional, art. 33) — desligar armazenamento de mensagens no Resend e usar
 | **Zero testes automatizados** | não há Vitest/Jest/Playwright; só `verify:scoring` e `verify:identity` | Adicionar **Vitest** cobrindo rotas de API e motores; o CI já existe e leva ~1 min |
 | **Erros engolidos** | `catch {}` em 8 rotas; `/api/rankings` devolve `BANCO_INDISPONIVEL` **para qualquer** erro | Logar a causa real no servidor (agora invisível sem Sentry) e devolver status correto |
 | **Sem `error.tsx` de segmento** | só `global-error.tsx` | Um erro em uma rota derruba a página inteira |
-| **`/status` e `/metodologia` com texto fixo** | Afirmam que **TSE e Querido Diário estão bloqueados** — a sondagem de hoje mostra **HTTP 200 nos dois**. Ocorrências: [`status/page.tsx`](../..//apps/web/src/app/status/page.tsx#L113), [`metodologia/page.tsx`](../..//apps/web/src/app/metodologia/page.tsx#L81) ("aguardando acesso ao CDN do TSE") e [`metodologia/page.tsx`](../..//apps/web/src/app/metodologia/page.tsx#L475) | Tornar a saúde das fontes **medida** pelo mesmo probe usado nesta avaliação; corrigir os textos estáticos. Numa plataforma de transparência, errar sobre as próprias fontes custa credibilidade |
+| **`/status` e `/metodologia` com texto fixo** | Afirmam que **TSE e Querido Diário estão bloqueados** — a sondagem de hoje mostra **HTTP 200 nos dois**. Ocorrências: [`status/page.tsx`](../../apps/web/src/app/status/page.tsx#L113), [`metodologia/page.tsx`](../../apps/web/src/app/metodologia/page.tsx#L81) ("aguardando acesso ao CDN do TSE") e [`metodologia/page.tsx`](../../apps/web/src/app/metodologia/page.tsx#L475) | Tornar a saúde das fontes **medida** pelo mesmo probe usado nesta avaliação; corrigir os textos estáticos. Numa plataforma de transparência, errar sobre as próprias fontes custa credibilidade |
 | **Middleware em todas as rotas** | matcher cobre tudo, inclusive páginas estáticas | Restringir a matcher (`/api/*` + rotas com CSP necessário) reduz CPU no Edge |
 | **`.env` local aponta para produção** | `db:seed`, `db:load-*` gravam em produção | Já mitigado com guarda no `db:seed`; estender aos demais scripts destrutivos |
 
