@@ -1,6 +1,7 @@
 "use client";
 
 import { mesCurtoSnapshot } from "@/lib/snapshot";
+import { formatarNota } from "@/lib/formato";
 
 export interface SnapshotPoint {
   date: string;
@@ -94,10 +95,13 @@ export function PartyPerformanceChart({
                 >
                   {fmt(s.date)}
                 </text>
-                <title>
-                  {fmt(s.date)}: média {s.avgScore.toFixed(1)} ({s.memberCount}{" "}
-                  membros ranqueados)
-                </title>
+                {/*
+                  Um só string: `<title>` de SVG com vários filhos faz o React
+                  avisar e produz nome acessível instável. Alguns leitores de
+                  tela leem apenas o primeiro nó, então o valor da média se
+                  perdia justamente para quem depende do texto.
+                */}
+                <title>{`${fmt(s.date)}: média ${formatarNota(s.avgScore)} (${s.memberCount} membros ranqueados)`}</title>
               </g>
             );
           })}

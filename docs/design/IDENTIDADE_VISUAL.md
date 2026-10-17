@@ -283,7 +283,57 @@ O texto de ajuda fica **fora** do frame do campo, como nó separado, porque no a
 ele vira um elemento próprio ligado por `aria-describedby`. Desenhá-lo dentro do
 campo esconderia essa separação.
 
-## 7. O que não está coberto
+## 7. Implementação no código
+
+O documento desenha; o código precisa **concordar** com ele. O primeiro ponto em
+que discordava era o mais visível de todos: o formato do número.
+
+### 7.1 O número era exibido com ponto decimal
+
+O app mostrava `70.0` — convenção de `en-US` — em **catorze** pontos da
+interface, enquanto o documento usa `70,0` desde o primeiro artboard. Numa
+plataforma brasileira isso não é cosmético: quem lê `70.0` tende a ler "setenta",
+sem decimais, e o número que é o produto parece inteiro.
+
+Corrigido com `apps/web/src/lib/formato.ts` (`formatarNota`, `formatarPercentual`,
+`formatarInteiro`), consumido por ranking, perfil de político, partido, STF,
+comparação e os gráficos.
+
+Duas decisões:
+
+- **`null` devolve `—`, nunca `0,0`.** Nota zero é um resultado; ausência de nota é
+  outro, e o projeto trava publicação de nota com confiança baixa justamente para
+  não confundir os dois.
+- **`npm run verify:formato`** falha se um campo de domínio (`finalScore`,
+  `avgScore`, `confidenceScore`, `nota`…) voltar a usar `toFixed`. `toFixed` não
+  tem locale, então aceita qualquer idioma — inclusive nenhum. Valores técnicos
+  (coordenada de SVG, largura de barra) seguem livres.
+
+### 7.2 Barra de magnitude na listagem
+
+O arquétipo 06 pede que a distância entre duas notas seja **visível**. O ranking
+passou a ter uma barra de escala fixa (0–100) e largura constante em todas as
+linhas, sob o número.
+
+Ela é **azul, não cor de estado**: o Termômetro na coluna ao lado já carrega
+confiabilidade, e repetir a mesma cor duas vezes na linha faria a cor deixar de
+significar uma coisa só.
+
+### 7.3 Nome acessível dos gráficos
+
+Os `<title>` de SVG tinham vários filhos de texto. O React avisa, e o nome
+acessível fica instável — alguns leitores leem só o primeiro nó, então o valor da
+média se perdia justamente para quem depende do texto. Passaram a ser um único
+string.
+
+### 7.4 O que a verificação visual pegou
+
+As páginas foram abertas com o **banco de produção** (túnel Railway, 594
+registros) e capturadas em 1440px. Confirmado: `70,0` no ranking e no perfil,
+`Confiança: 95%`, barras de magnitude. O aviso do React sobre `<title>` apareceu
+só nessa execução — nenhum teste de unidade o pegaria.
+
+## 8. O que não está coberto
 
 - **Responsivo**: os artboards são 1440. O comportamento em 375px está verificado
   por Playwright, não desenhado.

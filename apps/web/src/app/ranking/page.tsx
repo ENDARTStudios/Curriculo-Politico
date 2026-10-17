@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReliabilityStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { formatarNota, formatarPercentual } from "@/lib/formato";
 import { Termometro } from "@/components/Termometro";
 import { LegalDisclaimer } from "@/components/LegalDisclaimer";
 import Image from "next/image";
@@ -87,15 +88,37 @@ function LinhaRanking({ row, posicao }: { row: RankingRow; posicao: number | nul
       <td className="p-4 text-center">
         {row.score ? <Termometro status={row.score.reliabilityStatus} /> : "—"}
       </td>
-      <td
-        className={`p-4 text-center font-bold ${
-          destaque ? "text-lg text-slate-100" : "text-slate-400"
-        }`}
-      >
-        {row.score ? row.score.finalScore.toFixed(1) : "—"}
+      <td className="p-4">
+        {row.score ? (
+          <div className="flex flex-col items-center gap-1.5">
+            <span
+              className={`font-bold tabular-nums ${
+                destaque ? "text-lg text-slate-100" : "text-slate-400"
+              }`}
+            >
+              {formatarNota(row.score.finalScore)}
+            </span>
+            {/*
+              Barra de magnitude com escala fixa (0–100) e a mesma largura em
+              todas as linhas: é o que torna a distância entre duas notas
+              visível. Um número sozinho não se compara.
+              Azul, não cor de estado: o Termômetro na coluna ao lado já carrega
+              confiabilidade, e repetir a mesma cor duas vezes na linha faria a
+              cor deixar de significar uma coisa só.
+            */}
+            <span className="block h-1 w-24 overflow-hidden rounded-full bg-slate-800">
+              <span
+                className="block h-full rounded-full bg-sky-500"
+                style={{ width: `${Math.min(100, Math.max(0, row.score.finalScore))}%` }}
+              />
+            </span>
+          </div>
+        ) : (
+          "—"
+        )}
       </td>
-      <td className={`p-4 text-center ${destaque ? "text-slate-400" : "text-slate-400"}`}>
-        {row.score ? `${row.score.confidenceScore.toFixed(0)}%` : "—"}
+      <td className="p-4 text-center tabular-nums text-slate-400">
+        {formatarPercentual(row.score?.confidenceScore)}
       </td>
     </tr>
   );
