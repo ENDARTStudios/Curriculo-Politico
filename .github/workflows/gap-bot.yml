@@ -1,0 +1,61 @@
+name: Gap Bot
+
+on:
+  schedule:
+    # Segundas-feiras 04:00 UTC (01:00 BRT)
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+    inputs:
+      with_etl:
+        description: "Executar ETLs da Câmara/Senado (coleta nas APIs públicas)"
+        type: boolean
+        default: false
+
+jobs:
+  bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Gerar cliente Prisma
+        run: npx prisma generate --schema=apps/web/prisma/schema.prisma
+
+      - name: Dependências dos ETLs
+        run: pip install -r apps/pipeline/etl/requirements.txt
+
+      - name: 📊 Escanear gaps
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npm run bot:gaps
+
+      - name: 🔧 Corrigir (idempotente)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npm run bot:fix${{ inputs.with_etl == true && ':etl' || '' }}
+
+      - name: 📄 Resumo no job
+        if: always()
+        run: |
+          for f in data/gaps/*-fix.md data/gaps/*-gaps.md; do
+            [ -f "$f" ] && cat "$f" >> "$GITHUB_STEP_SUMMARY" && echo >> "$GITHUB_STEP_SUMMARY"
+          done
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gap-report
+          path: data/gaps/
+          retention-days: 90
