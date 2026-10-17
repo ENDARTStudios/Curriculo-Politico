@@ -68,15 +68,23 @@ export default function CalendarioEleitoralPage() {
       </p>
 
       {proxima && (
-        <div className="mt-10 rounded-xl bg-gradient-to-br from-sky-600 to-blue-800 p-6 text-white">
-          <div className="mb-1 text-sm opacity-80">Próxima eleição</div>
-          <div className="mb-2 text-3xl font-bold">{proxima.ano}</div>
-          <div className="text-lg">
+        /*
+          Era `bg-gradient-to-br from-sky-600 to-blue-800 text-white`. Gradiente
+          como destaque é uma das coisas que o conceito recusa: azul aqui é ação,
+          não decoração. E `text-white` sobre sky-600 fica em 3,7:1, abaixo de AA
+          para o texto pequeno que havia embaixo.
+          O destaque agora é um painel sólido com borda de ação — o mesmo
+          vocabulário do resto do sistema.
+        */
+        <div className="mt-10 rounded-xl border border-sky-500/60 bg-slate-900 p-6">
+          <div className="mb-1 text-sm text-slate-300">Próxima eleição</div>
+          <div className="mb-2 text-3xl font-bold tracking-tight text-slate-50">{proxima.ano}</div>
+          <div className="text-lg text-slate-100">
             <strong>
               {proxima.tipo === "Geral" ? "Eleição Geral" : "Eleição Municipal"}
             </strong>
           </div>
-          <div className="mt-3 text-sm">
+          <div className="mt-3 text-sm text-slate-300">
             Cargos em disputa: {proxima.cargos.join(", ")}
           </div>
         </div>

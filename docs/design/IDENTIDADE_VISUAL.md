@@ -373,13 +373,43 @@ registros) e capturadas em 1440px. Confirmado: `70,0` no ranking e no perfil,
 `Confiança: 95%`, barras de magnitude. O aviso do React sobre `<title>` apareceu
 só nessa execução — nenhum teste de unidade o pegaria.
 
-## 8. O que não está coberto
+## 8. Estados de sistema
+
+Três estados que o usuário encontra e que não estavam desenhados nem
+implementados: 404, erro de rota e carregamento.
+
+| Arquivo | Estado | Decisão |
+|---|---|---|
+| `app/not-found.tsx` | 404 | A saída principal é o **ranking**, não a home: quem buscava um político e caiu aqui ainda quer o político |
+| `app/error.tsx` | erro de rota | Mantém a moldura do site; a `global-error` substitui o layout inteiro e deixa a pessoa sem caminho de volta |
+| `app/loading.tsx` | carregamento | Esqueleto com a forma do conteúdo, não spinner |
+
+### 8.1 Por que esqueleto e não spinner
+
+A auditoria de produção mediu **3,1 s** de resposta no ranking. Nesse tempo, um
+spinner informa apenas "espere"; um esqueleto informa **o que está vindo** e faz a
+espera parecer menor, porque a atenção já está no lugar certo quando o dado chega.
+
+O esqueleto é genérico de propósito: `app/loading.tsx` cobre todas as rotas, e
+desenhar a forma de uma página mentiria nas outras.
+
+### 8.2 Acessibilidade destes estados
+
+- O 404 e o erro mantêm `<h1>` e a navegação — não são telas isoladas.
+- O erro mostra o `digest` do Next: sem ele um relato de problema não é acionável.
+  Não é stack trace, é um identificador curto.
+- O esqueleto usa `role="status"` com texto oculto ("Carregando o conteúdo…") e
+  `motion-reduce:animate-none`: a animação é desligada por `prefers-reduced-motion`,
+  e quem a desliga precisa continuar sabendo que algo está em andamento — por isso
+  o texto existe no DOM.
+- O 404 é auditado junto com as 28 rotas (`npm run audit:visual`), porque é uma
+  página que o usuário vê.
+
+## 9. O que não está coberto
 
 - **Responsivo**: os artboards são 1440. O comportamento em 375px está verificado
   por Playwright, não desenhado.
 - **Modo claro**: o tema é dark fixo por decisão de produto, então não há variante.
-- **Estados de carregamento de página inteira** (skeleton, erro de rota) — a
-  página 04 cobre o carregamento **de ação**, não o de tela.
 - **Tokens exportados para CSS**: o FigCraft sabe exportar as variables como
   custom properties (`variable.export --format css`). Não foi feito porque o
   `@theme` do Tailwind já é a fonte que o app consome — ter as duas seria criar

@@ -113,7 +113,7 @@ export function AffinityFilter() {
                     onClick={() => setPosition(topic.id, "FAVOR")}
                     className={`flex-1 rounded px-2 py-1 text-xs font-medium transition ${
                       position === "FAVOR"
-                        ? "bg-emerald-500 text-slate-950"
+                        ? "border border-emerald-500/40 bg-emerald-500/20 text-emerald-300"
                         : "bg-slate-800 text-slate-300 hover:bg-slate-700"
                     }`}
                   >
@@ -121,9 +121,17 @@ export function AffinityFilter() {
                   </button>
                   <button
                     onClick={() => setPosition(topic.id, "CONTRA")}
+                    /*
+                      Era `bg-red-500 text-white` — branco sobre red-500 dá ~3,9:1
+                      e reprova em AA para texto pequeno. Passou a usar o mesmo
+                      vocabulário dos badges do Termômetro (fundo translúcido +
+                      texto no tom claro da família), que é legível e mantém a
+                      distinção entre os dois lados sem depender de preenchimento
+                      sólido.
+                    */
                     className={`flex-1 rounded px-2 py-1 text-xs font-medium transition ${
                       position === "CONTRA"
-                        ? "bg-red-500 text-white"
+                        ? "border border-red-500/40 bg-red-500/20 text-red-300"
                         : "bg-slate-800 text-slate-300 hover:bg-slate-700"
                     }`}
                   >

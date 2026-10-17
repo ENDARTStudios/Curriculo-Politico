@@ -93,6 +93,13 @@ proteção.
   `[Console]::OutputEncoding=[System.Text.Encoding]::UTF8` **e** tolerar a perda
   (comparando caractere não-ASCII como curinga). O guard de `next dev` falhava em
   silêncio por isso — existia e nunca bloqueava.
+- **`prisma generate` falha com `EPERM` enquanto `next dev` roda.** O passo
+  `prisma generate` do build renomeia `query_engine-windows.dll.node` dentro de
+  `node_modules/.prisma/client`, e o servidor de desenvolvimento mantém essa DLL
+  carregada. O erro é
+  `EPERM: operation not permitted, rename '...query_engine-windows.dll.node.tmpNNN'`
+  e derruba o build inteiro. Encerre o `next dev` antes de buildar — o guard do
+  `prebuild` cobre o `.next`, mas não este lock.
 - A suíte Playwright (`npm run e2e`) sobe o próprio servidor na **porta 3033** de
   propósito: a 3000 é disputada por outros projetos desta máquina e o `next dev`
   troca de porta sozinho, derrubando a suíte no meio da execução.
