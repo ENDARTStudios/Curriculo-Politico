@@ -80,7 +80,10 @@
     "etl:ceap-bulk": "python apps/pipeline/etl/camara_despesas_bulk.py",
     "etl:bens": "python apps/pipeline/etl/tse_bens.py",
     "etl:bens-historico": "python apps/pipeline/etl/tse_patrimony_history.py",
-    "etl:municipal": "python apps/pipeline/etl/municipal_gazettes.py"
+    "etl:municipal": "python apps/pipeline/etl/municipal_gazettes.py",
+    "bot:gaps": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/gap-scan.ts",
+    "bot:fix": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/auto-fix.ts",
+    "bot:fix:etl": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/auto-fix.ts --with-etl"
   },
   "devDependencies": {
     "prisma": "^6.16.0",
