@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+# Hook de pré-commit do Currículo Político.
+#
+# ── Por que mora aqui, e não em .git/hooks ────────────────────────────────────
+# `.git/hooks/` não é versionado: cada clone teria que recriar o hook à mão, e
+# clones novos ficariam sem proteção justamente até alguém lembrar. Com
+# `git config core.hooksPath .githooks` (feito por `npm run hooks:install`), o
+# hook viaja com o repositório e é revisável em code review.
+#
+# ── Por que só segredos ──────────────────────────────────────────────────────
+# Rodar typecheck e a suíte de testes aqui tornaria o commit lento a ponto de
+# ser contornado com `--no-verify`, e aí a proteção toda se perde. Segredo é o
+# único problema em que "depois" não tem conserto: uma vez no histórico, exige
+# reescrever commits e rotacionar credenciais. O resto continua sendo
+# responsabilidade do `npm run build` e do CI, onde o custo é aceitável.
+#
+# Para pular conscientemente num caso legítimo: `git commit --no-verify`.
+
+set -e
+
+raiz=$(git rev-parse --show-toplevel 2>/dev/null || echo ".")
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "[pre-commit] node não encontrado no PATH; verificação de segredos ignorada." >&2
+  echo "[pre-commit] Instale o Node 24.x (ver .nvmrc/engines) para ativar a proteção." >&2
+  exit 0
+fi
+
+node "$raiz/scripts/verificar-segredos.mjs"
+status=$?
+
+if [ "$status" -ne 0 ]; then
+  echo "" >&2
+  echo "[pre-commit] Commit bloqueado. Corrija os itens acima ou use --no-verify" >&2
+  echo "[pre-commit] apenas se tiver certeza de que não há segredo real." >&2
+  exit "$status"
+fi
+
+exit 0

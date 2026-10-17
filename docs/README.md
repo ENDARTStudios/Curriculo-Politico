@@ -63,6 +63,7 @@ docs/
 | [INCIDENT_RESPONSE.md](05-security-compliance/INCIDENT_RESPONSE.md) | Severidades, papéis, rotação de credenciais Supabase/Vercel/NextAuth e comunicação LGPD Art. 48. |
 | [VULNERABILITY_DISCLOSURE.md](05-security-compliance/VULNERABILITY_DISCLOSURE.md) | Política proposta de divulgação responsável — **canal ainda não publicado**. |
 | [IAM_IGA.md](05-security-compliance/IAM_IGA.md) | Identidades, ciclo de vida da conta, força real dos fatores e governança de segredos. |
+| [SUPERFICIE_AGENTE.md](05-security-compliance/SUPERFICIE_AGENTE.md) | MCP, skills e hooks como superfície de ataque; varredura de segredos no pré-commit e o achado do MCP inexistente. |
 | [RBAC.md](05-security-compliance/RBAC.md) | Por que **não há RBAC**, o que ocupa o lugar dele e quando passa a ser obrigatório. |
 | [RLS.md](05-security-compliance/RLS.md) | Row Level Security **não configurado**: o modelo de acesso real via Prisma e por que RLS seria defesa em profundidade. |
 | [MFA.md](05-security-compliance/MFA.md) | MFA **não implementado**: risco concreto e o que falta (inclusive a armadilha do OAuth). |

@@ -1,9 +1,3 @@
 {
-  "mcpServers": {
-    "codebase-memory": {
-      "command": "npx",
-      "args": ["-y", "@deusdata/codebase-memory-mcp"],
-      "env": { "CODEBASE_PATH": "." }
-    }
-  }
+  "mcpServers": {}
 }
