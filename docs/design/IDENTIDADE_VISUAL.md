@@ -133,6 +133,115 @@ A versão correta conta as referências **dentro dos blocos `bound`**. O episód
 vale registrar: uma verificação que nunca falha não verifica nada, e a primeira
 reação natural diante de uma divergência é culpar o artefato.
 
+## 1.6 Arquitetura de informação
+
+O documento de identidade cuidava de cor, tipo e espaçamento — e a **estrutura**
+nunca foi desenhada. O sintoma mais visível: a barra superior.
+
+### 1.6.1 O que havia
+
+Doze links planos num `flex-wrap`: Ranking, Partidos, Projetos, Comparar, Meu
+Espectro, História, Como Funciona, Calendário, STF, FAQ, Metodologia, Sobre.
+
+| Defeito | Consequência |
+|---|---|
+| 12 itens no mesmo nível, sem agrupamento | Nenhum destino se destacava; era preciso ler doze rótulos para achar um |
+| `flex-wrap` sem hierarquia | Quebrava em **duas linhas** no desktop |
+| Todos `<a>`, não `<Link>` | Cada clique recarregava a página inteira |
+| Sem estado ativo | Nada indicava onde a pessoa estava |
+| Conta só no rodapé | Login era o 11º link, entre Cookies e Retificação |
+
+O problema não era o número de destinos — eram 28 no site. Era a **falta de
+modelo**: cada rota tinha o mesmo peso, então o menu não ajudava a decidir.
+
+### 1.6.2 O modelo atual
+
+Cinco grupos, agrupados por **intenção de quem chega**, não por tipo de dado:
+
+| Grupo | Itens | Intenção |
+|---|---|---|
+| **Ranking** ▾ | Ranking IDIP · personalizado · Meu Espectro · STF | "quero ver quem presta" |
+| **Partidos** ▾ | Todos · Comparar partidos | "quero ver por agremiação" |
+| **Projetos** | — | "quero ver o que foi proposto" |
+| **Comparar** | — | "quero decidir entre dois" |
+| **Metodologia** ▾ | IDIP · como funciona · História · Calendário · FAQ · Sobre | "posso confiar no número?" |
+
+A fonte única é `apps/web/src/lib/navegacao.ts`. Header, drawer mobile e rodapé
+leem dela — e é por isso que não podem divergir. A barra chegou a doze itens
+porque cada rota nova era acrescentada num lugar e esquecida nos outros.
+
+### 1.6.3 Decisões
+
+**A conta subiu para o header.** Login é ação de topo de página em qualquer
+produto. No rodapé, era preciso rolar a página inteira e saber de antemão que o
+acesso morava ali.
+
+**Disclosure, não `role="menu"`.** `role="menu"` promete ao leitor de tela
+navegação por setas, `aria-activedescendant` e foco gerenciado. Sem implementar
+tudo isso, o papel mente — foi o erro que cometi no dropdown de busca. O padrão
+disclosure (botão com `aria-expanded` + painel de links comuns) é honesto.
+
+**Abre por clique, não por hover.** Hover aciona sem intenção ao passar o mouse a
+caminho de outro item, e é inacessível a teclado e a toque.
+
+**Drawer mobile com os mesmos grupos**, mais os institucionais — no desktop eles
+vivem no rodapé. Escape fecha; clicar fora fecha; a rolagem do fundo trava.
+
+**Rodapé em quatro colunas por finalidade** (Explorar, Entender, Projeto,
+Jurídico). Antes eram onze links numa fileira, misturando produto e política de
+privacidade com o mesmo peso.
+
+### 1.6.4 Largura: cinco containers, nenhum alinhado
+
+O header usava `max-w-6xl`; as páginas de dados, `max-w-5xl`; metodologia e as
+legais, `max-w-4xl`; conta e contato, `max-w-3xl`. Como todos são centralizados,
+**cada largura tem uma borda esquerda diferente** — a logo nunca alinhava com o
+título, e o desalinhamento mudava de tela para tela.
+
+Normalizado para `max-w-5xl` em 26 rotas. Ficaram estreitos só os formulários
+(`max-w-2xl` na retificação, `max-w-md` no login): campo largo é pior de digitar,
+e um cartão de login centrado não precisa alinhar. Parágrafos seguem em
+`max-w-3xl` — é o que garante linha legível, independente do container.
+
+### 1.6.5 A home: mostrar o produto, não descrevê-lo
+
+A home anterior era um funil de texto — título, parágrafo, CTA — seguido de
+quatro cartões do Termômetro e **três cartões de pesos da metodologia**. Não
+exibia nenhum dado da plataforma acima da dobra.
+
+A regra do conceito é "o dado é o herói", e a home a violava: o herói era o texto.
+
+| Antes | Depois |
+|---|---|
+| Herói só de texto | Herói dividido: promessa à esquerda, **ranking real** à direita |
+| Busca só no header | Busca no herói — é a tarefa nº 1 |
+| 3 cartões de pesos | Movidos para `/metodologia`, onde pertencem |
+| 4 cartões grandes do Termômetro | Faixa horizontal de 4 estados (reconhecer, não estudar) |
+| Fecho pedindo ação sem oferecer porta | "Por onde começar": 3 caminhos explícitos |
+
+Os pesos não foram apagados, foram **movidos**: a soma visível é garantia
+metodológica (pesos que não fecham em 100% são defeito), e o teste de e2e foi
+movido junto. Se ele continuasse apontando para a home, exigiria que a duplicação
+voltasse.
+
+### 1.6.6 O que a verificação pegou
+
+Nenhum destes apareceu por leitura — todos por teste ou captura:
+
+- **Nome acessível duplicado**: a logo do rodapé repetia o `aria-label` do header,
+  e o leitor de tela passava a listar dois destinos idênticos. O teste de
+  navegação quebrou em modo estrito.
+- **`id` duplicado no DOM**: duas buscas na home emitiam `#busca-resultados`.
+  Corrigido com `idLista` configurável.
+- **Dois campos com o mesmo nome acessível**: mesma causa, corrigido com
+  `rotuloBusca`. Nomes distintos também melhoram a navegação por formulário.
+- **Logo reduzida a um emoji em 375px** (`hidden sm:inline` no nome) — parecia
+  ícone quebrado.
+- **Placeholder truncado** em duas larguras diferentes: "(Ctrl+" no mobile e
+  "partido o" no desktop.
+- **Variável `preenchido` órfã** e **comentário JSX inválido** (`{/* */}` onde se
+  espera um filho), pegos pelo `typecheck`.
+
 ## 2. Por que o documento é gerado, e não desenhado
 
 A identidade precisa ser **rastreável até o código**. Um arquivo desenhado à mão

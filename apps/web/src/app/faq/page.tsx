@@ -186,7 +186,7 @@ export default function FAQPage() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
+    <main className="mx-auto max-w-5xl px-6 py-12">
       <h1 className="text-4xl font-bold tracking-tight text-slate-100">
         Perguntas Frequentes
       </h1>

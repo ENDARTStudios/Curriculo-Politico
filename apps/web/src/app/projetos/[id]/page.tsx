@@ -65,7 +65,7 @@ export default async function ProjetoPage({ params }: Props) {
   if (!bill) notFound();
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
+    <main className="mx-auto max-w-5xl px-6 py-12">
       <Link
         href="/ranking"
         className="mb-6 inline-block text-sm text-slate-400 transition hover:text-slate-100"

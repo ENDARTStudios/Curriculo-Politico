@@ -73,7 +73,7 @@ export default async function StatusPage() {
   const degradado = itens.some((i) => i.erro);
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
+    <main className="mx-auto max-w-5xl px-6 py-12">
       <div className="flex items-center gap-3">
         <span
           className={`inline-block h-3 w-3 rounded-full ${

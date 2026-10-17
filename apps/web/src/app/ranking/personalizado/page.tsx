@@ -38,7 +38,7 @@ export default async function RankingPersonalizadoPage({
       : null;
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
+    <main className="mx-auto max-w-5xl px-6 py-12">
       <h1 className="text-3xl font-bold tracking-tight text-slate-100">
         Ranking Personalizado por Afinidade
       </h1>

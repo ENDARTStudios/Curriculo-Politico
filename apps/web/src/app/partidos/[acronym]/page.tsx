@@ -114,7 +114,7 @@ export default async function PartidoPage({ params }: Props) {
   const partyScore = avgMembersScore * 0.7 + 50 * 0.2 + 50 * 0.1;
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
+    <main className="mx-auto max-w-5xl px-6 py-12">
       <Link
         href="/partidos"
         className="mb-6 inline-block text-sm text-slate-400 transition hover:text-slate-100"

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function LGPDPage() {
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
+    <main className="mx-auto max-w-5xl px-6 py-12">
       <h1 className="text-4xl font-bold tracking-tight text-slate-100">
         Lei Geral de Proteção de Dados (LGPD)
       </h1>

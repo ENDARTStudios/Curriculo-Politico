@@ -59,7 +59,7 @@ export default async function ContaPage() {
     d ? d.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "—";
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
+    <main className="mx-auto max-w-5xl px-6 py-12">
       <h1 className="text-3xl font-bold tracking-tight text-slate-100">
         Minha Conta
       </h1>
