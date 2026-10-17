@@ -1180,6 +1180,1111 @@ texto(
   1280,
 );
 
+/* ═══════════════════════ Arquétipos de página ════════════════════════════
+ *
+ * As 28 rotas do app não são 28 desenhos. Elas caem em 8 arquétipos: as quatro
+ * páginas jurídicas compartilham um template, as três de detalhe também. Desenhar
+ * 28 artboards produziria 20 variações do mesmo layout — e, pior, deixaria o
+ * sistema sem regra, porque cada página viraria um caso.
+ *
+ * O arquétipo é a unidade que se mantém: quando uma rota nova aparece, ela herda
+ * o template em vez de inventar um.
+ */
+
+/**
+ * Tabelas de apoio dos arquétipos.
+ *
+ * `STATUS_HEX_DOC` existe porque vários artefatos da página usam cor literal —
+ * `fill` de elipse, `backgroundColor` de barra — e classe Tailwind não chega lá.
+ * Os valores saem de `T`, o mesmo tema que as variables usam, então não há
+ * segunda paleta. O guard `scripts/verificar-tokens.mjs` vigia o equivalente em
+ * produção.
+ */
+const STATUS_HEX_DOC = {
+  GREEN: { barra: T["emerald-500"], texto: T["emerald-300"] },
+  YELLOW: { barra: T["amber-500"], texto: T["amber-300"] },
+  RED: { barra: T["red-500"], texto: T["red-300"] },
+  GRAY: { barra: T["slate-500"], texto: T["slate-300"] },
+};
+
+const TOKEN_ESTADO = {
+  GREEN: "verde",
+  YELLOW: "ambar",
+  RED: "vermelho",
+  GRAY: "cinza",
+};
+
+const ROTULO_ESTADO = {
+  GREEN: "Confiável",
+  YELLOW: "Atenção",
+  RED: "Não confiável",
+  GRAY: "Dados insuficientes",
+};
+
+/** Chrome comum: faixa de navegação no topo. */
+function navegacao(ativo) {
+  retangulo(0, 0, 1440, 64, { name: "nav", fill: misturar(FUNDO, T["slate-900"], 0.6) });
+  retangulo(0, 63, 1440, 1, { name: "nav linha", fill: T["slate-800"] });
+
+  texto("Currículo Político", M, 22, {
+    fontSize: 16,
+    fontWeight: 700,
+    letterSpacing: "-1%",
+    fill: T["slate-50"],
+  });
+
+  const ITENS = ["Ranking", "Políticos", "Partidos", "Metodologia"];
+  ITENS.forEach((item, i) => {
+    const eAtivo = item === ativo;
+    texto(item, M + 236 + i * 108, 24, {
+      fontSize: 14,
+      fontWeight: eAtivo ? 600 : 400,
+      fill: eAtivo ? T["slate-50"] : T["slate-400"],
+    });
+  });
+
+  // Ação secundária no topo: nunca compete com o CTA do conteúdo.
+  texto("Entrar", 1440 - M - 172, 24, {
+    fontSize: 14,
+    fontWeight: 500,
+    fill: T["slate-300"],
+  });
+  bloco(1440 - M - 108, 16, 108, 32, "nav buscar", {
+    fill: T["slate-800"],
+    cornerRadius: 8,
+  });
+  texto("Buscar", 1440 - M - 88, 24, { fontSize: 13, fontWeight: 500, fill: T["slate-300"] });
+}
+
+/**
+ * Cabeçalho de página: olho, título e linha de apoio.
+ *
+ * Devolve o `y` onde o conteúdo começa, para as páginas encadearem sem posições
+ * mágicas — a mesma razão do cursor em `gradeSwatches`.
+ */
+function cabecalhoPagina(olho, titulo, apoioTexto) {
+  texto(olho, M, 112, {
+    fontSize: 13,
+    fontWeight: 600,
+    letterSpacing: "10%",
+    fill: T["sky-400"],
+  });
+  texto(titulo, M, 140, {
+    fontSize: 46,
+    fontWeight: 700,
+    letterSpacing: "-1.5%",
+    fill: T["slate-50"],
+  });
+
+  let y = 208;
+  if (apoioTexto) {
+    texto(apoioTexto, M, y, { fontSize: 17, lineHeight: "155%", fill: T["slate-400"] }, 980);
+    y += 62;
+  }
+  return y + 16;
+}
+
+/** Barra de nota com trilha. Reaproveitada por listagem, perfil e comparação. */
+function barraDeNota(x, y, largura, valor, cor) {
+  retangulo(x, y, largura, 6, {
+    name: "trilha nota",
+    fill: T["slate-800"],
+    cornerRadius: 3,
+    __bind: { field: "fill", variable: "superficie/borda" },
+  });
+  retangulo(x, y, Math.max(4, (largura * valor) / 100), 6, {
+    name: "barra nota",
+    fill: cor,
+    cornerRadius: 3,
+  });
+}
+
+/* ─────────────────── 06 · Listagem (núcleo de dados) ────────────────────── */
+
+/**
+ * Cobre `/ranking`, `/ranking/personalizado`, `/partidos`, `/projetos`, `/stf`,
+ * `/calendario-eleitoral`, `/historia` e `/espectro`.
+ *
+ * O padrão é sempre o mesmo: cabeçalho → controles → lista. O que muda entre as
+ * rotas é a coluna de contexto (partido, UF, casa) e a métrica da direita.
+ */
+pagina("06 · Listagem", 1440, 1040);
+navegacao("Ranking");
+
+let yLista = cabecalhoPagina(
+  "RANKING IDIP · 2026",
+  "Ranking de políticos",
+  "594 parlamentares avaliados com dado público da Câmara, do Senado e do TSE. A nota vai de 0 a 100 e só entra no ranking quem tem confiança acima de 60.",
+);
+
+// Controles
+const CHIPS = ["Todos", "Câmara", "Senado", "Brasil", "Nordeste"];
+CHIPS.forEach((c, i) => {
+  const ativo = i === 0;
+  const largura = 56 + c.length * 9;
+  let x = M;
+  for (let j = 0; j < i; j++) x += 56 + CHIPS[j].length * 9 + 12;
+
+  bloco(x, yLista, largura, 36, `chip ${c}`, {
+    fill: ativo ? T["slate-800"] : T["slate-900"],
+    stroke: T["slate-700"],
+    strokeWeight: 1,
+    strokeAlign: "inside",
+    cornerRadius: 999,
+    __bind: ativo ? { field: "fill", variable: "superficie/borda" } : undefined,
+  });
+  texto(c, x + 18, yLista + 9, {
+    fontSize: 13,
+    fontWeight: ativo ? 600 : 400,
+    fill: ativo ? T["slate-50"] : T["slate-300"],
+  });
+});
+
+texto("Ordenar por:  IDIP ↓", M, yLista + 56, {
+  fontSize: 13,
+  fontWeight: 600,
+  fill: T["slate-400"],
+});
+
+const RANKING = [
+  { pos: "01", nome: "Adriana Ventura", meta: "NOVO · SP · Deputada Federal", nota: 70.0, estado: "YELLOW" },
+  { pos: "02", nome: "Sargento Fahur", meta: "PSD · PR · Deputado Federal", nota: 70.0, estado: "YELLOW" },
+  { pos: "03", nome: "Gilson Marques", meta: "NOVO · SC · Deputado Federal", nota: 70.0, estado: "YELLOW" },
+  { pos: "04", nome: "Tabata Amaral", meta: "PSB · SP · Deputada Federal", nota: 68.4, estado: "GREEN" },
+  { pos: "05", nome: "Kim Kataguiri", meta: "UNIÃO · SP · Deputado Federal", nota: 66.1, estado: "GREEN" },
+  { pos: "06", nome: "Erika Hilton", meta: "PSOL · SP · Deputada Federal", nota: 64.7, estado: "YELLOW" },
+];
+
+let yLinha = yLista + 92;
+
+RANKING.forEach((r, i) => {
+  const hex = STATUS_HEX_DOC[r.estado];
+  const y = yLinha + i * 92;
+
+  bloco(M, y, 1280, 80, `linha ${r.pos}`, {
+    fill: T["slate-900"],
+    stroke: T["slate-800"],
+    strokeWeight: 1,
+    strokeAlign: "inside",
+    cornerRadius: 12,
+    __bind: [
+      { field: "fill", variable: "superficie/painel" },
+      { field: "stroke", variable: "superficie/borda" },
+    ],
+  });
+
+  texto(r.pos, M + 24, y + 26, {
+    fontSize: 22,
+    fontWeight: 700,
+    letterSpacing: "-2%",
+    fill: T["slate-600"],
+  });
+
+  texto(r.nome, M + 80, y + 18, {
+    fontSize: 17,
+    fontWeight: 600,
+    fill: T["slate-50"],
+    __bind: { field: "fill", variable: "texto/primario" },
+  });
+  texto(r.meta, M + 80, y + 44, {
+    fontSize: 12,
+    fontWeight: 600,
+    letterSpacing: "6%",
+    fill: T["slate-400"],
+    __bind: { field: "fill", variable: "texto/terciario" },
+  });
+
+  // Estado como ponto + rótulo: cor nunca sozinha.
+  elipse(M + 470, y + 30, 10, 10, {
+    name: "ponto estado",
+    fill: hex.barra,
+    __bind: { field: "fill", variable: `estado/${TOKEN_ESTADO[r.estado]}-barra` },
+  });
+  texto(ROTULO_ESTADO[r.estado], M + 488, y + 26, {
+    fontSize: 12,
+    fontWeight: 600,
+    fill: hex.texto,
+    __bind: { field: "fill", variable: `estado/${TOKEN_ESTADO[r.estado]}-texto` },
+  });
+
+  barraDeNota(M + 700, y + 36, 300, r.nota, hex.barra);
+
+  texto(r.nota.toFixed(1).replace(".", ","), M + 1060, y + 22, {
+    fontSize: 30,
+    fontWeight: 700,
+    letterSpacing: "-2%",
+    fill: T["slate-50"],
+    __bind: { field: "fill", variable: "texto/primario" },
+  });
+  texto("IDIP", M + 1176, y + 32, {
+    fontSize: 10,
+    fontWeight: 700,
+    letterSpacing: "8%",
+    fill: T["slate-400"],
+  });
+});
+
+texto("Mostrando 1–6 de 594", M, yLinha + RANKING.length * 92 + 20, {
+  fontSize: 13,
+  fill: T["slate-400"],
+});
+texto("Como o IDIP é calculado →", M + 980, yLinha + RANKING.length * 92 + 20, {
+  fontSize: 13,
+  fontWeight: 600,
+  fill: T["sky-400"],
+});
+
+/* ─────────────────────── 07 · Perfil / detalhe ──────────────────────────── */
+
+/**
+ * Cobre `/politicos/[id]`, `/partidos/[acronym]` e `/projetos/[id]`.
+ *
+ * Ordem de leitura: identidade → nota → dimensões → evidências. A nota aparece
+ * antes das evidências de propósito: é a pergunta que trouxe a pessoa aqui.
+ */
+pagina("07 · Perfil", 1440, 950);
+navegacao("Políticos");
+
+// Cabeçalho de identidade
+texto("← Voltar ao ranking", M, 100, {
+  fontSize: 13,
+  fontWeight: 500,
+  fill: T["sky-400"],
+});
+
+texto("DEPUTADO FEDERAL · SP · NOVO", M, 140, {
+  fontSize: 12,
+  fontWeight: 700,
+  letterSpacing: "10%",
+  fill: T["sky-400"],
+});
+texto("Adriana Ventura", M, 166, {
+  fontSize: 44,
+  fontWeight: 700,
+  letterSpacing: "-1.5%",
+  fill: T["slate-50"],
+});
+
+// Badge de estado ao lado do nome
+bloco(M + 400, 176, 132, 30, "badge perfil", {
+  fill: T["slate-800"],
+  cornerRadius: 999,
+});
+elipse(M + 414, 186, 10, 10, {
+  name: "ponto badge",
+  fill: "#FE9A00",
+  __bind: { field: "fill", variable: "estado/ambar-barra" },
+});
+texto("Atenção", M + 432, 183, {
+  fontSize: 12,
+  fontWeight: 600,
+  fill: T["amber-300"],
+  __bind: { field: "fill", variable: "estado/ambar-texto" },
+});
+
+texto(
+  "2 mandatos · 148 proposições · 1.204 presenças registradas",
+  M,
+  224,
+  { fontSize: 15, fill: T["slate-400"] },
+  760,
+);
+
+// Card de nota
+bloco(M, 272, 560, 250, "card nota", {
+  fill: T["slate-900"],
+  stroke: T["slate-800"],
+  strokeWeight: 1,
+  strokeAlign: "inside",
+  cornerRadius: 16,
+  __bind: [
+    { field: "fill", variable: "superficie/painel" },
+    { field: "stroke", variable: "superficie/borda" },
+  ],
+});
+
+texto("IDIP", M + 28, 296, {
+  fontSize: 12,
+  fontWeight: 700,
+  letterSpacing: "10%",
+  fill: T["sky-400"],
+});
+texto("70,0", M + 28, 318, {
+  fontSize: 64,
+  fontWeight: 700,
+  letterSpacing: "-2.5%",
+  fill: T["slate-50"],
+  __bind: { field: "fill", variable: "texto/primario" },
+});
+texto("/ 100", M + 190, 354, { fontSize: 14, fill: T["slate-400"] });
+
+texto("Confiança dos dados: 95%", M + 28, 404, {
+  fontSize: 13,
+  fill: T["slate-400"],
+});
+barraDeNota(M + 28, 428, 240, 95, "#FE9A00");
+
+texto("Dados completos", M + 300, 404, { fontSize: 13, fill: T["slate-400"] });
+barraDeNota(M + 300, 428, 232, 95, "#00BC7D");
+
+// Dimensões
+bloco(M + 600, 272, 680, 250, "card dimensoes", {
+  fill: T["slate-900"],
+  stroke: T["slate-800"],
+  strokeWeight: 1,
+  strokeAlign: "inside",
+  cornerRadius: 16,
+  __bind: [
+    { field: "fill", variable: "superficie/painel" },
+    { field: "stroke", variable: "superficie/borda" },
+  ],
+});
+
+texto("DIMENSÕES", M + 628, 296, {
+  fontSize: 12,
+  fontWeight: 700,
+  letterSpacing: "10%",
+  fill: T["sky-400"],
+});
+
+const PERFIL_DIM = [
+  ["Integridade", 25, 80],
+  ["Produtividade", 18, 72],
+  ["Aprovação", 15, 64],
+  ["Fiscalização", 10, 58],
+  ["Presença", 10, 91],
+  ["Transparência", 10, 68],
+  ["Custo-benefício", 7, 55],
+  ["Campanha", 5, 74],
+];
+
+PERFIL_DIM.forEach(([nome, peso, valor], i) => {
+  const y = 330 + i * 24;
+  texto(nome, M + 628, y, { fontSize: 12, fill: T["slate-300"] }, 150);
+  retangulo(M + 790, y + 4, 180, 5, { name: `trilha ${nome}`, fill: T["slate-800"], cornerRadius: 3 });
+  retangulo(M + 790, y + 4, (180 * valor) / 100, 5, {
+    name: `barra ${nome}`,
+    fill: T["sky-500"],
+    cornerRadius: 3,
+    __bind: { field: "fill", variable: "acao/primaria" },
+  });
+  texto(`${peso}%`, M + 990, y, { fontSize: 11, fill: T["slate-400"] });
+  texto(`${valor}`, M + 1050, y, {
+    fontSize: 12,
+    fontWeight: 600,
+    fill: T["slate-200"],
+  });
+});
+
+// Evidências
+texto("EVIDÊNCIAS", M, 566, {
+  fontSize: 13,
+  fontWeight: 600,
+  letterSpacing: "8%",
+  fill: T["sky-400"],
+});
+
+const EVIDENCIAS = [
+  ["Réu em Ação Penal", "1 processo em tramitação no STF", "ambar"],
+  ["Condenação Transitada em Julgado", "Nenhuma", "verde"],
+  ["Despesas de cota", "R$ 312.480 no exercício · 4% abaixo da mediana", "verde"],
+];
+
+EVIDENCIAS.forEach(([titulo, detalhe, tom], i) => {
+  const y = 606 + i * 78;
+  bloco(M, y, 1280, 66, `evidencia ${i}`, {
+    fill: T["slate-900"],
+    stroke: T["slate-800"],
+    strokeWeight: 1,
+    strokeAlign: "inside",
+    cornerRadius: 10,
+    __bind: [
+      { field: "fill", variable: "superficie/painel" },
+      { field: "stroke", variable: "superficie/borda" },
+    ],
+  });
+  elipse(M + 22, y + 27, 12, 12, {
+    name: "ponto evidencia",
+    fill: tom === "ambar" ? "#FE9A00" : "#00BC7D",
+    __bind: {
+      field: "fill",
+      variable: tom === "ambar" ? "estado/ambar-barra" : "estado/verde-barra",
+    },
+  });
+  texto(titulo, M + 46, y + 14, {
+    fontSize: 14,
+    fontWeight: 600,
+    fill: T["slate-100"],
+  });
+  texto(detalhe, M + 46, y + 36, {
+    fontSize: 13,
+    fill: T["slate-400"],
+  });
+});
+
+apoio(
+  "Linguagem jurídica estrita: só “Réu em Ação Penal” e “Condenação Transitada em Julgado”. Nunca “crime”, nunca juízo moral — o selo é o fato processual, não a opinião.",
+  M,
+  858,
+  1000,
+);
+
+/* ──────────────────────── 08 · Comparação ───────────────────────────────── */
+
+/**
+ * Cobre `/comparar` e `/partidos/comparar`.
+ *
+ * Comparar dois números grandes lado a lado não informa: o olho não calcula
+ * diferença. Por isso a coluna de **delta** existe e a barra é compartilhada —
+ * as duas notas correm na mesma escala, então a distância é visível.
+ */
+pagina("08 · Comparação", 1440, 940);
+navegacao("Políticos");
+
+let yComp = cabecalhoPagina(
+  "COMPARAR",
+  "Dois políticos, o mesmo critério",
+  "As duas notas usam a mesma escala e os mesmos pesos. A coluna de diferença mostra onde a distância realmente está — e onde não há distância.",
+);
+
+const A = { nome: "Adriana Ventura", meta: "NOVO · SP", nota: 70.0 };
+const B = { nome: "Erika Hilton", meta: "PSOL · SP", nota: 64.7 };
+
+[
+  [M, A, "A"],
+  [M + 660, B, "B"],
+].forEach(([x, p, marca]) => {
+  bloco(x, yComp, 620, 96, `candidato ${marca}`, {
+    fill: T["slate-900"],
+    stroke: T["slate-800"],
+    strokeWeight: 1,
+    strokeAlign: "inside",
+    cornerRadius: 12,
+    __bind: [
+      { field: "fill", variable: "superficie/painel" },
+      { field: "stroke", variable: "superficie/borda" },
+    ],
+  });
+  texto(marca, x + 24, yComp + 22, {
+    fontSize: 12,
+    fontWeight: 700,
+    letterSpacing: "10%",
+    fill: T["slate-500"],
+  });
+  texto(p.nome, x + 24, yComp + 40, {
+    fontSize: 20,
+    fontWeight: 600,
+    fill: T["slate-50"],
+  });
+  texto(p.meta, x + 24, yComp + 68, {
+    fontSize: 12,
+    letterSpacing: "6%",
+    fill: T["slate-400"],
+  });
+  texto(p.nota.toFixed(1).replace(".", ","), x + 460, yComp + 30, {
+    fontSize: 38,
+    fontWeight: 700,
+    letterSpacing: "-2%",
+    fill: T["slate-50"],
+  });
+});
+
+const yTab = yComp + 128;
+
+texto("DIMENSÃO", M + 24, yTab, {
+  fontSize: 11,
+  fontWeight: 700,
+  letterSpacing: "8%",
+  fill: T["slate-500"],
+});
+texto("A", M + 560, yTab, { fontSize: 11, fontWeight: 700, letterSpacing: "8%", fill: T["slate-500"] });
+texto("B", M + 760, yTab, { fontSize: 11, fontWeight: 700, letterSpacing: "8%", fill: T["slate-500"] });
+texto("DIFERENÇA", M + 960, yTab, {
+  fontSize: 11,
+  fontWeight: 700,
+  letterSpacing: "8%",
+  fill: T["slate-500"],
+});
+
+retangulo(M, yTab + 22, 1280, 1, { name: "divisor tabela", fill: T["slate-800"] });
+
+const COMPARACAO = [
+  ["Integridade", 80, 72],
+  ["Produtividade", 72, 88],
+  ["Aprovação", 64, 70],
+  ["Fiscalização", 58, 61],
+  ["Presença", 91, 86],
+  ["Transparência", 68, 74],
+  ["Custo-benefício", 55, 49],
+  ["Campanha", 74, 66],
+];
+
+COMPARACAO.forEach(([nome, a, b], i) => {
+  const y = yTab + 48 + i * 42;
+
+  texto(nome, M + 24, y, { fontSize: 14, fill: T["slate-200"] }, 400);
+  texto(`${a}`, M + 560, y, { fontSize: 14, fontWeight: 600, fill: T["slate-100"] });
+  texto(`${b}`, M + 760, y, { fontSize: 14, fontWeight: 600, fill: T["slate-100"] });
+
+  const delta = a - b;
+  const venceA = delta > 0;
+  const cor = venceA ? T["sky-400"] : delta < 0 ? T["slate-300"] : T["slate-500"];
+  // O sinal é o portador não-cromático da direção (WCAG 1.4.1). Um rótulo
+  // "A melhor"/"B melhor" ao lado seria redundante e ruído numa tabela densa.
+  texto(
+    delta === 0 ? "—" : `${venceA ? "+" : "−"}${Math.abs(delta)}`,
+    M + 960,
+    y,
+    { fontSize: 14, fontWeight: 600, fill: cor },
+  );
+});
+
+// Veredito — nomeia TODAS as dimensões, não uma amostra: um resumo que escolhe
+// os exemplos vira argumento, e a página existe para não argumentar.
+bloco(M, yTab + 404, 1280, 80, "veredito", {
+  fill: misturar(FUNDO, T["sky-500"], 0.1),
+  stroke: T["sky-500"],
+  strokeWeight: 1,
+  strokeAlign: "inside",
+  cornerRadius: 12,
+});
+texto(
+  "Nenhum dos dois domina: A ganha em integridade, presença, custo-benefício e campanha; B em produtividade, aprovação, fiscalização e transparência.",
+  M + 24,
+  yTab + 418,
+  { fontSize: 15, fontWeight: 600, lineHeight: "150%", fill: T["slate-100"] },
+  1220,
+);
+apoio(
+  "Comparação não é veredito moral. O texto nomeia onde cada um se sai melhor, sem eleger um vencedor absoluto.",
+  M + 24,
+  yTab + 452,
+  1200,
+);
+
+/* ───────────────────────── 09 · Editorial ───────────────────────────────── */
+
+/**
+ * Cobre `/como-funciona`, `/metodologia` e `/faq`.
+ *
+ * Medida de leitura em ~65 caracteres e sumário lateral. Texto corrido numa
+ * largura de 1280 é ilegível — a linha fica longa demais para o olho voltar.
+ */
+pagina("09 · Editorial", 1440, 940);
+navegacao("Metodologia");
+
+let yEd = cabecalhoPagina(
+  "COMO FUNCIONA",
+  "Como o IDIP é calculado",
+  "Oito dimensões, pesos fixos e uma trava: nenhuma nota é publicada com confiança abaixo de 60. Tudo o que entra na conta é dado público.",
+);
+
+const MEDIDA = 660; // ~65 caracteres em 17px
+
+texto("As oito dimensões", M, yEd, {
+  fontSize: 26,
+  fontWeight: 700,
+  letterSpacing: "-0.5%",
+  fill: T["slate-50"],
+});
+texto(
+  "Cada dimensão mede uma coisa só, com peso declarado. Integridade carrega o maior peso (25%) porque fato processual é o que mais pesa para quem vota — e é o que o Tribunal de Contas e o STF publicam de forma verificável.",
+  M,
+  yEd + 40,
+  { fontSize: 17, lineHeight: "165%", fill: T["slate-300"] },
+  MEDIDA,
+);
+
+// Bloco de fórmula
+bloco(M, yEd + 180, MEDIDA, 108, "bloco formula", {
+  fill: T["slate-900"],
+  stroke: T["slate-800"],
+  strokeWeight: 1,
+  strokeAlign: "inside",
+  cornerRadius: 10,
+  __bind: [
+    { field: "fill", variable: "superficie/painel" },
+    { field: "stroke", variable: "superficie/borda" },
+  ],
+});
+texto("IDIP = Σ (peso × dimensão normalizada)", M + 24, yEd + 206, {
+  fontSize: 16,
+  fontWeight: 600,
+  fill: T["sky-400"],
+});
+texto("Trava: confiança < 60 → fora do ranking, sem nota publicada.", M + 24, yEd + 240, {
+  fontSize: 14,
+  fill: T["slate-400"],
+});
+
+texto(
+  "O peso não é ajustável por votação popular. A camada de engajamento é visualmente separada da nota justamente para que ninguém leia a votação como se alterasse o IDIP.",
+  M,
+  yEd + 316,
+  { fontSize: 17, lineHeight: "165%", fill: T["slate-300"] },
+  MEDIDA,
+);
+
+// Sumário lateral
+const XSUM = M + MEDIDA + 120;
+texto("NESTA PÁGINA", XSUM, yEd, {
+  fontSize: 11,
+  fontWeight: 700,
+  letterSpacing: "10%",
+  fill: T["slate-500"],
+});
+
+["As oito dimensões", "Pesos e por quê", "A trava de confiança", "O que não entra", "Como contestar"].forEach(
+  (item, i) => {
+    const y = yEd + 34 + i * 34;
+    if (i === 0) {
+      retangulo(XSUM - 14, y + 2, 2, 16, { name: "marcador secao", fill: T["sky-500"] });
+    }
+    texto(item, XSUM, y, {
+      fontSize: 14,
+      fontWeight: i === 0 ? 600 : 400,
+      fill: i === 0 ? T["slate-50"] : T["slate-400"],
+    });
+  },
+);
+
+// Callout "em resumo"
+bloco(M, yEd + 470, MEDIDA, 118, "callout resumo", {
+  fill: misturar(FUNDO, T["emerald-500"], 0.1),
+  stroke: T["emerald-500"],
+  strokeWeight: 1,
+  strokeAlign: "inside",
+  cornerRadius: 10,
+});
+texto("Em resumo", M + 24, yEd + 492, {
+  fontSize: 14,
+  fontWeight: 700,
+  fill: T["emerald-300"],
+  __bind: { field: "fill", variable: "estado/verde-texto" },
+});
+texto(
+  "A nota é a mesma conta para todo mundo, com os mesmos pesos, sobre dado que qualquer pessoa pode baixar e conferir.",
+  M + 24,
+  yEd + 518,
+  { fontSize: 16, lineHeight: "155%", fill: T["slate-200"] },
+  MEDIDA - 48,
+);
+
+/* ────────────────────────── 10 · Jurídico ───────────────────────────────── */
+
+/**
+ * Cobre `/privacidade`, `/termos-de-uso`, `/cookies` e `/lgpd`.
+ *
+ * Quatro páginas, um template. O que muda é o título e o corpo; a estrutura é
+ * idêntica porque a função é a mesma: texto longo, datado e verificável.
+ */
+pagina("10 · Jurídico", 1440, 900);
+navegacao(null);
+
+let yJur = cabecalhoPagina(
+  "DOCUMENTO LEGAL",
+  "Política de Privacidade",
+  null,
+);
+
+texto("Versão 1.1 · atualizada em 13 de outubro de 2026", M, yJur + 2, {
+  fontSize: 14,
+  fill: T["slate-400"],
+});
+
+texto(
+  "Esta política descreve quais dados pessoais o Currículo Político trata, com que base legal e por quanto tempo. Os dados de políticos são públicos por origem; os seus, não.",
+  M,
+  yJur + 30,
+  { fontSize: 17, lineHeight: "165%", fill: T["slate-300"] },
+  MEDIDA,
+);
+
+["1. Quais dados tratamos", "2. Base legal", "3. Retenção", "4. Seus direitos"].forEach((s, i) => {
+  const y = yJur + 152 + i * 96;
+  texto(s, M, y, { fontSize: 22, fontWeight: 700, letterSpacing: "-0.5%", fill: T["slate-50"] });
+  texto(
+    "Lorem ipsum não serve aqui: cada seção declara fato verificável, com link para o código ou para o serviço externo que sustenta a afirmação.",
+    M,
+    y + 34,
+    { fontSize: 16, lineHeight: "165%", fill: T["slate-400"] },
+    MEDIDA,
+  );
+});
+
+const XSUMJ = M + MEDIDA + 120;
+texto("NESTE DOCUMENTO", XSUMJ, yJur, {
+  fontSize: 11,
+  fontWeight: 700,
+  letterSpacing: "10%",
+  fill: T["slate-500"],
+});
+["1. Quais dados tratamos", "2. Base legal", "3. Retenção", "4. Seus direitos"].forEach((item, i) => {
+  texto(item, XSUMJ, yJur + 34 + i * 32, {
+    fontSize: 13,
+    fill: T["slate-400"],
+  });
+});
+
+bloco(XSUMJ - 16, yJur + 200, 420, 96, "aviso juridico", {
+  fill: T["slate-900"],
+  stroke: T["slate-800"],
+  strokeWeight: 1,
+  strokeAlign: "inside",
+  cornerRadius: 10,
+  __bind: [
+    { field: "fill", variable: "superficie/painel" },
+    { field: "stroke", variable: "superficie/borda" },
+  ],
+});
+texto("Dúvida sobre seus dados?", XSUMJ, yJur + 220, {
+  fontSize: 14,
+  fontWeight: 600,
+  fill: T["slate-100"],
+});
+texto("Fale pelo canal de retificação.", XSUMJ, yJur + 244, {
+  fontSize: 13,
+  fill: T["slate-400"],
+});
+texto("Abrir canal →", XSUMJ, yJur + 268, {
+  fontSize: 13,
+  fontWeight: 600,
+  fill: T["sky-400"],
+});
+
+/* ─────────────────────────── 11 · Conta ─────────────────────────────────── */
+
+/**
+ * Cobre `/conta` e `/auth/signin`.
+ *
+ * Card estreito e centrado. Autenticação não é lugar para explorar layout: a
+ * pessoa quer entrar e sair, e qualquer elemento extra é atrito.
+ */
+pagina("11 · Conta", 1440, 760);
+navegacao(null);
+
+const XCARTAO = 490;
+const LCARTAO = 460;
+
+bloco(XCARTAO, 180, LCARTAO, 470, "card conta", {
+  fill: T["slate-900"],
+  stroke: T["slate-800"],
+  strokeWeight: 1,
+  strokeAlign: "inside",
+  cornerRadius: 16,
+  __bind: [
+    { field: "fill", variable: "superficie/painel" },
+    { field: "stroke", variable: "superficie/borda" },
+  ],
+});
+
+texto("Entrar na conta", XCARTAO + 32, 212, {
+  fontSize: 26,
+  fontWeight: 700,
+  letterSpacing: "-1%",
+  fill: T["slate-50"],
+});
+texto("Para votar e acompanhar seus políticos.", XCARTAO + 32, 248, {
+  fontSize: 14,
+  fill: T["slate-400"],
+});
+
+// Login social
+bloco(XCARTAO + 32, 288, LCARTAO - 64, 48, "botao google", {
+  fill: T["slate-800"],
+  stroke: T["slate-700"],
+  strokeWeight: 1,
+  strokeAlign: "inside",
+  cornerRadius: 10,
+});
+texto("Continuar com Google", XCARTAO + 132, 304, {
+  fontSize: 15,
+  fontWeight: 600,
+  fill: T["slate-100"],
+});
+
+// Divisor
+retangulo(XCARTAO + 32, 368, (LCARTAO - 64) / 2 - 24, 1, { name: "divisor esq", fill: T["slate-700"] });
+texto("ou", XCARTAO + LCARTAO / 2 - 8, 360, { fontSize: 12, fill: T["slate-500"] });
+retangulo(XCARTAO + LCARTAO / 2 + 16, 368, (LCARTAO - 64) / 2 - 24, 1, {
+  name: "divisor dir",
+  fill: T["slate-700"],
+});
+
+// Campos
+texto("E-mail", XCARTAO + 32, 400, {
+  fontSize: 13,
+  fontWeight: 600,
+  fill: T["slate-300"],
+});
+bloco(XCARTAO + 32, 424, LCARTAO - 64, 48, "campo email conta", {
+  fill: T["slate-950"],
+  stroke: T["slate-700"],
+  strokeWeight: 1,
+  strokeAlign: "inside",
+  cornerRadius: 10,
+});
+texto("voce@exemplo.com", XCARTAO + 48, 440, {
+  fontSize: 15,
+  fill: T["slate-500"],
+});
+
+// Ação
+bloco(XCARTAO + 32, 492, LCARTAO - 64, 48, "botao enviar conta", {
+  fill: T["sky-500"],
+  cornerRadius: 10,
+  __bind: { field: "fill", variable: "acao/primaria" },
+});
+texto("Enviar link de acesso", XCARTAO + 118, 508, {
+  fontSize: 15,
+  fontWeight: 600,
+  fill: T["slate-950"],
+  __bind: { field: "fill", variable: "superficie/base" },
+});
+
+texto(
+  "Ao entrar você aceita os Termos e a Política de Privacidade. Nenhum dado pessoal é exibido publicamente.",
+  XCARTAO + 32,
+  560,
+  { fontSize: 12, lineHeight: "150%", fill: T["slate-400"] },
+  LCARTAO - 64,
+);
+
+/* ─────────────────────── 12 · Retificação ───────────────────────────────── */
+
+/**
+ * Cobre `/retificacao`, `/contato` e `/apoie`.
+ *
+ * Duas colunas: formulário à esquerda, orientação à direita. A orientação não é
+ * decorativa — é o que reduz pedido incompleto, e o formulário é o canal formal
+ * do titular de dados (LGPD Art. 18).
+ */
+pagina("12 · Retificação", 1440, 900);
+navegacao(null);
+
+let yRet = cabecalhoPagina(
+  "CANAL DE RETIFICAÇÃO",
+  "Pedir correção de dado",
+  "Se um dado sobre você está errado, este é o canal. Todo pedido é registrado com protocolo e prazo.",
+);
+
+// Indicador de etapas
+const ETAPAS = ["Identificação", "O que corrigir", "Enviar"];
+ETAPAS.forEach((etapa, i) => {
+  const x = M + i * 240;
+  const ativo = i === 0;
+  elipse(x, yRet, 26, 26, {
+    name: `etapa ${i + 1}`,
+    fill: ativo ? T["sky-500"] : T["slate-800"],
+  });
+  texto(`${i + 1}`, x + 9, yRet + 6, {
+    fontSize: 13,
+    fontWeight: 700,
+    fill: ativo ? T["slate-950"] : T["slate-400"],
+  });
+  texto(etapa, x + 38, yRet + 5, {
+    fontSize: 14,
+    fontWeight: ativo ? 600 : 400,
+    fill: ativo ? T["slate-50"] : T["slate-400"],
+  });
+  if (i < ETAPAS.length - 1) {
+    retangulo(x + 140, yRet + 13, 84, 2, { name: "linha etapa", fill: T["slate-800"] });
+  }
+});
+
+const yForm = yRet + 62;
+
+// Campos do formulário
+[
+  ["Nome completo", "Como consta no documento"],
+  ["E-mail para retorno", "voce@exemplo.com"],
+  ["Link do perfil", "curriculopolitico.org/politicos/…"],
+].forEach(([rot, valor], i) => {
+  const y = yForm + i * 92;
+  texto(rot, M, y, { fontSize: 13, fontWeight: 600, fill: T["slate-300"] });
+  bloco(M, y + 22, 700, 48, `campo ${rot}`, {
+    fill: T["slate-900"],
+    stroke: T["slate-700"],
+    strokeWeight: 1,
+    strokeAlign: "inside",
+    cornerRadius: 10,
+    __bind: { field: "fill", variable: "superficie/painel" },
+  });
+  texto(valor, M + 16, y + 38, {
+    fontSize: 15,
+    fill: T["slate-500"],
+  });
+});
+
+texto("O que precisa ser corrigido", M, yForm + 276, {
+  fontSize: 13,
+  fontWeight: 600,
+  fill: T["slate-300"],
+});
+bloco(M, yForm + 298, 700, 110, "campo detalhe", {
+  fill: T["slate-900"],
+  stroke: T["slate-700"],
+  strokeWeight: 1,
+  strokeAlign: "inside",
+  cornerRadius: 10,
+  __bind: { field: "fill", variable: "superficie/painel" },
+});
+texto("Descreva o dado incorreto e, se puder, a fonte correta.", M + 16, yForm + 316, {
+  fontSize: 15,
+  fill: T["slate-500"],
+});
+
+bloco(M, yForm + 428, 240, 48, "botao protocolar", {
+  fill: T["sky-500"],
+  cornerRadius: 10,
+  __bind: { field: "fill", variable: "acao/primaria" },
+});
+texto("Registrar pedido", M + 56, yForm + 444, {
+  fontSize: 15,
+  fontWeight: 600,
+  fill: T["slate-950"],
+  __bind: { field: "fill", variable: "superficie/base" },
+});
+
+// Painel de orientação
+const XORI = M + 780;
+bloco(XORI, yForm, 420, 300, "painel orientacao", {
+  fill: T["slate-900"],
+  stroke: T["slate-800"],
+  strokeWeight: 1,
+  strokeAlign: "inside",
+  cornerRadius: 12,
+  __bind: [
+    { field: "fill", variable: "superficie/painel" },
+    { field: "stroke", variable: "superficie/borda" },
+  ],
+});
+
+texto("ANTES DE ENVIAR", XORI + 24, yForm + 24, {
+  fontSize: 11,
+  fontWeight: 700,
+  letterSpacing: "10%",
+  fill: T["sky-400"],
+});
+
+const ORIENTACOES = [
+  "Você não precisa de conta: o pedido é identificado pelo e-mail.",
+  "Um pedido por dado. Pedidos separados recebem protocolos separados.",
+  "O prazo de resposta é de 15 dias, contado do protocolo.",
+  "Não envie CPF, documento ou comprovante de residência.",
+];
+
+ORIENTACOES.forEach((o, i) => {
+  const y = yForm + 56 + i * 56;
+  retangulo(XORI + 24, y + 8, 14, 2, { name: "marcador", fill: T["slate-600"] });
+  texto(o, XORI + 50, y, { fontSize: 14, lineHeight: "155%", fill: T["slate-300"] }, 340);
+});
+
+apoio(
+  "O canal é público e a resposta é registrada. Dado pessoal enviado por aqui não é exibido em lugar nenhum da plataforma.",
+  XORI + 24,
+  yForm + 316,
+  380,
+);
+
+/* ────────────────────────── 13 · Status ─────────────────────────────────── */
+
+/**
+ * Cobre `/status` e `/sobre`.
+ *
+ * Status é página de operação, não de marketing: números verificáveis, sem
+ * adjetivo. "Operacional" precisa vir de uma consulta real, não de um texto fixo.
+ */
+pagina("13 · Status", 1440, 860);
+navegacao(null);
+
+let ySt = cabecalhoPagina(
+  "STATUS",
+  "Estado da plataforma",
+  "Verificado a cada consulta. Se um número aqui estiver errado, o site está errado — não o contrário.",
+);
+
+// Faixa de resumo
+//
+// O resumo precisa **refletir a pior linha**, não o otimismo. A primeira versão
+// dizia "Todos os sistemas operacionais" em verde enquanto "Coleta da Câmara"
+// estava em âmbar na lista abaixo — a página se contradizia, e um status que se
+// contradiz é pior que nenhum.
+bloco(M, ySt, 1280, 84, "resumo status", {
+  fill: misturar(FUNDO, T["amber-500"], 0.1),
+  stroke: T["amber-500"],
+  strokeWeight: 1,
+  strokeAlign: "inside",
+  cornerRadius: 12,
+});
+elipse(M + 28, ySt + 34, 16, 16, {
+  name: "ponto geral",
+  fill: T["amber-500"],
+  __bind: { field: "fill", variable: "estado/ambar-barra" },
+});
+texto("1 sistema requer atenção", M + 56, ySt + 22, {
+  fontSize: 18,
+  fontWeight: 600,
+  fill: T["slate-50"],
+});
+texto("5 verificações · última há 2 minutos · a coleta da Câmara não roda há 26 h", M + 56, ySt + 48, {
+  fontSize: 13,
+  fill: T["slate-400"],
+});
+
+// Checagens
+const CHECAGENS = [
+  ["Banco de dados", "Operacional", "18 ms", "verde"],
+  ["Ranking com notas", "594 elegíveis", "—", "verde"],
+  ["API de busca", "Operacional", "96 ms", "verde"],
+  ["Snapshot mensal", "Setembro de 2026", "—", "verde"],
+  ["Coleta da Câmara", "Sem execução em 26 h", "—", "ambar"],
+];
+
+CHECAGENS.forEach(([nome, valor, latencia, tom], i) => {
+  const y = ySt + 112 + i * 64;
+  bloco(M, y, 1280, 56, `checagem ${i}`, {
+    fill: T["slate-900"],
+    stroke: T["slate-800"],
+    strokeWeight: 1,
+    strokeAlign: "inside",
+    cornerRadius: 10,
+    __bind: [
+      { field: "fill", variable: "superficie/painel" },
+      { field: "stroke", variable: "superficie/borda" },
+    ],
+  });
+  elipse(M + 22, y + 22, 12, 12, {
+    name: "ponto checagem",
+    fill: tom === "verde" ? T["emerald-500"] : T["amber-500"],
+    __bind: {
+      field: "fill",
+      variable: tom === "verde" ? "estado/verde-barra" : "estado/ambar-barra",
+    },
+  });
+  texto(nome, M + 46, y + 18, {
+    fontSize: 15,
+    fontWeight: 600,
+    fill: T["slate-100"],
+  });
+  texto(valor, M + 620, y + 20, {
+    fontSize: 14,
+    fill: tom === "verde" ? T["emerald-300"] : T["amber-300"],
+  });
+  texto(latencia, M + 1080, y + 20, {
+    fontSize: 14,
+    fontWeight: 600,
+    fill: T["slate-400"],
+  });
+});
+
+apoio(
+  "A página lê o banco a cada visita. Um status que não consulta nada é pior que nenhum: informa calma enquanto o site está quebrado.",
+  M,
+  ySt + 452,
+  1280,
+);
+
 /* ───────────────────────────── Auditoria ────────────────────────────────── */
 
 function auditoria() {
