@@ -141,8 +141,34 @@ function a(command, params = {}) {
   faseA.push({ command, params });
 }
 
-function b(command, params = {}) {
+/**
+ * Vinculações a executar numa terceira passada, quando os ids já existem.
+ *
+ * Node id só é conhecido em tempo de execução, então `variable.bind` não pode ser
+ * emitido junto com a criação: ele precisa do id que a fase B devolveu. Guardamos
+ * o **índice do comando** e o alvo, e a fase C resolve.
+ */
+const vinculacoes = [];
+
+/**
+ * Separa `__bind` das props reais.
+ *
+ * Fica dentro de `props` para não mudar a assinatura de cada primitiva de
+ * desenho: quem chama acrescenta uma chave a mais e o resto não muda.
+ */
+function separarBind(props) {
+  if (!props || !props.__bind) return [props, null];
+  const { __bind, ...resto } = props;
+  return [resto, Array.isArray(__bind) ? __bind : [__bind]];
+}
+
+function b(command, params = {}, bind = null) {
   faseB.push({ command, params: { ...params, parent: canvasAtual.indice } });
+  if (bind) {
+    for (const item of bind) {
+      vinculacoes.push({ indice: faseB.length - 1, ...item });
+    }
+  }
 }
 
 /**
@@ -175,22 +201,34 @@ function pagina(nome, largura, altura, renomear = false) {
 const M = 80;
 
 function retangulo(x, y, largura, altura, props = {}) {
-  b("shape.rectangle", { x, y, width: largura, height: altura, name: props.name || "retangulo", props });
+  const [p, bind] = separarBind(props);
+  b(
+    "shape.rectangle",
+    { x, y, width: largura, height: altura, name: p.name || "retangulo", props: p },
+    bind,
+  );
 }
 
 function elipse(x, y, largura, altura, props = {}) {
-  b("shape.ellipse", { x, y, width: largura, height: altura, name: props.name || "elipse", props });
+  const [p, bind] = separarBind(props);
+  b(
+    "shape.ellipse",
+    { x, y, width: largura, height: altura, name: p.name || "elipse", props: p },
+    bind,
+  );
 }
 
 /** Frame dentro do canvas (card, botão, badge). */
 function bloco(x, y, largura, altura, nome, props = {}) {
-  b("frame.create", { x, y, width: largura, height: altura, name: nome, props });
+  const [p, bind] = separarBind(props);
+  b("frame.create", { x, y, width: largura, height: altura, name: nome, props: p }, bind);
 }
 
 function texto(conteudo, x, y, props = {}, largura) {
-  const params = { text: conteudo, x, y, props };
+  const [p, bind] = separarBind(props);
+  const params = { text: conteudo, x, y, props: p };
   if (largura) params.width = largura;
-  b("text.create", params);
+  b("text.create", params, bind);
 }
 
 /** Rótulo de seção: caixa alta, tracking largo, azul de ação. */
@@ -207,6 +245,49 @@ function rotulo(conteudo, x, y) {
 function apoio(conteudo, x, y, largura) {
   texto(conteudo, x, y, { fontSize: 13, lineHeight: "155%", fill: T["slate-400"] }, largura);
 }
+
+/* ───────────────────────────── Tokens ───────────────────────────────────── */
+
+/**
+ * Tokens do documento como `variables` do FigCraft.
+ *
+ * Sem isto, o arquivo é uma maquete: cada cor é um literal e mudar a paleta
+ * significa editar dezenas de nós. Com variáveis, os nós ficam **vinculados** e a
+ * paleta muda num lugar só — que é a razão de existir um design system.
+ *
+ * O nome usa `/` porque o FigCraft agrupa por esse separador: `estado/verde-barra`
+ * aparece em "estado" no seletor. A nomenclatura espelha a classe Tailwind (ver
+ * `TOKENS`), para que a tradução entre documento e código seja mecânica.
+ */
+const TOKENS = [
+  ["superficie/base", "slate-950"],
+  ["superficie/painel", "slate-900"],
+  ["superficie/borda", "slate-800"],
+  ["superficie/borda-forte", "slate-700"],
+  ["texto/primario", "slate-50"],
+  ["texto/secundario", "slate-300"],
+  ["texto/terciario", "slate-400"],
+  ["texto/fraco", "slate-500"],
+  ["acao/primaria", "sky-500"],
+  ["acao/rotulo", "sky-400"],
+  ["estado/verde-barra", "emerald-500"],
+  ["estado/verde-texto", "emerald-300"],
+  ["estado/ambar-barra", "amber-500"],
+  ["estado/ambar-texto", "amber-300"],
+  ["estado/vermelho-barra", "red-500"],
+  ["estado/vermelho-texto", "red-300"],
+  ["estado/cinza-barra", "slate-500"],
+  ["estado/cinza-texto", "slate-300"],
+];
+
+function declararTokens() {
+  a("variable.createCollection", { name: "Cor" });
+  for (const [nome, chave] of TOKENS) {
+    a("variable.create", { collection: "Cor", name: nome, type: "color", value: T[chave] });
+  }
+}
+
+declararTokens();
 
 /* ─────────────────────── Página 00 · Fundamentos ────────────────────────── */
 
@@ -364,10 +445,42 @@ texto(
 );
 
 const ESTADOS = [
-  { chave: "GREEN", label: "Confiável", barra: "emerald-500", textoCor: "emerald-300", valor: 88 },
-  { chave: "YELLOW", label: "Atenção / Risco", barra: "amber-500", textoCor: "amber-300", valor: 64 },
-  { chave: "RED", label: "Não Confiável", barra: "red-500", textoCor: "red-300", valor: 22 },
-  { chave: "GRAY", label: "Dados Insuficientes", barra: "slate-500", textoCor: "slate-300", valor: null },
+  {
+    chave: "GREEN",
+    label: "Confiável",
+    barra: "emerald-500",
+    textoCor: "emerald-300",
+    tokenBarra: "verde-barra",
+    tokenTexto: "verde-texto",
+    valor: 88,
+  },
+  {
+    chave: "YELLOW",
+    label: "Atenção / Risco",
+    barra: "amber-500",
+    textoCor: "amber-300",
+    tokenBarra: "ambar-barra",
+    tokenTexto: "ambar-texto",
+    valor: 64,
+  },
+  {
+    chave: "RED",
+    label: "Não Confiável",
+    barra: "red-500",
+    textoCor: "red-300",
+    tokenBarra: "vermelho-barra",
+    tokenTexto: "vermelho-texto",
+    valor: 22,
+  },
+  {
+    chave: "GRAY",
+    label: "Dados Insuficientes",
+    barra: "slate-500",
+    textoCor: "slate-300",
+    tokenBarra: "cinza-barra",
+    tokenTexto: "cinza-texto",
+    valor: null,
+  },
 ];
 
 ESTADOS.forEach((e, i) => {
@@ -380,13 +493,32 @@ ESTADOS.forEach((e, i) => {
     strokeWeight: 1,
     strokeAlign: "inside",
     cornerRadius: 14,
+    __bind: [
+      { field: "fill", variable: "superficie/painel" },
+      { field: "stroke", variable: "superficie/borda" },
+    ],
   });
 
   // Ponto colorido em vez de emoji: o renderizador não tem fonte de emoji
   // colorido e os desenhava como círculos chapados. O app exibe o emoji do
   // STATUS_VISUAL; o documento mostra o portador de cor com fidelidade.
-  elipse(x + 20, y + 26, 12, 12, { name: "ponto", fill: T[e.barra] });
-  texto(e.label, x + 42, y + 22, { fontSize: 14, fontWeight: 600, fill: T[e.textoCor] }, 216);
+  elipse(x + 20, y + 26, 12, 12, {
+    name: "ponto",
+    fill: T[e.barra],
+    __bind: { field: "fill", variable: `estado/${e.tokenBarra}` },
+  });
+  texto(
+    e.label,
+    x + 42,
+    y + 22,
+    {
+      fontSize: 14,
+      fontWeight: 600,
+      fill: T[e.textoCor],
+      __bind: { field: "fill", variable: `estado/${e.tokenTexto}` },
+    },
+    216,
+  );
 
   if (e.valor !== null) {
     texto(`${e.valor}`, x + 20, y + 66, {
@@ -406,12 +538,18 @@ ESTADOS.forEach((e, i) => {
     });
   }
 
-  retangulo(x + 20, y + 146, 240, 8, { name: "trilha", fill: T["slate-800"], cornerRadius: 4 });
+  retangulo(x + 20, y + 146, 240, 8, {
+    name: "trilha",
+    fill: T["slate-800"],
+    cornerRadius: 4,
+    __bind: { field: "fill", variable: "superficie/borda" },
+  });
   if (e.valor !== null) {
     retangulo(x + 20, y + 146, Math.max(6, (240 * e.valor) / 100), 8, {
       name: "barra",
       fill: T[e.barra],
       cornerRadius: 4,
+      __bind: { field: "fill", variable: `estado/${e.tokenBarra}` },
     });
   }
 
@@ -449,11 +587,16 @@ texto("Ações, card de poder e linha de ranking", M, 96, {
 
 rotulo("BOTÕES", M, 194);
 
-bloco(M, 224, 244, 52, "botao primario", { fill: T["sky-500"], cornerRadius: 10 });
+bloco(M, 224, 244, 52, "botao primario", {
+  fill: T["sky-500"],
+  cornerRadius: 10,
+  __bind: { field: "fill", variable: "acao/primaria" },
+});
 texto("Ver ranking completo", M + 24, 240, {
   fontSize: 15,
   fontWeight: 600,
   fill: T["slate-950"],
+  __bind: { field: "fill", variable: "superficie/base" },
 });
 
 bloco(M + 268, 224, 200, 52, "botao secundario", {
@@ -462,11 +605,16 @@ bloco(M + 268, 224, 200, 52, "botao secundario", {
   strokeWeight: 1,
   strokeAlign: "inside",
   cornerRadius: 10,
+  __bind: [
+    { field: "fill", variable: "superficie/painel" },
+    { field: "stroke", variable: "superficie/borda-forte" },
+  ],
 });
 texto("Como calculamos", M + 290, 240, {
   fontSize: 15,
   fontWeight: 500,
   fill: T["slate-300"],
+  __bind: { field: "fill", variable: "texto/secundario" },
 });
 
 bloco(M + 492, 224, 244, 52, "botao foco", {
@@ -475,6 +623,10 @@ bloco(M + 492, 224, 244, 52, "botao foco", {
   strokeWeight: 2,
   strokeAlign: "outside",
   cornerRadius: 10,
+  __bind: [
+    { field: "fill", variable: "acao/primaria" },
+    { field: "stroke", variable: "texto/primario" },
+  ],
 });
 texto("Foco visível", M + 516, 240, {
   fontSize: 15,
@@ -491,6 +643,10 @@ bloco(M, 360, 560, 404, "card legislativo", {
   strokeWeight: 1,
   strokeAlign: "inside",
   cornerRadius: 16,
+  __bind: [
+    { field: "fill", variable: "superficie/painel" },
+    { field: "stroke", variable: "superficie/borda" },
+  ],
 });
 
 texto("LEGISLATIVO", M + 28, 388, {
@@ -498,11 +654,13 @@ texto("LEGISLATIVO", M + 28, 388, {
   fontWeight: 700,
   letterSpacing: "10%",
   fill: T["sky-400"],
+  __bind: { field: "fill", variable: "acao/rotulo" },
 });
 texto("Deputados e senadores", M + 28, 410, {
   fontSize: 20,
   fontWeight: 600,
   fill: T["slate-50"],
+  __bind: { field: "fill", variable: "texto/primario" },
 });
 
 const DIMENSOES = [
@@ -518,17 +676,36 @@ const DIMENSOES = [
 
 DIMENSOES.forEach(([nome, peso], i) => {
   const y = 462 + i * 34;
-  texto(nome, M + 28, y, { fontSize: 13, fill: T["slate-300"] }, 170);
-  retangulo(M + 206, y + 5, 180, 6, { name: `trilha ${nome}`, fill: T["slate-800"], cornerRadius: 3 });
+  texto(nome, M + 28, y, {
+    fontSize: 13,
+    fill: T["slate-300"],
+    __bind: { field: "fill", variable: "texto/secundario" },
+  }, 170);
+  retangulo(M + 206, y + 5, 180, 6, {
+    name: `trilha ${nome}`,
+    fill: T["slate-800"],
+    cornerRadius: 3,
+    __bind: { field: "fill", variable: "superficie/borda" },
+  });
   retangulo(M + 206, y + 5, Math.max(4, (180 * peso) / 25), 6, {
     name: `barra ${nome}`,
     fill: T["sky-500"],
     cornerRadius: 3,
+    __bind: { field: "fill", variable: "acao/primaria" },
   });
-  texto(`${peso}%`, M + 400, y, { fontSize: 13, fontWeight: 600, fill: T["slate-400"] });
+  texto(`${peso}%`, M + 400, y, {
+    fontSize: 13,
+    fontWeight: 600,
+    fill: T["slate-400"],
+    __bind: { field: "fill", variable: "texto/terciario" },
+  });
 });
 
-texto("Soma dos pesos: 100%", M + 28, 736, { fontSize: 12, fill: T["slate-400"] });
+texto("Soma dos pesos: 100%", M + 28, 736, {
+  fontSize: 12,
+  fill: T["slate-400"],
+  __bind: { field: "fill", variable: "texto/terciario" },
+});
 
 rotulo("LINHA DE RANKING", M + 620, 330);
 
@@ -538,6 +715,10 @@ bloco(M + 620, 360, 660, 136, "linha ranking", {
   strokeWeight: 1,
   strokeAlign: "inside",
   cornerRadius: 12,
+  __bind: [
+    { field: "fill", variable: "superficie/painel" },
+    { field: "stroke", variable: "superficie/borda" },
+  ],
 });
 
 texto("01", M + 644, 384, {
@@ -612,11 +793,16 @@ texto(
   720,
 );
 
-bloco(M, 492, 268, 56, "cta primario", { fill: T["sky-500"], cornerRadius: 10 });
+bloco(M, 492, 268, 56, "cta primario", {
+  fill: T["sky-500"],
+  cornerRadius: 10,
+  __bind: { field: "fill", variable: "acao/primaria" },
+});
 texto("Ver o ranking completo", M + 26, 510, {
   fontSize: 16,
   fontWeight: 600,
   fill: T["slate-950"],
+  __bind: { field: "fill", variable: "superficie/base" },
 });
 texto("Entenda a metodologia →", M + 296, 510, {
   fontSize: 16,
@@ -647,6 +833,198 @@ apoio(
   M,
   786,
   1280,
+);
+
+/* ─────────────────────── Página 04 · Formulários ────────────────────────── */
+
+pagina("04 · Formulários", 1440, 900);
+
+texto("FORMULÁRIOS", M, 64, {
+  fontSize: 13,
+  fontWeight: 600,
+  letterSpacing: "10%",
+  fill: T["sky-400"],
+});
+texto("Estados de campo, carregamento e feedback", M, 96, {
+  fontSize: 44,
+  fontWeight: 700,
+  letterSpacing: "-1.5%",
+  fill: T["slate-50"],
+});
+texto(
+  "Estes estados vivem em /conta, /auth e no canal de retificação. Um formulário que não distingue erro de carregamento transfere ao usuário a tarefa de adivinhar o que aconteceu.",
+  M,
+  168,
+  { fontSize: 17, lineHeight: "155%", fill: T["slate-400"] },
+  1120,
+);
+
+const LARGURA_CAMPO = 420;
+
+/**
+ * Um campo de formulário em um estado.
+ *
+ * O rótulo e a mensagem são **nós separados do campo**, e não texto dentro do
+ * frame: no app eles viram `<label>` e `<p id=...>`, ligados por `aria-describedby`.
+ * Desenhar a mensagem dentro do campo esconderia essa separação e sugeriria um
+ * padrão que não sobrevive à implementação.
+ */
+function campo({ y, rotulo: r, valor, corValor, borda, nota, corNota, destaque }) {
+  texto(r, M, y, {
+    fontSize: 13,
+    fontWeight: 600,
+    fill: T["slate-300"],
+    __bind: { field: "fill", variable: "texto/secundario" },
+  });
+
+  bloco(M, y + 24, LARGURA_CAMPO, 48, `campo ${r}`, {
+    fill: T["slate-900"],
+    stroke: borda,
+    // Anel de foco: fora do campo, como no CSS (`outline-offset`), para não
+    // encolher o conteúdo quando o foco aparece.
+    strokeWeight: destaque ? 2 : 1,
+    strokeAlign: destaque ? "outside" : "inside",
+    cornerRadius: 10,
+    __bind: { field: "fill", variable: "superficie/painel" },
+  });
+
+  if (valor) {
+    texto(valor, M + 16, y + 40, {
+      fontSize: 15,
+      fill: corValor,
+      __bind: { field: "fill", variable: nota ? "texto/terciario" : "texto/primario" },
+    });
+  }
+
+  if (nota) {
+    texto(nota, M, y + 84, {
+      fontSize: 12,
+      lineHeight: "140%",
+      fill: corNota,
+      __bind: { field: "fill", variable: corNota === T["red-300"] ? "estado/vermelho-texto" : "texto/terciario" },
+    }, 420);
+  }
+}
+
+rotulo("CAMPOS", M, 250);
+
+campo({
+  y: 288,
+  rotulo: "E-mail",
+  valor: "voce@exemplo.com",
+  corValor: T["slate-500"],
+  borda: T["slate-700"],
+  nota: "Usado só para entrar na conta. Nunca exibido publicamente.",
+  corNota: T["slate-400"],
+});
+
+campo({
+  y: 408,
+  rotulo: "E-mail (com foco)",
+  valor: "voce@exemplo.com",
+  corValor: T["slate-50"],
+  borda: T["sky-500"],
+  destaque: true,
+  nota: "Anel externo de 2px, visível no teclado.",
+  corNota: T["slate-400"],
+});
+
+campo({
+  y: 528,
+  rotulo: "E-mail (erro)",
+  valor: "voce@exemplo",
+  corValor: T["slate-50"],
+  borda: T["red-500"],
+  nota: "Informe um e-mail válido, como nome@dominio.com.br.",
+  corNota: T["red-300"],
+});
+
+campo({
+  y: 648,
+  rotulo: "CPF (desabilitado)",
+  valor: "•••.•••.•••-••",
+  corValor: T["slate-500"],
+  borda: T["slate-800"],
+  nota: "Só é coletado no fluxo de retificação, depois de autenticado. Nunca exibido.",
+  corNota: T["slate-400"],
+});
+
+/* Coluna direita */
+
+const XDIR = M + 560;
+
+rotulo("AÇÕES E FEEDBACK", XDIR, 250);
+
+// Botão carregando: anel em vez de spinner animado (o documento é estático).
+bloco(XDIR, 288, 244, 52, "botao carregando", {
+  fill: T["sky-500"],
+  cornerRadius: 10,
+  __bind: { field: "fill", variable: "acao/primaria" },
+});
+elipse(XDIR + 24, 306, 16, 16, {
+  name: "anel carregando",
+  fill: T["sky-500"],
+  stroke: T["slate-950"],
+  strokeWeight: 2,
+  strokeAlign: "inside",
+});
+texto("Calculando nota…", XDIR + 52, 304, {
+  fontSize: 15,
+  fontWeight: 600,
+  fill: T["slate-950"],
+  __bind: { field: "fill", variable: "superficie/base" },
+});
+texto("aria-busy=\"true\" · o rótulo muda e o botão não muda de largura", XDIR, 352, {
+  fontSize: 12,
+  fill: T["slate-400"],
+}, 380);
+
+// Faixa de sucesso
+bloco(XDIR, 400, 420, 64, "faixa sucesso", {
+  fill: misturar(T["slate-950"], T["emerald-500"], 0.12),
+  stroke: T["emerald-500"],
+  strokeWeight: 1,
+  strokeAlign: "inside",
+  cornerRadius: 10,
+});
+elipse(XDIR + 18, 424, 12, 12, {
+  name: "ponto sucesso",
+  fill: T["emerald-500"],
+  __bind: { field: "fill", variable: "estado/verde-barra" },
+});
+texto("Nota recalculada com sucesso.", XDIR + 40, 417, {
+  fontSize: 14,
+  fontWeight: 600,
+  fill: T["emerald-300"],
+  __bind: { field: "fill", variable: "estado/verde-texto" },
+});
+
+// Faixa de erro
+bloco(XDIR, 480, 420, 64, "faixa erro", {
+  fill: misturar(T["slate-950"], T["red-500"], 0.12),
+  stroke: T["red-500"],
+  strokeWeight: 1,
+  strokeAlign: "inside",
+  cornerRadius: 10,
+});
+elipse(XDIR + 18, 504, 12, 12, {
+  name: "ponto erro",
+  fill: T["red-500"],
+  __bind: { field: "fill", variable: "estado/vermelho-barra" },
+});
+texto("Não foi possível salvar. Tente novamente.", XDIR + 40, 497, {
+  fontSize: 14,
+  fontWeight: 600,
+  fill: T["red-300"],
+  __bind: { field: "fill", variable: "estado/vermelho-texto" },
+});
+
+texto(
+  "role=\"alert\" nas duas faixas: erro e sucesso precisam ser anunciados por leitor de tela, não apenas vistos. Cor nunca é o único sinal — o texto diz o que aconteceu.",
+  XDIR,
+  566,
+  { fontSize: 13, lineHeight: "155%", fill: T["slate-400"] },
+  420,
 );
 
 /* ───────────────────────────── Auditoria ────────────────────────────────── */
@@ -772,6 +1150,74 @@ function principal() {
     throw new Error(`${falhasB.length} comando(s) falharam na fase B.`);
   }
 
+  // Fase C — vinculação dos nós às variáveis.
+  //
+  // Precisa ser depois da fase B porque `variable.bind` exige o id do nó, que só
+  // existe após a criação. `resultadoB[i]` corresponde a `faseB[i]`, então o
+  // índice guardado em `vinculacoes` resolve direto.
+  let vinculados = 0;
+  if (vinculacoes.length > 0) {
+    const cmdsC = [];
+    for (const v of vinculacoes) {
+      const id = resultadoB[v.indice]?.result?.id;
+      if (!id) {
+        throw new Error(
+          `Nó do comando ${v.indice} (${faseB[v.indice]?.command}) não devolveu id; ` +
+            `não é possível vincular a variável "${v.variable}".`,
+        );
+      }
+      cmdsC.push({
+        command: "variable.bind",
+        params: { ids: [id], field: v.field, variable: v.variable },
+      });
+      vinculados++;
+    }
+    cmdsC.push({ command: "file.save", params: { path: path.relative(raiz, ARQUIVO) } });
+
+    const scriptC = path.join(dirDesign, ".figcraft-c.json");
+    writeFileSync(scriptC, JSON.stringify(cmdsC, null, 1), "utf8");
+
+    const resultadoC = rodar(scriptC, path.relative(raiz, ARQUIVO));
+    const falhasC = resultadoC.filter((r) => r.ok === false);
+    if (falhasC.length > 0) {
+      console.error("  Falhas na fase C:", JSON.stringify(falhasC.slice(0, 3)));
+      throw new Error(`${falhasC.length} vinculação(ões) falharam.`);
+    }
+  }
+
+  // Verificação do artefato, não do comando.
+  //
+  // `variable.bind` retornar `ok` só diz que a API aceitou a chamada. O que
+  // interessa é se o vínculo **persistiu no arquivo**. Convertemos para JSON e
+  // contamos as referências a variável.
+  //
+  // Conta apenas dentro dos blocos `bound`, que é como o documento serializa o
+  // vínculo: `"bound": {"fill": "VariableID:2", "stroke": "VariableID:3"}`.
+  //
+  // Duas versões erradas antes desta, ambas pegas pela própria verificação:
+  // contar `"bound"` dava um por nó em vez de um por campo (85 para 93), e
+  // contar qualquer `"VariableID:n"` somava as 18 definições de variável
+  // (`"id": "VariableID:1"`) ao total (111 para 93).
+  const jsonTemporario = path.join(dirDesign, ".verificacao.json");
+  execFileSync(CLI, ["convert", path.relative(raiz, ARQUIVO), jsonTemporario], {
+    encoding: "utf8",
+    cwd: raiz,
+  });
+  const documento = readFileSync(jsonTemporario, "utf8");
+  const blocosBound = documento.match(/"bound":\s*\{[^}]*\}/g) || [];
+  const vinculosNoArquivo = blocosBound.reduce(
+    (total, bloco) => total + (bloco.match(/"VariableID:\d+"/g) || []).length,
+    0,
+  );
+  rmSync(jsonTemporario, { force: true });
+
+  if (vinculosNoArquivo !== vinculacoes.length) {
+    throw new Error(
+      `Vínculos não persistiram: ${vinculacoes.length} emitidos, ` +
+        `${vinculosNoArquivo} encontrados no arquivo.`,
+    );
+  }
+
   // Renders para revisão. `export` usa a página atual, então renderizamos
   // página a página pelo nome.
   //
@@ -801,13 +1247,14 @@ function principal() {
   }
 
   // Limpa os intermediários: são artefatos de build, não fonte.
-  for (const lixo of [".figcraft-a.json", ".figcraft-b.json"]) {
+  for (const lixo of [".figcraft-a.json", ".figcraft-b.json", ".figcraft-c.json"]) {
     rmSync(path.join(dirDesign, lixo), { force: true });
   }
 
   console.log(`\n  ✅ ${ARQUIVO.replace(raiz + path.sep, "")}`);
-  console.log(`     fase A: ${faseA.length} comandos · fase B: ${faseB.length} comandos`);
+  console.log(`     fase A: ${faseA.length} comandos · fase B: ${faseB.length} comandos · fase C: ${vinculacoes.length} vinculações`);
   console.log(`     renders: ${nomesPaginas.length} páginas em design/export/`);
+  console.log(`     ${TOKENS.length} tokens como variables do FigCraft, ${vinculosNoArquivo} vínculos verificados no arquivo`);
 }
 
 principal();

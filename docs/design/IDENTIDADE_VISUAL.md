@@ -16,6 +16,7 @@ Quatro páginas, cada uma um artboard 1440 de largura:
 | **01 · Termômetro** | O componente assinatura, nos quatro estados, com barra de proporção e chave do enum |
 | **02 · Componentes** | Botões (primário, secundário, foco visível), card de poder com as 8 barras de peso e linha de ranking |
 | **03 · Hero** | A composição da home: gancho → promessa → CTA → faixa de prova |
+| **04 · Formulários** | Campo padrão, foco, erro, desabilitado; botão carregando; faixas de sucesso e de erro |
 
 ### 1.1 Como reconstruir
 
@@ -29,6 +30,52 @@ Abre no app pelo atalho do FigCraft, ou por CLI:
 ```powershell
 & "C:\Program Files\FigCraft\figcraft-cli.exe" info design/curriculo-politico.figcraft
 ```
+
+## 1.5 Tokens como variables, não como literais
+
+As cores do documento não são valores soltos: são **18 variáveis** na coleção
+`Cor`, e 93 campos de nó estão **vinculados** a elas. A nomenclatura espelha a
+classe Tailwind (`estado/verde-barra` ↔ `emerald-500`), para que a tradução entre
+documento e código seja mecânica.
+
+| Grupo | Variáveis |
+|---|---|
+| `superficie/` | base, painel, borda, borda-forte |
+| `texto/` | primario, secundario, terciario, fraco |
+| `acao/` | primaria, rotulo |
+| `estado/` | verde, ambar, vermelho, cinza — cada um em `-barra` e `-texto` |
+
+Sem isso o arquivo é maquete: mudar a paleta significaria editar dezenas de nós.
+Com as variáveis, muda-se num lugar só — que é a razão de existir um design system.
+
+### 1.5.1 A vinculação exige três passadas
+
+`variable.bind` precisa do **id do nó**, que só existe depois de criá-lo. O build
+é portanto em três fases:
+
+| Fase | O que faz | Por que separada |
+|---|---|---|
+| A | documento, páginas, canvas, variáveis | os ids dos canvas são devolvidos ao final |
+| B | todos os filhos, com `parent` já resolvido | precisa dos ids da fase A |
+| C | `variable.bind` em cada campo marcado | precisa dos ids da fase B |
+
+O gerador marca a intenção no próprio nó (`__bind: { field: "fill", variable:
+"acao/primaria" }`) e a fase C resolve o índice do comando para o id devolvido.
+
+### 1.5.2 O verificador estava errado duas vezes
+
+Comando retornar `ok` não prova que o vínculo persistiu. O build converte o
+`.figcraft` para JSON e confere a contagem — e essa verificação falhou duas vezes
+por erro **meu**, não do documento:
+
+1. Contar `"bound"` dava **85 para 93** vínculos, porque um nó com fill e stroke
+   vinculados tem um único objeto `bound` com dois campos.
+2. Contar qualquer `"VariableID:n"` dava **111 para 93**, porque somava as 18
+   definições de variável (`"id": "VariableID:1"`) ao total.
+
+A versão correta conta as referências **dentro dos blocos `bound`**. O episódio
+vale registrar: uma verificação que nunca falha não verifica nada, e a primeira
+reação natural diante de uma divergência é culpar o artefato.
 
 ## 2. Por que o documento é gerado, e não desenhado
 
@@ -152,14 +199,33 @@ Registradas porque custaram iteração e vão custar de novo:
 | Nome de página com acento quebra slug de arquivo | Normalizar NFD e remover diacríticos antes de gerar o nome do PNG |
 | `page.setBackground` é necessário | Sem ele, a área fora do artboard renderiza branca |
 
-## 6. O que não está coberto
+## 6. Regras de formulário
 
-- **Estados de formulário** (erro, sucesso, carregando) — relevantes para
-  `/conta`, `/auth` e o canal de retificação.
+A página 04 define a aparência; estas são as regras que precisam sobreviver à
+implementação, porque a aparência sozinha não as garante.
+
+| Regra | Motivo |
+|---|---|
+| O rótulo é um `<label for>` real, nunca placeholder | Placeholder desaparece ao digitar e não é lido de forma confiável por leitor de tela |
+| Foco com anel **externo** de 2px (`outline-offset`) | Borda interna encolhe o conteúdo e desloca o texto no momento do foco |
+| Erro ligado ao campo por `aria-describedby` + `aria-invalid` | Sem isso o leitor de tela anuncia o campo sem dizer o que está errado |
+| Faixas de sucesso e erro com `role="alert"` | Mudança de estado precisa ser anunciada, não apenas vista |
+| Botão de envio com `aria-busy="true"` e rótulo que muda | Rótulo diferente informa progresso sem o botão mudar de largura e empurrar o layout |
+| Nunca desabilitar o envio preventivamente | Campo desabilitado não é anunciado e esconde a razão do bloqueio; valide e explique |
+| Cor nunca é o único sinal | Mensagem textual acompanha todo estado — WCAG 1.4.1 |
+
+O texto de ajuda fica **fora** do frame do campo, como nó separado, porque no app
+ele vira um elemento próprio ligado por `aria-describedby`. Desenhá-lo dentro do
+campo esconderia essa separação.
+
+## 7. O que não está coberto
+
 - **Responsivo**: os artboards são 1440. O comportamento em 375px está verificado
   por Playwright, não desenhado.
 - **Modo claro**: o tema é dark fixo por decisão de produto, então não há variante.
-- **Tokens como variables do FigCraft**: o documento usa cores literais já
-  resolvidas. Exportar collections e vincular por `variable.bind` tornaria o
-  arquivo editável por token no app — próximo passo natural se o design passar a
-  ser editado à mão.
+- **Estados de carregamento de página inteira** (skeleton, erro de rota) — a
+  página 04 cobre o carregamento **de ação**, não o de tela.
+- **Tokens exportados para CSS**: o FigCraft sabe exportar as variables como
+  custom properties (`variable.export --format css`). Não foi feito porque o
+  `@theme` do Tailwind já é a fonte que o app consome — ter as duas seria criar
+  justamente a segunda fonte de verdade que este documento evita.
