@@ -14,9 +14,9 @@
  * jurídicas/humanas — essas ficam no relatório como manuais.
  */
 import { spawnSync } from "child_process";
-import { existsSync, readFileSync, statSync, writeFileSync } from "fs";
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "fs";
 import { join } from "path";
-import { RAIZ, executarCadeia } from "./lib/cadeia";
+import { RAIZ, executarCadeia, type ResultadoCadeia } from "./lib/cadeia";
 
 const COM_ETL = process.argv.includes("--with-etl");
 const DIR_SCRIPTS = join(RAIZ, "apps", "pipeline", "scripts");
@@ -90,9 +90,27 @@ if (COM_ETL) {
   }
 }
 
-// 4) Cadeia canônica (cargas idempotentes + identidade + recálculo + snapshot)
-console.log("\n🔗 Cadeia canônica de carga/recálculo");
-const cadeia = executarCadeia();
+// 4) Cadeia canônica (cargas idempotentes + identidade + recálculo + snapshot).
+// Os loads leem data/raw/ — se o ambiente não tem raws (CI sem ETL), pula
+// graciosamente: conteúdo (tags/resumos), recálculo e snapshot já rodam, mas
+// cargas exigem a coleta antes (bot:fix:etl ou execução local).
+const dirRaw = join(RAIZ, "data", "raw");
+const rawsPresentes =
+  existsSync(dirRaw) && readdirSync(dirRaw).some((f) => f.endsWith(".json"));
+let cadeia: ResultadoCadeia = { ok: true, falhas: [] };
+if (!rawsPresentes && !COM_ETL) {
+  console.log(
+    "\n⏭️  Cargas puladas: data/raw/ vazio neste ambiente (colete com bot:fix:etl ou rode localmente). Recálculo e snapshot seguem:",
+  );
+  let okFinal = true;
+  for (const s of ["recalculate-scores", "apply-integrity-caps", "snapshot-scores"]) {
+    if (!rodarTsx(`↳ ${s}`, join(DIR_SCRIPTS, `${s}.ts`))) okFinal = false;
+  }
+  cadeia = { ok: okFinal, falhas: [] };
+} else {
+  console.log("\n🔗 Cadeia canônica de carga/recálculo");
+  cadeia = executarCadeia();
+}
 
 // 5) Scan DEPOIS + delta
 rodarTsx("Scan final", join(DIR_SCRIPTS, "gap-scan.ts"), false);
