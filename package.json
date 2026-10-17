@@ -23,6 +23,7 @@
     "verify:tokens": "node scripts/verificar-tokens.mjs",
     "verify:formato": "node scripts/verificar-formato.mjs",
     "verify:formularios": "node scripts/verificar-formularios.mjs",
+    "audit:visual": "node scripts/auditar-rotas.mjs",
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
     "e2e:prod": "playwright test --grep @readonly",
