@@ -25,6 +25,8 @@
     "e2e:prod": "playwright test --grep @readonly",
     "design:detect": "impeccable detect apps/web/src",
     "design:axe": "node .design-review/axe.cjs",
+    "design:build": "node design/construir-identidade.mjs",
+    "design:check": "node design/construir-identidade.mjs --check",
     "db:generate": "prisma generate --schema=apps/web/prisma/schema.prisma",
     "db:migrate": "npm run db:migrate --workspace @cp/web",
     "db:seed": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/seed-dev.ts",

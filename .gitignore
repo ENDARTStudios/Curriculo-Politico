@@ -34,6 +34,10 @@ supabase/.branches/
 # reproduzíveis a qualquer momento pelo próprio script.
 .design-review/*.png
 
+# Renders do documento de identidade (design/construir-identidade.mjs).
+# Mesma regra: o gerador e o `.figcraft` são versionados; os PNGs saem do build.
+design/export/
+
 # Impeccable: estado efêmero, cache de hook e overrides por máquina.
 # Os artefatos compartilhados (config.json, design.json, surfaces/, critique/)
 # seguem versionados de propósito — são o contrato de design do projeto.

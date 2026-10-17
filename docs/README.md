@@ -94,6 +94,7 @@ docs/
 ## design/ — Camada de UI/UX
 
 - [estrategia-marketing.md](design/estrategia-marketing.md) — funil de 4 estágios e regras inegociáveis de interface.
+- [IDENTIDADE_VISUAL.md](design/IDENTIDADE_VISUAL.md) — documento de identidade no FigCraft (gerado), contraste medido, achados de token e veredicto das 22 ferramentas de UI avaliadas.
 - [agents/](design/agents/) — briefs de subagentes (`ui-ux-designer`, `critico-visual`, `copywriter-conversao`, `auditor-acessibilidade`).
 - `avaliacao-ferramentas.md` e `avaliacao-bibliotecas-animacao.md` — avaliações pontuais.
 
