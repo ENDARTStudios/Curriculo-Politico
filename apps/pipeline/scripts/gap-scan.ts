@@ -141,8 +141,11 @@ async function escanear() {
   // 7. Ambiente local: chaves críticas do .env (incidente real de 2026-10-17 —
   // arquivo corrompido esvaziou credenciais; cofre DPAPI em
   // C:\Users\edina\.secrets\curriculo-politico\ restaura com vault-restore.ps1 -ParaEnv)
+  // Só aplica fora do CI — no runner o .env nunca existe (secrets vêm do store).
   const envPath = join(RAIZ, "apps", "web", ".env");
-  if (existsSync(envPath)) {
+  if (process.env.CI === "true") {
+    // pula — ambiente de CI
+  } else if (existsSync(envPath)) {
     const envTxt = readFileSync(envPath, "utf8");
     for (const k of ["DATABASE_URL", "DIRECT_URL", "NEXTAUTH_SECRET", "SUPABASE_ACCESS_TOKEN"]) {
       const m = envTxt.match(new RegExp(`^${k}=(.*)$`, "m"));
