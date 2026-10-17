@@ -76,6 +76,9 @@ const ROTAS = [
   "/status",
   "/stf",
   "/termos-de-uso",
+  // Estado de 404: é uma página que o usuário vê, e ela também precisa passar
+  // em acessibilidade. Fica na lista para não ser a única sem auditoria.
+  "/rota-que-nao-existe-auditoria",
 ].filter(Boolean);
 
 /** Larguras de referência do projeto. */
