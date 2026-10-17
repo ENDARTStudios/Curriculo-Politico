@@ -19,7 +19,7 @@ export const metadata: Metadata = {
  */
 export default function EspectroPage() {
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
+    <main className="mx-auto max-w-5xl px-6 py-12">
       {/* Gancho + promessa */}
       <p className="text-xs uppercase tracking-wider text-slate-400">
         Autoavaliação educativa

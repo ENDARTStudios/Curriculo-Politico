@@ -73,7 +73,7 @@ export default async function CompararPartidosPage() {
     .sort((a, b) => (b.avgScore ?? -1) - (a.avgScore ?? -1));
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
+    <main className="mx-auto max-w-5xl px-6 py-12">
       <Link
         href="/partidos"
         className="mb-6 inline-block text-sm text-slate-400 transition hover:text-slate-100"

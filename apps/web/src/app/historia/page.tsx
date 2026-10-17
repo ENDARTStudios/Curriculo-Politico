@@ -30,7 +30,7 @@ export default async function HistoriaPage() {
     n >= 70 ? "text-emerald-400" : n >= 50 ? "text-amber-400" : "text-red-400";
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
+    <main className="mx-auto max-w-5xl px-6 py-12">
       <h1 className="text-4xl font-bold tracking-tight text-slate-100">
         Ranking Histórico da Política Brasileira
       </h1>

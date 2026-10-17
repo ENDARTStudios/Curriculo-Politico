@@ -50,6 +50,25 @@ export interface NumerosHero {
     nota: number;
     status: ReliabilityStatus;
   } | null;
+  /**
+   * Os primeiros colocados, para a home mostrar o produto em vez de descrevê-lo.
+   *
+   * ── Por que existe ─────────────────────────────────────────────────────────
+   * A home anterior era só texto: título, parágrafo, CTA, e depois cartões de
+   * metodologia. Nada mostrava o que a plataforma entrega. A regra do conceito é
+   * "o dado é o herói" — e a home não exibia dado nenhum acima da dobra.
+   *
+   * Estes quatro bastam para o visitante entender o produto sem clicar: nome,
+   * partido, nota e Termômetro lado a lado.
+   */
+  destaques: Array<{
+    id: string;
+    nome: string;
+    partido: string | null;
+    cargo: string | null;
+    nota: number;
+    status: ReliabilityStatus;
+  }>;
 }
 
 const DISTRIBUICAO_VAZIA: Record<ReliabilityStatus, number> = {
@@ -113,13 +132,17 @@ export async function carregarNumerosHero(): Promise<NumerosHero | null> {
     // 5) O melhor colocado entre os que entraram no ranking (GRAY fica de fora:
     //    sem dados suficientes, não é exemplo de nada).
     const elegiveis = notas.filter((n) => n.reliabilityStatus !== "GRAY");
-    const melhor = elegiveis.reduce<(typeof elegiveis)[number] | null>(
-      (atual, candidato) =>
-        atual === null || candidato.finalScore > atual.finalScore
-          ? candidato
-          : atual,
-      null,
-    );
+    const ordenados = [...elegiveis].sort((a, b) => b.finalScore - a.finalScore);
+    const melhor = ordenados[0] ?? null;
+
+    const paraDestaque = (n: (typeof ordenados)[number]) => ({
+      id: n.term.person.id,
+      nome: n.term.person.politicalName,
+      partido: n.term.party?.acronym ?? null,
+      cargo: n.term.office.name,
+      nota: n.finalScore,
+      status: n.reliabilityStatus,
+    });
 
     return {
       politicosAvaliados: notas.length,
@@ -129,16 +152,11 @@ export async function carregarNumerosHero(): Promise<NumerosHero | null> {
       partidos,
       cobertura,
       distribuicao,
-      primeiroLugar: melhor
-        ? {
-            id: melhor.term.person.id,
-            nome: melhor.term.person.politicalName,
-            partido: melhor.term.party?.acronym ?? null,
-            cargo: melhor.term.office.name,
-            nota: melhor.finalScore,
-            status: melhor.reliabilityStatus,
-          }
-        : null,
+      primeiroLugar: melhor ? paraDestaque(melhor) : null,
+      // Cinco, não quatro: os quatro primeiros do ranking real estão empatados em
+      // 70,0, e quatro linhas idênticas parecem defeito para quem olha. A quinta
+      // posição (69,6) mostra que existe variação — sem inventar dado nenhum.
+      destaques: ordenados.slice(0, 5).map(paraDestaque),
     };
   } catch {
     // Banco fora do ar, migration pendente ou credencial ausente: a faixa de

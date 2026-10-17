@@ -34,7 +34,7 @@ const NAO_PROCESSAMOS = [
 
 export default function SobrePage() {
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
+    <main className="mx-auto max-w-5xl px-6 py-12">
       <div className="mb-12">
         <h1 className="mb-4 text-4xl font-bold tracking-tight text-slate-100">
           Sobre o Currículo Político

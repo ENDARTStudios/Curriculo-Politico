@@ -103,12 +103,19 @@ test.describe("Acessibilidade WCAG 2.2 AA @readonly", () => {
   test("dropdown de busca não tem violações", async ({ page }) => {
     await page.goto("/", { waitUntil: "networkidle" });
 
-    const campo = page.getByRole("textbox", { name: /buscar políticos/i });
+    // A home tem DUAS buscas: a do header e a do herói, que virou a ação
+    // principal da página. Usamos a do herói porque ela existe em qualquer
+    // largura — a do header é `hidden xl:block` e a 375px nem entra no DOM
+    // renderizado. Os nomes acessíveis são distintos de propósito, para o leitor
+    // de tela não anunciar dois campos idênticos.
+    const campo = page.locator("section").first().getByRole("textbox", {
+      name: /buscar político, partido ou projeto/i,
+    });
     await expect(campo).toHaveCount(1);
 
     // Duas letras: é o mínimo para o dropdown abrir.
     await campo.fill("si");
-    const lista = page.locator("#busca-resultados");
+    const lista = page.locator("#busca-home-resultados");
     await expect(lista).toBeVisible();
 
     // O painel é uma lista de links agrupada, não um listbox de opções.

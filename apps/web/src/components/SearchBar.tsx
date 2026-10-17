@@ -42,7 +42,25 @@ interface Item {
   label: string;
 }
 
-export function SearchBar() {
+/**
+ * Campo de busca com resultados agrupados.
+ *
+ * ── `idLista` e `rotuloBusca` ───────────────────────────────────────────────
+ * Ambos são configuráveis porque a home renderiza **duas** instâncias (a do
+ * header e a do herói, que é a ação principal da página).
+ *
+ * Com id fixo, as duas emitiam `id="busca-resultados"` e o documento passava a
+ * ter id duplicado — HTML inválido e `getElementById` ambíguo.
+ *
+ * Com o mesmo `aria-label` nas duas, o leitor de tela anuncia dois campos de
+ * nome idêntico na mesma página, e a busca por papel + nome fica ambígua (foi o
+ * que derrubou o teste de acessibilidade). Nomes distintos resolvem os dois
+ * problemas de uma vez.
+ */
+export function SearchBar({
+  idLista = "busca-resultados",
+  rotuloBusca = "Buscar políticos, partidos e projetos",
+}: { idLista?: string; rotuloBusca?: string } = {}) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -209,8 +227,14 @@ export function SearchBar() {
           onChange={(e) => handleChange(e.target.value)}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          aria-label="Buscar políticos, partidos e projetos"
-          placeholder="Buscar políticos, partidos, projetos... (Ctrl+K)"
+          aria-label={rotuloBusca}
+          /*
+            Placeholder curto: "Buscar políticos, partidos, projetos... (Ctrl+K)"
+            era truncado em 375px e sobrava "(Ctrl+" cortado, que parece defeito.
+            O atalho virou um chip visual (`kbd` abaixo), que só aparece onde há
+            espaço. O texto do campo não é o lugar de anunciar atalho de teclado.
+          */
+          placeholder="Buscar político, partido…"
           className="w-full rounded-lg border border-slate-700 bg-slate-950 py-2 pl-9 pr-8 text-sm text-slate-100 placeholder-slate-400 focus:border-sky-500 focus:outline-none"
         />
         <svg
@@ -243,7 +267,7 @@ export function SearchBar() {
 
       {open && query.length >= 2 && (
         <div
-          id="busca-resultados"
+          id={idLista}
           aria-label="Resultados da busca"
           className="absolute top-full z-50 mt-2 max-h-[70vh] w-full overflow-y-auto rounded-xl border border-slate-700 bg-slate-950 shadow-xl"
         >
