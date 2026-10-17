@@ -283,6 +283,46 @@ O texto de ajuda fica **fora** do frame do campo, como nó separado, porque no a
 ele vira um elemento próprio ligado por `aria-describedby`. Desenhá-lo dentro do
 campo esconderia essa separação.
 
+### 6.1 O que a auditoria encontrou
+
+Medido no código, não suposto:
+
+| Regra | Antes | Depois |
+|---|---|---|
+| `<label htmlFor>` | 9 ocorrências (só `signin` e `retificacao`) | todos os controles |
+| `aria-label` onde não há rótulo visual | 0 | busca, link de compartilhamento |
+| `aria-expanded`/`aria-controls` no combobox de busca | 0 | presentes, apontando para `#busca-resultados` |
+| `role="alert"` | **0** | erro de `/retificacao` e de `/auth/signin` |
+| `role="status"` | **0** | resultado da consulta de protocolo |
+| `aria-busy` | **0** | botão de envio da retificação |
+| Envio desabilitado preventivamente | **sim** (`!preenchido`) | não — validação nativa explica o campo |
+
+O caso mais grave era o **envio desabilitado preventivamente**. `disabled` remove o
+controle da árvore de acessibilidade: o leitor de tela não anuncia o botão nem a
+razão do bloqueio, e a pessoa fica sem saber o que falta preencher. A validação
+nativa (`required`, `minLength`, `type="email"`) já impede o envio e diz qual campo
+está errado.
+
+Também havia **rótulo visível sem associação** em `ProjetoFilters` e
+`ComparacaoCards`: o `<label>` existia na tela e não existia para o leitor de tela,
+porque faltava `htmlFor` e o `id` no controle.
+
+### 6.2 O guard
+
+`npm run verify:formularios` falha quando um `<input>`, `<textarea>` ou `<select>`
+não tem nome acessível — `<label htmlFor>` correspondente, associação implícita
+(controle dentro de `<label>`) ou `aria-label`.
+
+Duas armadilhas que o próprio guard teve, e que valem registro:
+
+1. **Falso positivo em associação implícita.** `<label>` envolvendo o `<input>` é
+   válido pela spec e é o padrão dos checkboxes de termos. A primeira versão acusou
+   três checkboxes corretos. Guard com falso positivo ensina a ignorá-lo.
+2. **O `>` de `=>` encerrava a tag.** O parser ingênuo lia a tag até o primeiro
+   `>`, então tudo depois de `onChange={(e) => ...}` ficava invisível — e o
+   `aria-label` do campo de busca, que estava correto, era reportado como ausente.
+   A correção é a alternância `(?:=>|[^>])`, com `=>` **antes**.
+
 ## 7. Implementação no código
 
 O documento desenha; o código precisa **concordar** com ele. O primeiro ponto em

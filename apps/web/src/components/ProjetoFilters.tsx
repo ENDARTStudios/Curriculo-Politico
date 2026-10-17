@@ -32,10 +32,11 @@ export function ProjetoFilters({ tipos, anos }: ProjetoFiltersProps) {
       <h2 className="mb-4 text-lg font-bold text-slate-100">Filtros</h2>
       <div className="grid gap-4 md:grid-cols-4">
         <div className="md:col-span-4">
-          <label className="mb-1 block text-sm font-medium text-slate-300">
+          <label htmlFor="projeto-busca" className="mb-1 block text-sm font-medium text-slate-300">
             Buscar por título ou palavra-chave
           </label>
           <input
+            id="projeto-busca"
             type="text"
             defaultValue={searchParams.get("q") ?? ""}
             onBlur={(e) => updateFilter("q", e.target.value)}
@@ -51,8 +52,11 @@ export function ProjetoFilters({ tipos, anos }: ProjetoFiltersProps) {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-300">Tipo</label>
+          <label htmlFor="projeto-tipo" className="mb-1 block text-sm font-medium text-slate-300">
+            Tipo
+          </label>
           <select
+            id="projeto-tipo"
             value={searchParams.get("type") ?? ""}
             onChange={(e) => updateFilter("type", e.target.value)}
             className={selectClass}
@@ -65,8 +69,11 @@ export function ProjetoFilters({ tipos, anos }: ProjetoFiltersProps) {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-300">Ano</label>
+          <label htmlFor="projeto-ano" className="mb-1 block text-sm font-medium text-slate-300">
+            Ano
+          </label>
           <select
+            id="projeto-ano"
             value={searchParams.get("year") ?? ""}
             onChange={(e) => updateFilter("year", e.target.value)}
             className={selectClass}

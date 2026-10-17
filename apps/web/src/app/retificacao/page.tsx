@@ -33,11 +33,6 @@ export default function RetificacaoPage() {
   const [statusResultado, setStatusResultado] = useState<string | null>(null);
   const [consultaErro, setConsultaErro] = useState<string | null>(null);
 
-  const preenchido =
-    solicitante.trim().length >= 3 &&
-    email.trim() &&
-    dado.trim().length >= 20;
-
   async function enviar(e: React.FormEvent) {
     e.preventDefault();
     setErro(null);
@@ -224,14 +219,29 @@ export default function RetificacaoPage() {
           </div>
 
           {erro && (
-            <p className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
+            /* role="alert": a mensagem precisa ser anunciada, não só vista.
+               Sem isso, quem usa leitor de tela envia o formulário e não recebe
+               retorno nenhum — o erro existe apenas na camada visual. */
+            <p
+              role="alert"
+              className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300"
+            >
               {erro}
             </p>
           )}
 
+          {/*
+            O botão NÃO é desabilitado por formulário incompleto.
+            `disabled` remove o controle da árvore de acessibilidade: o leitor de
+            tela não anuncia o botão nem a razão do bloqueio, e a pessoa fica sem
+            saber o que falta. A validação nativa (`required`, `minLength`, `type`)
+            já impede o envio e explica o campo — e o `:invalid` do CSS dá o sinal
+            visual. Desabilitar só durante o envio é o único caso legítimo.
+          */}
           <button
             type="submit"
-            disabled={enviando || !preenchido}
+            disabled={enviando}
+            aria-busy={enviando}
             className="rounded-lg bg-sky-500 px-6 py-2 font-medium text-slate-950 transition hover:bg-sky-400 disabled:opacity-40"
           >
             {enviando ? "Enviando…" : "Enviar solicitação"}
@@ -254,23 +264,45 @@ export default function RetificacaoPage() {
           Consultar status de uma solicitação
         </h2>
         <form onSubmit={consultar} className="space-y-3">
+          {/*
+            Rótulo real, não placeholder. Placeholder desaparece ao digitar e não
+            é lido de forma confiável por leitor de tela — o campo fica sem nome
+            justamente quando a pessoa precisa conferir o que digitou. O `id` +
+            `htmlFor` faz a associação programática.
+          */}
           <div className="grid gap-3 md:grid-cols-2">
-            <input
-              type="text"
-              required
-              value={consultaProtocolo}
-              onChange={(e) => setConsultaProtocolo(e.target.value)}
-              className={inputClass}
-              placeholder="Protocolo (RET-AAAA-XXXXXX)"
-            />
-            <input
-              type="email"
-              required
-              value={consultaEmail}
-              onChange={(e) => setConsultaEmail(e.target.value)}
-              className={inputClass}
-              placeholder="E-mail usado na solicitação"
-            />
+            <div>
+              <label htmlFor="consulta-protocolo" className="mb-1 block text-sm font-medium text-slate-300">
+                Protocolo
+              </label>
+              <input
+                id="consulta-protocolo"
+                type="text"
+                required
+                value={consultaProtocolo}
+                onChange={(e) => setConsultaProtocolo(e.target.value)}
+                aria-describedby="consulta-protocolo-dica"
+                className={inputClass}
+                placeholder="RET-AAAA-XXXXXX"
+              />
+              <p id="consulta-protocolo-dica" className="mt-1 text-xs text-slate-400">
+                Está no comprovante recebido quando a solicitação foi registrada.
+              </p>
+            </div>
+            <div>
+              <label htmlFor="consulta-email" className="mb-1 block text-sm font-medium text-slate-300">
+                E-mail usado na solicitação
+              </label>
+              <input
+                id="consulta-email"
+                type="email"
+                required
+                value={consultaEmail}
+                onChange={(e) => setConsultaEmail(e.target.value)}
+                className={inputClass}
+                autoComplete="email"
+              />
+            </div>
           </div>
           <button
             type="submit"
@@ -278,13 +310,24 @@ export default function RetificacaoPage() {
           >
             Consultar
           </button>
+          {/*
+            `role="status"` = região viva educada: o resultado é anunciado sem
+            interromper o que o leitor de tela está lendo. `alert` seria
+            desproporcional para uma consulta bem-sucedida.
+          */}
           {statusResultado && (
-            <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-300">
+            <p
+              role="status"
+              className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-300"
+            >
               {statusResultado}
             </p>
           )}
           {consultaErro && (
-            <p className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
+            <p
+              role="alert"
+              className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300"
+            >
               {consultaErro}
             </p>
           )}
