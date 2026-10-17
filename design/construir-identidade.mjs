@@ -1027,6 +1027,159 @@ texto(
   420,
 );
 
+/* ───────────────────────── Página 05 · Conceito ─────────────────────────── */
+
+/**
+ * Síntese da identidade em uma página.
+ *
+ * As outras páginas mostram **o que** o sistema é; esta mostra **por que** ele é
+ * assim. Um documento de design sem a tese vira catálogo de peças: quem chega
+ * depois não sabe o que pode mudar nem o que está fora de negociação, e acaba
+ * alterando o que dava sentido ao conjunto.
+ */
+pagina("05 · Conceito", 1440, 980);
+
+texto("O CONCEITO", M, 64, {
+  fontSize: 13,
+  fontWeight: 600,
+  letterSpacing: "10%",
+  fill: T["sky-400"],
+});
+
+texto("Instrumento de medição,\nnão campanha.", M, 104, {
+  fontSize: 64,
+  fontWeight: 700,
+  lineHeight: "98%",
+  letterSpacing: "-2.5%",
+  fill: T["slate-50"],
+});
+
+texto(
+  "A plataforma audita poder público. Cada decisão visual existe para que o número seja lido como medição — e não como opinião. Cor, escala e movimento não decoram: eles informam.",
+  M,
+  282,
+  { fontSize: 20, lineHeight: "155%", fill: T["slate-300"] },
+  900,
+);
+
+retangulo(M, 372, 1280, 1, { name: "divisor", fill: T["slate-800"] });
+
+/** Uma das três leis, com uma prova visual pequena. */
+const LEIS = [
+  {
+    titulo: "O dado é o herói",
+    texto:
+      "Números, notas e status dominam a hierarquia. Nada decorativo compete com um valor.",
+  },
+  {
+    titulo: "Cor = significado",
+    texto:
+      "Verde, âmbar e vermelho carregam estado de confiabilidade e nada mais. Azul é ação.",
+  },
+  {
+    titulo: "Escala editorial",
+    texto:
+      "Título grande com tracking apertado, corpo com entrelinha larga. O contraste sustenta a leitura.",
+  },
+];
+
+const COLUNA = 380;
+const ESPACO = 60;
+
+LEIS.forEach((lei, i) => {
+  const x = M + i * (COLUNA + ESPACO);
+  const y = 418;
+
+  texto(`0${i + 1}`, x, y, {
+    fontSize: 13,
+    fontWeight: 700,
+    letterSpacing: "10%",
+    fill: T["sky-400"],
+  });
+  texto(lei.titulo, x, y + 26, { fontSize: 24, fontWeight: 700, letterSpacing: "-1%", fill: T["slate-50"] });
+  texto(lei.texto, x, y + 64, { fontSize: 15, lineHeight: "155%", fill: T["slate-400"] }, COLUNA);
+
+  const yProva = y + 150;
+
+  if (i === 0) {
+    // Prova: um número isolado, sem nada competindo.
+    texto("70,0", x, yProva, {
+      fontSize: 56,
+      fontWeight: 700,
+      letterSpacing: "-2.5%",
+      fill: T["slate-50"],
+      __bind: { field: "fill", variable: "texto/primario" },
+    });
+    texto("IDIP", x + 138, yProva + 24, {
+      fontSize: 11,
+      fontWeight: 700,
+      letterSpacing: "8%",
+      fill: T["slate-400"],
+      __bind: { field: "fill", variable: "texto/terciario" },
+    });
+  }
+
+  if (i === 1) {
+    // Prova: os quatro estados, e só eles.
+    ESTADOS.forEach((e, j) => {
+      elipse(x + j * 92, yProva + 10, 12, 12, {
+        name: `ponto ${e.chave}`,
+        fill: T[e.barra],
+        __bind: { field: "fill", variable: `estado/${e.tokenBarra}` },
+      });
+      texto(e.chave, x + j * 92, yProva + 30, {
+        fontSize: 10,
+        fontWeight: 600,
+        letterSpacing: "6%",
+        fill: T["slate-400"],
+      });
+    });
+  }
+
+  if (i === 2) {
+    // Prova: o salto entre display e corpo.
+    texto("Aa", x, yProva - 6, {
+      fontSize: 56,
+      fontWeight: 700,
+      letterSpacing: "-2%",
+      fill: T["slate-50"],
+    });
+    texto("17px · entrelinha 155%", x + 96, yProva + 30, {
+      fontSize: 13,
+      fill: T["slate-400"],
+    });
+  }
+});
+
+retangulo(M, 700, 1280, 1, { name: "divisor 2", fill: T["slate-800"] });
+
+texto("O QUE A IDENTIDADE RECUSA", M, 740, {
+  fontSize: 13,
+  fontWeight: 600,
+  letterSpacing: "8%",
+  fill: T["sky-400"],
+});
+
+const RECUSAS = [
+  "Verde, âmbar ou vermelho como decoração, gradiente ou destaque de marca.",
+  "Placeholder como rótulo de campo, ou cor como único portador de um estado.",
+  "Qualquer elemento que sugira que a votação popular altera a nota do IDIP.",
+];
+
+RECUSAS.forEach((r, i) => {
+  const y = 782 + i * 34;
+  retangulo(M, y + 9, 14, 2, { name: "marcador", fill: T["slate-600"] });
+  texto(r, M + 26, y, { fontSize: 16, fill: T["slate-300"] }, 1200);
+});
+
+texto(
+  "Esta página é a régua das outras cinco: o que não puder ser justificado por uma destas três leis não pertence à identidade.",
+  M,
+  900,
+  { fontSize: 14, lineHeight: "155%", fill: T["slate-400"] },
+  1280,
+);
+
 /* ───────────────────────────── Auditoria ────────────────────────────────── */
 
 function auditoria() {

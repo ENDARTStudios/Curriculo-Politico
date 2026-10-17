@@ -8,7 +8,7 @@
 
 ## 1. O que foi produzido
 
-Quatro páginas, cada uma um artboard 1440 de largura:
+Seis páginas, cada uma um artboard 1440 de largura:
 
 | Página | Conteúdo |
 |---|---|
@@ -17,6 +17,12 @@ Quatro páginas, cada uma um artboard 1440 de largura:
 | **02 · Componentes** | Botões (primário, secundário, foco visível), card de poder com as 8 barras de peso e linha de ranking |
 | **03 · Hero** | A composição da home: gancho → promessa → CTA → faixa de prova |
 | **04 · Formulários** | Campo padrão, foco, erro, desabilitado; botão carregando; faixas de sucesso e de erro |
+| **05 · Conceito** | A tese em uma página: **instrumento de medição, não campanha** — as três leis e o que a identidade recusa |
+
+A página 05 é a **régua das outras**: o que não puder ser justificado por uma das
+três leis (o dado é o herói · cor = significado · escala editorial) não pertence à
+identidade. Sem ela, o documento é catálogo de peças — quem chega depois não sabe
+o que está fora de negociação, e altera justamente o que dava sentido ao conjunto.
 
 ### 1.1 Como reconstruir
 
