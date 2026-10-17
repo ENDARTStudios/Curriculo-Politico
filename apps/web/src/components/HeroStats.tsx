@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { NumerosHero } from "@/lib/hero-stats";
 import { STATUS_ORDEM, STATUS_VISUAL } from "@/lib/status-visual";
+import { formatarNota } from "@/lib/formato";
 
 /**
  * Faixa de prova social da home — o estágio "Prova" do funil.
@@ -158,7 +159,7 @@ export function HeroStats({ numeros }: { numeros: NumerosHero | null }) {
                     .join(" · ")}
                 </p>
                 <p className="mt-4 font-mono text-4xl font-bold tabular-nums text-slate-100">
-                  {primeiroLugar.nota.toFixed(1)}
+                  {formatarNota(primeiroLugar.nota)}
                   <span className="ml-2 align-middle text-xs font-medium uppercase tracking-wider text-slate-400">
                     / 100
                   </span>

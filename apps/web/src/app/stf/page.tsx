@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { DIMENSOES_STF } from "@/lib/methodology";
+import { formatarNota } from "@/lib/formato";
 
 export const dynamic = "force-dynamic";
 
@@ -190,7 +191,7 @@ export default async function STFPage() {
                   )}
                   {j.scores[0] ? (
                     <div className="font-mono text-2xl font-bold tabular-nums text-slate-100">
-                      {j.scores[0].finalScore.toFixed(1)}
+                      {formatarNota(j.scores[0].finalScore)}
                     </div>
                   ) : (
                     <div className="text-sm italic text-slate-400">

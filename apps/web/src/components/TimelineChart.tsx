@@ -2,6 +2,7 @@
 
 import type { ScoreSnapshot } from "@prisma/client";
 import { diaSnapshot, mesAbrevSnapshot, mesCurtoSnapshot } from "@/lib/snapshot";
+import { formatarNota, formatarPercentual } from "@/lib/formato";
 
 interface TimelineChartProps {
   snapshots: ScoreSnapshot[];
@@ -44,11 +45,11 @@ export function TimelineChart({ snapshots }: TimelineChartProps) {
         <h2 className="text-xl font-bold text-slate-100">Evolução Histórica</h2>
         <div className="flex flex-wrap gap-3 text-xs">
           <span className="flex items-center gap-1 text-emerald-300">
-            🏆 {fmtMes(new Date(melhor.snapshotDate))} — {melhor.finalScore.toFixed(1)}
+            🏆 {fmtMes(new Date(melhor.snapshotDate))} — {formatarNota(melhor.finalScore)}
           </span>
           {pior.id !== melhor.id && (
             <span className="flex items-center gap-1 text-red-300">
-              ⚠️ {fmtMes(new Date(pior.snapshotDate))} — {pior.finalScore.toFixed(1)}
+              ⚠️ {fmtMes(new Date(pior.snapshotDate))} — {formatarNota(pior.finalScore)}
             </span>
           )}
         </div>
@@ -111,10 +112,9 @@ export function TimelineChart({ snapshots }: TimelineChartProps) {
                 >
                   {mesAbrevSnapshot(s.snapshotDate)}
                 </text>
-                <title>
-                  {diaSnapshot(s.snapshotDate)}:{" "}
-                  {s.finalScore.toFixed(1)} (confiança {s.confidenceScore.toFixed(0)}%)
-                </title>
+                {/* Um só string: `<title>` de SVG com vários filhos faz o React
+                    avisar e deixa o nome acessível instável entre leitores. */}
+                <title>{`${diaSnapshot(s.snapshotDate)}: ${formatarNota(s.finalScore)} (confiança ${formatarPercentual(s.confidenceScore)})`}</title>
               </g>
             );
           })}

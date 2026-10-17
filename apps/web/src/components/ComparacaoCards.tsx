@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { exportToCSV } from "@/lib/export";
+import { formatarNota } from "@/lib/formato";
 
 export interface Comparavel {
   id: string;
@@ -148,7 +149,7 @@ export function ComparacaoCards({
                   {p.politicalName}
                 </div>
                 <div className="mt-0.5 truncate text-xs text-slate-400">
-                  {p.party} / {p.uf} · {p.score.final.toFixed(1)}
+                  {p.party} / {p.uf} · {formatarNota(p.score.final)}
                 </div>
               </button>
             );
@@ -193,7 +194,7 @@ export function ComparacaoCards({
 
                 <div className="mb-5 text-center">
                   <div className={`text-5xl font-bold ${ehMelhor ? "text-emerald-400" : "text-slate-100"}`}>
-                    {p.score.final.toFixed(1)}
+                    {formatarNota(p.score.final)}
                   </div>
                   {ehMelhor && (
                     <div className="mt-1 text-xs font-medium text-emerald-400">

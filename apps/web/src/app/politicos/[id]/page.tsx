@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { formatarNota, formatarPercentual } from "@/lib/formato";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -58,7 +59,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const contexto = [cargo, partido].filter(Boolean).join(" · ");
   const notaTexto = nota
-    ? ` Nota IDIP ${nota.finalScore.toFixed(1)}. ${STATUS_VISUAL[nota.reliabilityStatus].label}.`
+    ? ` Nota IDIP ${formatarNota(nota.finalScore)}. ${STATUS_VISUAL[nota.reliabilityStatus].label}.`
     : "";
 
   return {
@@ -230,13 +231,13 @@ export default async function PoliticoPage({ params }: Props) {
             <Termometro status={score.reliabilityStatus} />
             <div className="text-center">
               <div className="text-5xl font-bold text-slate-100">
-                {score.finalScore.toFixed(1)}
+                {formatarNota(score.finalScore)}
               </div>
               <div className="mt-1 text-xs text-slate-400">
                 IDIP v{score.version}
               </div>
               <div className="mt-1 text-xs text-slate-400">
-                Confiança: {score.confidenceScore.toFixed(0)}%
+                Confiança: {formatarPercentual(score.confidenceScore)}
               </div>
             </div>
           </div>

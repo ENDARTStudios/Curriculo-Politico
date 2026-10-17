@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { chaveDiaSnapshot } from "@/lib/snapshot";
+import { formatarNota } from "@/lib/formato";
 import { Termometro } from "@/components/Termometro";
 import { IdeologyBadge } from "@/components/IdeologyBadge";
 import {
@@ -157,7 +158,7 @@ export default async function PartidoPage({ params }: Props) {
               Nota média (ranqueados)
             </div>
             <div className="text-2xl font-bold text-slate-100">
-              {avgScore !== null ? avgScore.toFixed(1) : "—"}
+              {avgScore !== null ? formatarNota(avgScore) : "—"}
             </div>
           </div>
         </div>
@@ -252,7 +253,7 @@ export default async function PartidoPage({ params }: Props) {
                   <Termometro status={m.score!.reliabilityStatus} />
                 </td>
                 <td className="p-4 text-center text-lg font-bold text-slate-100">
-                  {m.score!.finalScore.toFixed(1)}
+                  {formatarNota(m.score!.finalScore)}
                 </td>
               </tr>
             ))}
@@ -274,7 +275,7 @@ export default async function PartidoPage({ params }: Props) {
                   {m.score ? <Termometro status={m.score.reliabilityStatus} /> : "—"}
                 </td>
                 <td className="p-4 text-center font-bold text-slate-400">
-                  {m.score?.finalScore.toFixed(1) ?? "—"}
+                  {formatarNota(m.score?.finalScore)}
                 </td>
               </tr>
             ))}

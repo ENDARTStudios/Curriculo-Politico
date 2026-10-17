@@ -1,6 +1,7 @@
 "use client";
 
 import { STATUS_HEX } from "@/lib/status-visual";
+import { formatarNota } from "@/lib/formato";
 
 export interface MemberData {
   id: string;
@@ -52,7 +53,7 @@ export function PartyMembersChart({
                   {m.name}
                 </span>
                 <span className="text-sm font-bold text-slate-200">
-                  {m.score.toFixed(1)}
+                  {formatarNota(m.score)}
                 </span>
               </div>
               <div className="h-2 w-full rounded-full bg-slate-800">

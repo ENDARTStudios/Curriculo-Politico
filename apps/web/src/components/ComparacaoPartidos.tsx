@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { ReliabilityStatus } from "@prisma/client";
+import { formatarNota } from "@/lib/formato";
 
 export interface PartyComparavel {
   id: string;
@@ -65,7 +66,7 @@ export function ComparacaoPartidos({ parties }: { parties: PartyComparavel[] }) 
                 <div className="text-lg font-bold text-slate-100">{p.acronym}</div>
                 <div className="truncate text-xs text-slate-400">
                   {p.memberCount} parl. ·{" "}
-                  {p.avgScore !== null ? p.avgScore.toFixed(1) : "—"}
+                  {p.avgScore !== null ? formatarNota(p.avgScore) : "—"}
                 </div>
               </button>
             );
@@ -106,7 +107,7 @@ export function ComparacaoPartidos({ parties }: { parties: PartyComparavel[] }) 
                 <div className="mb-6 grid grid-cols-2 gap-4 text-center">
                   <div>
                     <div className="text-3xl font-bold text-slate-100">
-                      {party.avgScore !== null ? party.avgScore.toFixed(1) : "—"}
+                      {party.avgScore !== null ? formatarNota(party.avgScore) : "—"}
                     </div>
                     <div className="text-xs text-slate-400">Nota média (ranqueados)</div>
                   </div>
