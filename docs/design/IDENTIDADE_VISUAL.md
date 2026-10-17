@@ -292,16 +292,36 @@ Medido no código, não suposto:
 | `<label htmlFor>` | 9 ocorrências (só `signin` e `retificacao`) | todos os controles |
 | `aria-label` onde não há rótulo visual | 0 | busca, link de compartilhamento |
 | `aria-expanded`/`aria-controls` no combobox de busca | 0 | presentes, apontando para `#busca-resultados` |
-| `role="alert"` | **0** | erro de `/retificacao` e de `/auth/signin` |
+| `role="alert"` | **0** | erro de `/retificacao` (por campo) e de `/auth/signin` |
+| `aria-invalid` + `aria-describedby` por campo | **0** | `/retificacao`: cada campo aponta para o próprio erro |
 | `role="status"` | **0** | resultado da consulta de protocolo |
 | `aria-busy` | **0** | botão de envio da retificação |
-| Envio desabilitado preventivamente | **sim** (`!preenchido`) | não — validação nativa explica o campo |
+| Envio desabilitado preventivamente | **sim** (`!preenchido`) | não — a validação explica o campo |
 
 O caso mais grave era o **envio desabilitado preventivamente**. `disabled` remove o
 controle da árvore de acessibilidade: o leitor de tela não anuncia o botão nem a
-razão do bloqueio, e a pessoa fica sem saber o que falta preencher. A validação
-nativa (`required`, `minLength`, `type="email"`) já impede o envio e diz qual campo
-está errado.
+razão do bloqueio, e a pessoa fica sem saber o que falta preencher.
+
+### 6.1.1 Por que `noValidate`
+
+A validação por campo só passou a existir depois de **desligar** a validação
+nativa. Com `required`/`minLength` ativos, o evento `submit` **nunca dispara**
+quando há campo inválido — a bolha do navegador o intercepta antes — e
+`aria-invalid` jamais chegava ao DOM.
+
+O teste de e2e pegou isso: o campo continuava com `aria-invalid` nulo depois do
+clique. Três razões para assumir a validação no cliente:
+
+1. A mensagem nativa **não é estilizável** e muda de texto por navegador.
+2. Ela **não é ligada ao campo** por `aria-describedby`, então o leitor anuncia o
+   campo sem dizer o que está errado nele.
+3. O projeto precisa da mesma mensagem em todos os navegadores.
+
+Os atributos `required`/`minLength` **permanecem** no HTML: eles anunciam ao
+leitor de tela que o campo é obrigatório. O que saiu foi só a interceptação.
+
+Ao falhar, o foco vai para o **primeiro campo inválido** — teclado e leitor
+seguem o foco, e a pessoa não precisa procurar onde está o problema.
 
 Também havia **rótulo visível sem associação** em `ProjetoFilters` e
 `ComparacaoCards`: o `<label>` existia na tela e não existia para o leitor de tela,
