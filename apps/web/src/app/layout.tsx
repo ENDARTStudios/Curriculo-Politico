@@ -61,6 +61,7 @@ const NAV_LINKS = [
   { href: "/partidos", label: "Partidos" },
   { href: "/projetos", label: "Projetos" },
   { href: "/comparar", label: "Comparar" },
+  { href: "/espectro", label: "Meu Espectro" },
   { href: "/historia", label: "História" },
   { href: "/como-funciona", label: "Como Funciona" },
   { href: "/calendario-eleitoral", label: "Calendário" },
