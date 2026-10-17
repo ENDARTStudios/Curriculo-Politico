@@ -121,25 +121,35 @@ sem requisição a terceiros — coerente com a postura de privacidade do projet
 expô-la como `--font-sans` no `@theme`. É mudança de uma linha em `globals.css`
 mais uma em `layout.tsx`, mas muda a percepção de marca em todas as telas.
 
-### 3.2 A paleta do Termômetro está duplicada nos gráficos
+### 3.2 A paleta do Termômetro estava duplicada — e numa geração anterior
 
 `status-visual.ts` documenta que é a **fonte única** das cores de estado e alerta
-que a duplicação já permitiu divergência silenciosa. A duplicação continua nos
-gráficos:
+que a duplicação já permitiu divergência silenciosa. A duplicação continuava em
+`PartyMembersChart.tsx`, que mantinha o próprio `RELIABILITY_COLORS`.
 
-| Arquivo | Valor para GRAY |
-|---|---|
-| `apps/web/src/lib/status-visual.ts` | `bg-slate-500` → `#62748E` |
-| `apps/web/src/components/PartyMembersChart.tsx` | `#94a3b8` (slate-400) |
+O primeiro diagnóstico foi "só o GRAY diverge". **Estava errado, e a correção
+mostrou que era pior:** a cópia usava os hex do Tailwind **v3**, enquanto a UI
+roda **v4** desde a migração. Nenhum dos quatro estados conferia.
 
-GREEN, YELLOW e RED conferem (`#10b981`, `#f59e0b`, `#ef4444`); **só o GRAY
-diverge**, e o arquivo não importa `STATUS_VISUAL`. Outros gráficos
-(`TimelineChart.tsx`, `PartyPerformanceChart.tsx`) também usam hex de estado
-próprios.
+| Estado | Cópia no gráfico (v3) | Tailwind v4 (canônico) |
+|---|---|---|
+| GREEN | `#10b981` | `#00BC7D` |
+| YELLOW | `#f59e0b` | `#FE9A00` |
+| RED | `#ef4444` | `#FB2C36` |
+| GRAY | `#94a3b8` | `#62748E` |
 
-**Recomendação:** extrair um mapa hex de `STATUS_VISUAL` (ou um token CSS por
-estado) e consumi-lo nos gráficos, que não conseguem usar classes Tailwind dentro
-de `<svg>`. Isso fecha a duplicação em vez de recriá-la.
+O efeito visível: no mesmo card, a barra do partido (classe Tailwind) e as barras
+dos membros (hex) saíam de gerações diferentes de paleta.
+
+**Corrigido** com `STATUS_HEX` em `status-visual.ts` — o mapa hex que falta para
+SVG, derivado dos mesmos tokens v4 — consumido pelo gráfico. E com
+`npm run verify:tokens`, que falha em dois casos: se `STATUS_HEX` deixar de
+conferir com o tema, e se algum arquivo voltar a declarar os quatro estados com
+hex.
+
+Ainda pendente, com decisão de design: `TimelineChart.tsx` usa verde/vermelho para
+"melhor/pior nota" — semântica diferente de confiabilidade, e portanto uma
+pergunta sobre a regra "cor = significado", não um bug de token.
 
 ### 3.3 O slate-500 reprova, e continua sendo usado
 
