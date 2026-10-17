@@ -217,7 +217,12 @@ export default function SigninPage() {
           )}
 
           {erro && (
-            <p className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
+            /* role="alert": sem isso o erro só existe na camada visual. Quem
+               usa leitor de tela envia o formulário e não recebe retorno. */
+            <p
+              role="alert"
+              className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300"
+            >
               {erro}
             </p>
           )}

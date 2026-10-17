@@ -94,8 +94,15 @@ export function ComparacaoCards({
         <h2 className="mb-4 text-lg font-bold text-slate-100">Filtros</h2>
         <div className="grid gap-4 md:grid-cols-3">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-300">Partido</label>
-            <select value={filterParty} onChange={(e) => setFilterParty(e.target.value)} className={selectClass}>
+            <label htmlFor="comparar-partido" className="mb-1 block text-sm font-medium text-slate-300">
+              Partido
+            </label>
+            <select
+              id="comparar-partido"
+              value={filterParty}
+              onChange={(e) => setFilterParty(e.target.value)}
+              className={selectClass}
+            >
               <option value="">Todos</option>
               {parties.map((p) => (
                 <option key={p} value={p}>{p}</option>
@@ -103,8 +110,15 @@ export function ComparacaoCards({
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-300">Estado</label>
-            <select value={filterUF} onChange={(e) => setFilterUF(e.target.value)} className={selectClass}>
+            <label htmlFor="comparar-uf" className="mb-1 block text-sm font-medium text-slate-300">
+              Estado
+            </label>
+            <select
+              id="comparar-uf"
+              value={filterUF}
+              onChange={(e) => setFilterUF(e.target.value)}
+              className={selectClass}
+            >
               <option value="">Todos</option>
               {ufs.map((u) => (
                 <option key={u} value={u}>{u}</option>
@@ -112,8 +126,15 @@ export function ComparacaoCards({
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-300">Termômetro</label>
-            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className={selectClass}>
+            <label htmlFor="comparar-termometro" className="mb-1 block text-sm font-medium text-slate-300">
+              Termômetro
+            </label>
+            <select
+              id="comparar-termometro"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className={selectClass}
+            >
               <option value="">Todos</option>
               <option value="GREEN">🟢 Confiável</option>
               <option value="YELLOW">🟡 Atenção</option>
@@ -249,6 +270,7 @@ export function ComparacaoCards({
             <input
               type="text"
               readOnly
+              aria-label="Link da comparação, pronto para copiar"
               value={
                 typeof window !== "undefined"
                   ? window.location.href
