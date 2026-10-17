@@ -79,6 +79,34 @@ export const STATUS_VISUAL: Record<ReliabilityStatus, StatusVisual> = {
 };
 
 /**
+ * Hex canônico de cada estado, para onde classe CSS não chega.
+ *
+ * ── Por que existe ─────────────────────────────────────────────────────────
+ * `STATUS_VISUAL` guarda **classes Tailwind** (`bg-emerald-500`), e classe não
+ * funciona em atributo de SVG: `fill="bg-emerald-500"` é inválido. Gráficos
+ * precisam de cor literal, e era aí que a paleta se duplicava — `PartyMembersChart`
+ * mantinha a própria cópia.
+ *
+ * ── Não é uma segunda paleta ───────────────────────────────────────────────
+ * Os valores são a conversão OKLCH→sRGB dos **mesmos tokens do Tailwind v4** que
+ * as classes usam (`node_modules/tailwindcss/theme.css`). Se um dia a paleta
+ * mudar, este mapa muda junto — e o guard `scripts/verificar-tokens.mjs` falha se
+ * alguém voltar a escrever hex solto num componente.
+ *
+ * ── O que a duplicação custou ──────────────────────────────────────────────
+ * A cópia nos gráficos ficou nos hex do Tailwind **v3** (`#10b981` para
+ * emerald-500), enquanto o resto da UI migrou para **v4** (`#00BC7D`). Não era só
+ * o GRAY fora do lugar: os quatro estados pintavam numa geração de paleta
+ * diferente da que o Termômetro usa, no mesmo card.
+ */
+export const STATUS_HEX: Record<ReliabilityStatus, { barra: string; texto: string }> = {
+  GREEN: { barra: "#00BC7D", texto: "#5EE9B5" }, // emerald-500 / emerald-300
+  YELLOW: { barra: "#FE9A00", texto: "#FFD230" }, // amber-500 / amber-300
+  RED: { barra: "#FB2C36", texto: "#FFA2A2" }, // red-500 / red-300
+  GRAY: { barra: "#62748E", texto: "#CAD5E2" }, // slate-500 / slate-300
+};
+
+/**
  * Ordem de exibição dos estados: do melhor para o pior, com o estado sem
  * veredito (GRAY) por último. Não use a ordem do enum — ela é GREEN, YELLOW,
  * RED, GRAY por acaso da declaração, e não por intenção de leitura.

@@ -1,5 +1,7 @@
 "use client";
 
+import { STATUS_HEX } from "@/lib/status-visual";
+
 export interface MemberData {
   id: string;
   name: string;
@@ -7,12 +9,22 @@ export interface MemberData {
   reliability: string;
 }
 
-const RELIABILITY_COLORS: Record<string, string> = {
-  GREEN: "#10b981",
-  YELLOW: "#f59e0b",
-  RED: "#ef4444",
-  GRAY: "#94a3b8",
-};
+/**
+ * Cor da barra por estado de confiabilidade.
+ *
+ * Consome `STATUS_HEX` em vez de manter a própria cópia. A cópia local tinha os
+ * hex do Tailwind **v3** (`#10b981` para emerald-500, `#94a3b8` para GRAY),
+ * enquanto o resto da UI roda **v4** (`#00BC7D`, `#62748E`) — o mesmo card
+ * mostrava o partido numa paleta e os membros noutra. É exatamente a duplicação
+ * que o docstring de `status-visual.ts` já alertava ter causado divergência.
+ *
+ * O fallback `partyColor` cobre um `reliability` fora do enum, que pode chegar de
+ * dado antigo no banco.
+ */
+function corDoEstado(reliability: string, partyColor: string): string {
+  const hex = STATUS_HEX[reliability as keyof typeof STATUS_HEX];
+  return hex ? hex.barra : partyColor;
+}
 
 export function PartyMembersChart({
   members,
@@ -48,7 +60,7 @@ export function PartyMembersChart({
                   className="h-2 rounded-full"
                   style={{
                     width: `${(m.score / maxScore) * 100}%`,
-                    backgroundColor: RELIABILITY_COLORS[m.reliability] || partyColor,
+                    backgroundColor: corDoEstado(m.reliability, partyColor),
                   }}
                 />
               </div>
