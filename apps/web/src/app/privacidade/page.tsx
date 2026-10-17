@@ -199,7 +199,7 @@ export default function PrivacidadePage() {
             de dados exige identificação do mecanismo jurídico aplicável. Os
             provedores utilizados e os mecanismos são:
           </p>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto" role="region" aria-label="Tabela de subprocessadores" tabIndex={0}>
             <table className="w-full text-left text-sm">
               <thead className="border-b border-slate-700 text-slate-300">
                 <tr>

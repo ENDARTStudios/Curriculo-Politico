@@ -1,0 +1,540 @@
+[
+ {
+  "rota": "/",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/apoie",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/auth/signin",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/calendario-eleitoral",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [
+   {
+    "id": "color-contrast",
+    "impacto": "serious",
+    "ajuda": "Elements must meet minimum color contrast ratio thresholds",
+    "alvos": [
+     ".opacity-60 > .mb-3.justify-between.items-center > .text-xs",
+     ".opacity-60 > .grid.gap-2.md\\:grid-cols-2 > .items-start.text-sm.text-slate-400:nth-child(1)",
+     ".opacity-60 > .grid.gap-2.md\\:grid-cols-2 > .items-start.text-sm.text-slate-400:nth-child(2)",
+     ".opacity-60 > .pt-3.italic.mt-4"
+    ],
+    "total": 4
+   }
+  ],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/como-funciona",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/comparar",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/conta",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/contato",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/cookies",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/espectro",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/faq",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/historia",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/lgpd",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/metodologia",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/partidos",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/partidos/PP",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [
+   {
+    "id": "color-contrast",
+    "impacto": "serious",
+    "ajuda": "Elements must meet minimum color contrast ratio thresholds",
+    "alvos": [
+     ".opacity-60.hover\\:bg-slate-800\\/40:nth-child(47) > .text-slate-400:nth-child(3)",
+     ".opacity-60.hover\\:bg-slate-800\\/40:nth-child(47) > .text-center.font-bold.text-slate-400",
+     ".opacity-60.hover\\:bg-slate-800\\/40:nth-child(48) > .text-slate-400:nth-child(3)",
+     ".opacity-60.hover\\:bg-slate-800\\/40:nth-child(48) > .text-center.font-bold.text-slate-400"
+    ],
+    "total": 14
+   },
+   {
+    "id": "scrollable-region-focusable",
+    "impacto": "serious",
+    "ajuda": "Scrollable region must have keyboard access",
+    "alvos": [
+     ".max-h-96"
+    ],
+    "total": 1
+   }
+  ],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/partidos/comparar",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/politicos/cmun05bup0001esfcdgcfvfbz",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/privacidade",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/projetos",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/projetos/cmun09atn0000esio7gunawl0",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/ranking",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/ranking/personalizado",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/retificacao",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/sobre",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/status",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/stf",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/termos-de-uso",
+  "viewport": "desktop",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/apoie",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/auth/signin",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/calendario-eleitoral",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [
+   {
+    "id": "color-contrast",
+    "impacto": "serious",
+    "ajuda": "Elements must meet minimum color contrast ratio thresholds",
+    "alvos": [
+     ".opacity-60 > .mb-3.justify-between.items-center > .text-xs",
+     ".opacity-60 > .grid.gap-2.md\\:grid-cols-2 > .items-start.text-sm.text-slate-400:nth-child(1)",
+     ".opacity-60 > .grid.gap-2.md\\:grid-cols-2 > .items-start.text-sm.text-slate-400:nth-child(2)",
+     ".opacity-60 > .pt-3.italic.mt-4"
+    ],
+    "total": 4
+   }
+  ],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/como-funciona",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/comparar",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/conta",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/contato",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/cookies",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/espectro",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/faq",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/historia",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/lgpd",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/metodologia",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/partidos",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/partidos/PP",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [
+   {
+    "id": "color-contrast",
+    "impacto": "serious",
+    "ajuda": "Elements must meet minimum color contrast ratio thresholds",
+    "alvos": [
+     ".opacity-60.hover\\:bg-slate-800\\/40:nth-child(47) > .text-slate-400:nth-child(3)",
+     ".opacity-60.hover\\:bg-slate-800\\/40:nth-child(48) > .text-slate-400:nth-child(3)",
+     ".opacity-60.hover\\:bg-slate-800\\/40:nth-child(49) > .text-slate-400:nth-child(3)",
+     ".opacity-60.hover\\:bg-slate-800\\/40:nth-child(50) > .text-slate-400:nth-child(3)"
+    ],
+    "total": 7
+   },
+   {
+    "id": "scrollable-region-focusable",
+    "impacto": "serious",
+    "ajuda": "Scrollable region must have keyboard access",
+    "alvos": [
+     ".max-h-96"
+    ],
+    "total": 1
+   }
+  ],
+  "overflow": 99,
+  "erro": null
+ },
+ {
+  "rota": "/partidos/comparar",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/politicos/cmun05bup0001esfcdgcfvfbz",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [
+   {
+    "id": "scrollable-region-focusable",
+    "impacto": "serious",
+    "ajuda": "Scrollable region must have keyboard access",
+    "alvos": [
+     ".rounded-xl.border-slate-800.bg-slate-900\\/60 > .overflow-x-auto"
+    ],
+    "total": 1
+   }
+  ],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/privacidade",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [
+   {
+    "id": "scrollable-region-focusable",
+    "impacto": "serious",
+    "ajuda": "Scrollable region must have keyboard access",
+    "alvos": [
+     ".overflow-x-auto"
+    ],
+    "total": 1
+   }
+  ],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/projetos",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/projetos/cmun09atn0000esio7gunawl0",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/ranking",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/ranking/personalizado",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/retificacao",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/sobre",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/status",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/stf",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ },
+ {
+  "rota": "/termos-de-uso",
+  "viewport": "mobile",
+  "status": 200,
+  "violacoes": [],
+  "overflow": 0,
+  "erro": null
+ }
+]

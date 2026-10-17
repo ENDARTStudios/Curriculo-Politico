@@ -257,8 +257,13 @@ export default async function PartidoPage({ params }: Props) {
                 </td>
               </tr>
             ))}
+            {/*
+              A linha de "dados insuficientes" usava `opacity-60`, que derrubou o
+              contraste de 21 nós abaixo de AA — o texto já é slate-400, e a
+              opacidade no container multiplica. A distinção agora vem do fundo.
+            */}
             {insufficient.map((m) => (
-              <tr key={m.term.id} className="opacity-60 transition hover:bg-slate-800/40">
+              <tr key={m.term.id} className="bg-slate-900/30 transition hover:bg-slate-800/40">
                 <td className="p-4 text-slate-400">—</td>
                 <td className="p-4">
                   <Link

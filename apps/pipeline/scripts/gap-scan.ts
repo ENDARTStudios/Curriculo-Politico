@@ -9,7 +9,7 @@
  * impresso como "RELATORIO=<path>" (consumido pelo auto-fix).
  */
 import { PrismaClient } from "@prisma/client";
-import { existsSync, mkdirSync, statSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "fs";
 import { join, resolve } from "path";
 
 const prisma = new PrismaClient();
@@ -138,7 +138,31 @@ async function escanear() {
     }
   }
 
-  // 7. Externas
+  // 7. Ambiente local: chaves críticas do .env (incidente real de 2026-10-17 —
+  // arquivo corrompido esvaziou credenciais; cofre DPAPI em
+  // C:\Users\edina\.secrets\curriculo-politico\ restaura com vault-restore.ps1 -ParaEnv)
+  const envPath = join(RAIZ, "apps", "web", ".env");
+  if (existsSync(envPath)) {
+    const envTxt = readFileSync(envPath, "utf8");
+    for (const k of ["DATABASE_URL", "DIRECT_URL", "NEXTAUTH_SECRET", "SUPABASE_ACCESS_TOKEN"]) {
+      const m = envTxt.match(new RegExp(`^${k}=(.*)$`, "m"));
+      const valor = m ? m[1] : "";
+      if (!valor || valor === '""' || valor === "[SENSITIVE]") {
+        gaps.push({
+          id: `env-vazia-${k}`,
+          area: "segurança local",
+          severidade: "alta",
+          descricao: `apps/web/.env: chave crítica ${k} vazia/inválida — restaurar do cofre DPAPI`,
+          qtd: 1,
+          correcao: null,
+        });
+      }
+    }
+  } else {
+    gaps.push({ id: "env-ausente", area: "segurança local", severidade: "alta", descricao: "apps/web/.env ausente — restaurar do cofre DPAPI", qtd: 1, correcao: null });
+  }
+
+  // 8. Externas
   gaps.push(...pendenciasExternas());
 
   // Relatório

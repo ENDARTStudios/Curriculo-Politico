@@ -45,7 +45,7 @@ export function PartyPerformanceChart({
       <h2 className="mb-4 text-xl font-bold text-slate-100">
         Evolução da Nota Média do Partido
       </h2>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto" role="region" aria-label="Gráfico da evolução da nota média" tabIndex={0}>
         <svg width={chartWidth} height={chartHeight + 40} className="min-w-full">
           {[0, 25, 50, 75, 100].map((y) => (
             <g key={y}>

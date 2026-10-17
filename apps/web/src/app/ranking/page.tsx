@@ -56,8 +56,12 @@ function linkGrupo(grupo: Grupo, pagina = 1): string {
 function LinhaRanking({ row, posicao }: { row: RankingRow; posicao: number | null }) {
   const destaque = posicao !== null;
 
+  // Linha sem posição (dados insuficientes) usava `opacity-60`. Opacidade no
+  // container multiplica sobre o texto que já é slate-400 e derruba o contraste
+  // abaixo de AA — o axe reprovou 8 nós no calendário e 21 na página de partido
+  // pelo mesmo motivo. O fundo mais escuro distingue sem custar legibilidade.
   return (
-    <tr className={`transition hover:bg-slate-800/40 ${destaque ? "" : "opacity-60"}`}>
+    <tr className={`transition hover:bg-slate-800/40 ${destaque ? "" : "bg-slate-900/30"}`}>
       <td className="p-4 font-mono text-slate-400">
         {posicao !== null ? `${posicao}º` : "—"}
       </td>
@@ -232,8 +236,14 @@ export default async function RankingPage({
         />
       </div>
 
-      <div className="mt-4 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60">
-        <div className="overflow-x-auto">
+      {/* Região rolável alcançável por teclado (WCAG 2.1.1). Sem `tabIndex`, quem
+          navega sem mouse vê a tabela cortada em 375px e não consegue rolar. */}
+      <div
+        className="mt-4 overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/60"
+        role="region"
+        aria-label="Tabela do ranking IDIP"
+        tabIndex={0}
+      >
           <table className="w-full text-left text-sm">
             <thead className="border-b border-slate-800 text-xs uppercase tracking-wide text-slate-400">
               <tr>
@@ -262,7 +272,6 @@ export default async function RankingPage({
               )}
             </tbody>
           </table>
-        </div>
       </div>
 
       {totalPaginas > 1 && (

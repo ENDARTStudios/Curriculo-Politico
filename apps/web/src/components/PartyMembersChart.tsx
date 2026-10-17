@@ -43,7 +43,12 @@ export function PartyMembersChart({
         Desempenho dos Membros ({sorted.length} ranqueados)
       </h2>
 
-      <div className="max-h-96 space-y-2 overflow-y-auto pr-2">
+      <div
+        className="max-h-96 space-y-2 overflow-y-auto pr-2"
+        role="region"
+        aria-label="Membros ranqueados do partido"
+        tabIndex={0}
+      >
         {sorted.map((m, i) => (
           <div key={m.id} className="flex items-center gap-3">
             <div className="w-7 text-right text-xs text-slate-400">{i + 1}º</div>

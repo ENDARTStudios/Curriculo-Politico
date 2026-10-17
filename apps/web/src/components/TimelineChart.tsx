@@ -55,7 +55,7 @@ export function TimelineChart({ snapshots }: TimelineChartProps) {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto" role="region" aria-label="Gráfico da evolução da nota" tabIndex={0}>
         <svg width={chartWidth} height={chartHeight + 40} className="min-w-full">
           {[0, 25, 50, 75, 100].map((y) => (
             <g key={y}>

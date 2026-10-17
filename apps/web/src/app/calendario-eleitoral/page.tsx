@@ -94,7 +94,14 @@ export default function CalendarioEleitoralPage() {
                 isProxima
                   ? "border-sky-500"
                   : isPassada
-                    ? "border-slate-800 opacity-60"
+                    ? /*
+                        Era `opacity-60`. Opacidade no container reduz o contraste
+                        de TODO texto dentro dele — o slate-400 que já está no
+                        limite caiu para 2,6:1 e o axe reprovou 8 nós. A distinção
+                        "já passou" agora vem do fundo mais escuro e da borda, sem
+                        tocar na legibilidade.
+                      */
+                      "border-slate-800 bg-slate-900/20"
                     : "border-slate-700"
               }`}
             >

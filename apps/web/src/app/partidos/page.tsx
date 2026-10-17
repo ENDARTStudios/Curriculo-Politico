@@ -118,8 +118,15 @@ export default async function PartidosPage() {
         provisório e distorceriam a média.
       </p>
 
-      <div className="mt-8 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60">
-        <div className="overflow-x-auto">
+      {/* Região rolável precisa ser alcançável por teclado (WCAG 2.1.1): sem
+          `tabIndex`, quem não usa mouse vê a tabela cortada e não consegue rolar.
+          `role="region"` + rótulo faz o leitor anunciar o que é a área. */}
+      <div
+        className="mt-8 overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/60"
+        role="region"
+        aria-label="Tabela de partidos"
+        tabIndex={0}
+      >
           <table className="w-full text-left text-sm">
             <thead className="border-b border-slate-800 text-xs uppercase tracking-wide text-slate-400">
               <tr>
@@ -183,7 +190,6 @@ export default async function PartidosPage() {
               ))}
             </tbody>
           </table>
-        </div>
       </div>
     </main>
   );

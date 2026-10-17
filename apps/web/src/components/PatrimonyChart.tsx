@@ -62,7 +62,7 @@ export function PatrimonyChart({ history }: PatrimonyChartProps) {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto" role="region" aria-label="Gráfico de evolução patrimonial" tabIndex={0}>
         <svg width={chartWidth} height={chartHeight + 40} className="min-w-full">
           {[0, 0.25, 0.5, 0.75, 1].map((pct) => {
             const valor = minValor + pct * (maxValor - minValor);

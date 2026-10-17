@@ -474,7 +474,7 @@ export default function MetodologiaPage() {
             com o selo “sem dados · neutro” para que o usuário distingua
             facilmente nota medida de nota baseline.
           </p>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto" role="region" aria-label="Tabela de dimensões" tabIndex={0}>
             <table className="w-full text-left text-sm">
               <thead className="border-b border-slate-700 text-slate-300">
                 <tr>
