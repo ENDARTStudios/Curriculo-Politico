@@ -2285,6 +2285,283 @@ apoio(
   1280,
 );
 
+/* ─────────────────── 14 · Responsivo (375px) ─────────────────────────────── */
+
+/**
+ * Fecha a lacuna declarada no §9: todos os artboards eram 1440.
+ *
+ * ── Por que desenhar, se o teste já cobre ───────────────────────────────────
+ * A auditoria de rotas verifica 375px quanto a overflow e acessibilidade, e isso
+ * é mais do que "não está quebrado". Mas verificação não é decisão: sem um
+ * artboard, cada ajuste de mobile vira improviso na hora de codar, e as decisões
+ * (gutter, escala de tipo, alvo de toque, o que a tabela vira) ficam implícitas
+ * no CSS — difíceis de revisar e fáceis de contradizer depois.
+ *
+ * ── O que muda em relação ao desktop ────────────────────────────────────────
+ * - Gutter 16px (era 80) e uma coluna só: não há largura para duas.
+ * - Escala de tipo: h1 de 72 → 30. O título continua sendo o herói, mas sem
+ *   ocupar três linhas de rolagem.
+ * - Alvo de toque mínimo 44px — botões e campos crescem; o texto não.
+ * - A tabela do ranking vira **card**: em 375px seis colunas não cabem, e
+ *   rolagem horizontal esconde a nota, que é o motivo de a pessoa estar ali.
+ */
+pagina("14 · Mobile", 1440, 1430);
+
+const yMob = cabecalhoPagina(
+  "RESPONSIVO · 375 PX",
+  "O sistema em 375px",
+  "Três telas no viewport de referência do projeto — o público é majoritariamente celular. Até aqui o comportamento em 375px estava verificado por teste, não desenhado.",
+);
+
+const MOB_LARG = 375;
+const MOB_ALT = 812;
+const MOB_PAD = 16;
+const MOB_X = [M, M + 415, M + 830];
+const mobConteudo = MOB_LARG - MOB_PAD * 2;
+
+/** Moldura de aparelho. O conteúdo é posicionado em absoluto dentro dela. */
+function telaMobile(x, y, titulo) {
+  texto(titulo, x, y - 30, {
+    fontSize: 13,
+    fontWeight: 600,
+    letterSpacing: "8%",
+    fill: T["sky-400"],
+  });
+  bloco(x, y, MOB_LARG, MOB_ALT, `tela ${titulo}`, {
+    fill: T["slate-950"],
+    stroke: T["slate-700"],
+    strokeWeight: 2,
+    strokeAlign: "inside",
+    cornerRadius: 28,
+    __bind: { field: "fill", variable: "superficie/base" },
+  });
+}
+
+const [mobX1, mobX2, mobX3] = MOB_X;
+
+// +64 porque o parágrafo de apoio do cabeçalho quebra em duas linhas: sem essa
+// folga, o rótulo de cada tela encostava na segunda linha dele. Defeito que só
+// aparece no render — o gerador não sabe medir altura de texto.
+const mobTopo = yMob + 64;
+
+/* ── 1 · Home (hero empilhado) ───────────────────────────────────────────── */
+
+telaMobile(mobX1, mobTopo, "HOME · HERO");
+const mobC1 = mobX1 + MOB_PAD;
+
+texto("Currículo Político", mobC1, mobTopo + 22, {
+  fontSize: 15,
+  fontWeight: 700,
+  fill: T["slate-50"],
+});
+// Menu colapsado: três barras em vez de nove itens.
+[0, 1, 2].forEach((i) => {
+  retangulo(mobX1 + MOB_LARG - MOB_PAD - 20, mobTopo + 22 + i * 5, 20, 2, {
+    name: `menu barra ${i}`,
+    fill: T["slate-300"],
+    cornerRadius: 1,
+  });
+});
+
+rotulo("IDIP · 2026", mobC1, mobTopo + 96);
+texto(
+  "Quem representa você — e com que histórico",
+  mobC1,
+  mobTopo + 120,
+  {
+    fontSize: 30,
+    fontWeight: 700,
+    lineHeight: "112%",
+    letterSpacing: "-1%",
+    fill: T["slate-50"],
+  },
+  mobConteudo,
+);
+apoio(
+  "Nota de 0 a 100 calculada só com dado público da Câmara, do Senado e do TSE.",
+  mobC1,
+  mobTopo + 260,
+  mobConteudo,
+);
+
+// CTA full-width: em 375px um botão de largura natural parece link.
+bloco(mobC1, mobTopo + 330, mobConteudo, 48, "cta hero mobile", {
+  fill: T["sky-500"],
+  cornerRadius: 10,
+  __bind: { field: "fill", variable: "acao/primaria" },
+});
+texto("Ver o ranking", mobC1 + MOB_PAD, mobTopo + 344, {
+  fontSize: 15,
+  fontWeight: 700,
+  fill: T["slate-950"],
+});
+
+apoio("594 avaliados · 85 fora por confiança baixa", mobC1, mobTopo + 398, mobConteudo);
+
+/* ── 2 · Ranking (linha vira card) ───────────────────────────────────────── */
+
+telaMobile(mobX2, mobTopo, "RANKING · LINHA EM CARD");
+const mobC2 = mobX2 + MOB_PAD;
+
+texto("Ranking IDIP", mobC2, mobTopo + 22, {
+  fontSize: 22,
+  fontWeight: 700,
+  letterSpacing: "-0.5%",
+  fill: T["slate-50"],
+});
+apoio("Ordenado por nota. Confiança abaixo de 60 fica fora.", mobC2, mobTopo + 56, mobConteudo);
+
+const mobLinhas = [
+  { pos: "01", nome: "Adriana Ventura", meta: "NOVO · SP", nota: 70.0, cor: T["amber-500"] },
+  { pos: "02", nome: "Sargento Fahur", meta: "PL · PR", nota: 70.0, cor: T["amber-500"] },
+  { pos: "03", nome: "Tabata Amaral", meta: "PSB · SP", nota: 68.4, cor: T["emerald-500"] },
+];
+
+mobLinhas.forEach((linha, i) => {
+  const yCard = mobTopo + 104 + i * 118;
+  bloco(mobC2, yCard, mobConteudo, 106, `card ranking ${linha.pos}`, {
+    fill: T["slate-900"],
+    stroke: T["slate-800"],
+    strokeWeight: 1,
+    strokeAlign: "inside",
+    cornerRadius: 12,
+    __bind: { field: "fill", variable: "superficie/painel" },
+  });
+  texto(linha.pos, mobC2 + MOB_PAD, yCard + 12, {
+    fontSize: 12,
+    fontWeight: 600,
+    fill: T["slate-400"],
+  });
+  texto(linha.nome, mobC2 + MOB_PAD, yCard + 32, {
+    fontSize: 16,
+    fontWeight: 600,
+    fill: T["slate-50"],
+  });
+  texto(linha.meta, mobC2 + MOB_PAD, yCard + 56, {
+    fontSize: 12,
+    fill: T["slate-400"],
+  });
+  // A nota fica visível sem rolagem horizontal — é o motivo da visita.
+  texto(
+    linha.nota.toFixed(1).replace(".", ","),
+    mobC2 + mobConteudo - 88,
+    yCard + 24,
+    { fontSize: 24, fontWeight: 700, letterSpacing: "-1%", fill: T["slate-50"] },
+  );
+  barraDeNota(mobC2 + MOB_PAD, yCard + 84, mobConteudo - MOB_PAD * 2, linha.nota, linha.cor);
+});
+
+apoio(
+  "Seis colunas não cabem em 375px. Rolagem horizontal esconderia a nota, então a linha vira card e mantém o que importa: posição, nome e nota.",
+  mobC2,
+  mobTopo + 480,
+  mobConteudo,
+);
+
+/* ── 3 · Formulário (erro por campo) ─────────────────────────────────────── */
+
+telaMobile(mobX3, mobTopo, "RETIFICAÇÃO · ERRO NO CAMPO");
+const mobC3 = mobX3 + MOB_PAD;
+
+texto("Retificação", mobC3, mobTopo + 22, {
+  fontSize: 22,
+  fontWeight: 700,
+  letterSpacing: "-0.5%",
+  fill: T["slate-50"],
+});
+apoio("Canal formal do titular — LGPD, Art. 18.", mobC3, mobTopo + 56, mobConteudo);
+
+texto("Seu e-mail (para retorno)", mobC3, mobTopo + 100, {
+  fontSize: 13,
+  fontWeight: 500,
+  fill: T["slate-300"],
+});
+// Campo em estado de erro: borda vermelha + mensagem ligada por aria-describedby.
+bloco(mobC3, mobTopo + 122, mobConteudo, 44, "campo email invalido", {
+  fill: T["slate-950"],
+  stroke: T["red-500"],
+  strokeWeight: 2,
+  strokeAlign: "inside",
+  cornerRadius: 10,
+  __bind: { field: "stroke", variable: "estado/vermelho-barra" },
+});
+texto("maria@", mobC3 + 14, mobTopo + 135, {
+  fontSize: 14,
+  fill: T["slate-300"],
+});
+texto("Informe um e-mail válido — é por ele que respondemos.", mobC3 + 14, mobTopo + 176, {
+  fontSize: 12,
+  fill: T["red-300"],
+});
+
+texto("Seu nome completo", mobC3, mobTopo + 214, {
+  fontSize: 13,
+  fontWeight: 500,
+  fill: T["slate-300"],
+});
+bloco(mobC3, mobTopo + 236, mobConteudo, 44, "campo nome", {
+  fill: T["slate-950"],
+  stroke: T["slate-700"],
+  strokeWeight: 1,
+  strokeAlign: "inside",
+  cornerRadius: 10,
+  __bind: { field: "stroke", variable: "superficie/borda-forte" },
+});
+texto("Maria Souza", mobC3 + 14, mobTopo + 249, {
+  fontSize: 14,
+  fill: T["slate-100"],
+});
+
+// Botão nunca desabilitado preventivamente: 48px de altura, sempre aceso.
+bloco(mobC3, mobTopo + 306, mobConteudo, 48, "botao enviar", {
+  fill: T["sky-500"],
+  cornerRadius: 10,
+  __bind: { field: "fill", variable: "acao/primaria" },
+});
+texto("Enviar solicitação", mobC3 + MOB_PAD, mobTopo + 320, {
+  fontSize: 15,
+  fontWeight: 700,
+  fill: T["slate-950"],
+});
+
+apoio(
+  "O erro fica colado ao campo e é anunciado por role=alert. O botão nunca nasce desabilitado: campo apagado não diz o que falta.",
+  mobC3,
+  mobTopo + 376,
+  mobConteudo,
+);
+
+/* ── Regras que o desenho fixa ───────────────────────────────────────────── */
+
+const yRegras = mobTopo + MOB_ALT + 56;
+
+texto("Regras do layout em 375px", M, yRegras, {
+  fontSize: 20,
+  fontWeight: 700,
+  fill: T["slate-50"],
+});
+
+const MOB_REGRAS = [
+  ["Gutter", "16px nas laterais, uma coluna só. Duas colunas em 375px viram duas colunas de 160px."],
+  ["Tipo", "h1 de 72 para 30. O título continua o herói sem consumir a primeira rolagem inteira."],
+  ["Alvo de toque", "44px de altura mínima em botão e campo. O texto não cresce; a área tocável sim."],
+  ["Tabela", "Vira card. Seis colunas não cabem, e rolagem lateral esconderia a nota."],
+];
+
+MOB_REGRAS.forEach(([tituloRegra, corpo], i) => {
+  const yR = yRegras + 44 + i * 42;
+  texto(tituloRegra, M, yR, {
+    fontSize: 14,
+    fontWeight: 600,
+    fill: T["sky-400"],
+  });
+  texto(corpo, M + 180, yR, {
+    fontSize: 14,
+    lineHeight: "155%",
+    fill: T["slate-300"],
+  });
+});
+
 /* ───────────────────────────── Auditoria ────────────────────────────────── */
 
 function auditoria() {
