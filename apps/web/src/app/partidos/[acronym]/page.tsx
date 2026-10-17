@@ -123,7 +123,7 @@ export default async function PartidoPage({ params }: Props) {
       </Link>
 
       <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-        <h1 className="text-4xl font-bold tracking-tight text-slate-100">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
           {party.acronym}
         </h1>
         <p className="mt-1 text-lg text-slate-400">{party.name}</p>

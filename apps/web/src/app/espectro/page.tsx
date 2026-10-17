@@ -24,7 +24,7 @@ export default function EspectroPage() {
       <p className="text-xs uppercase tracking-wider text-slate-400">
         Autoavaliação educativa
       </p>
-      <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-100 sm:text-4xl">
+      <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
         Você sabe onde está no espectro político?
       </h1>
       <p className="mt-4 max-w-3xl text-base leading-relaxed text-slate-300">

@@ -242,6 +242,77 @@ Nenhum destes apareceu por leitura — todos por teste ou captura:
 - **Variável `preenchido` órfã** e **comentário JSX inválido** (`{/* */}` onde se
   espera um filho), pegos pelo `typecheck`.
 
+## 1.7 Escala do título de página
+
+Metade das rotas usava `text-3xl` no `<h1>` e a outra metade `text-4xl`, com
+`text-slate-100` em vez do `slate-50` do resto do sistema. Como a pessoa
+atravessa várias telas, o título mudava de tamanho sem motivo — a inconsistência
+que faz um site parecer montado em vez de desenhado.
+
+Escala canônica, aplicada em 25 `<h1>`:
+
+```
+text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl
+```
+
+Duas exceções deliberadas: o herói da home (`sm:text-5xl`, escala editorial) e o
+título do cartão de login (`text-2xl`, centrado).
+
+## 1.8 A lista de campos era o defeito
+
+O PR #6 corrigiu `70.0` → `70,0` em catorze pontos e criou um guard que procurava
+`toFixed` em "campos de domínio". A lista era `finalScore`, `confidenceScore`,
+`avgScore`, `nota`… e **ficou incompleta**.
+
+O que passou:
+
+| Tela | Exibia | Deveria |
+|---|---|---|
+| `/partidos` | `62.6` | `62,6` |
+| Perfil, composição da nota | `50.0` | `50,0` |
+| `/historia` | média com ponto | vírgula |
+| Gráfico patrimonial | `R$ 1.50M` | `R$ 1,5 mi` |
+
+O eixo patrimonial era o pior: ponto decimal **e** sufixo inglês (`M`) num número
+que o visitante brasileiro lê como "um real e cinquenta".
+
+**A lição:** qualquer lista de exceções é incompleta por construção. O guard
+passou a proibir `.toFixed(` em **todo** `.tsx` — não restou nenhum uso legítimo
+(coordenada de SVG é calculada direto em número). `.ts` de script continua livre.
+
+Formatadores novos em `@/lib/formato`: `formatarDecimal` (casas configuráveis,
+para média de presença e variação) e `formatarMoedaCompacta` (eixo monetário em
+pt-BR). `formatarNota` não serve para esses casos — o nome diz "nota", e usar o
+formatador de nota para variação de patrimônio mente sobre o que o número é.
+
+## 1.9 Uma armadilha que eu criei, e o guard que a pega
+
+Ao inserir os imports dos formatadores com um script, dois arquivos receberam o
+`import` na **linha 1** e a diretiva `"use client"` caiu para a linha 2:
+`PatrimonyChart` (gráfico de patrimônio) e `BillVote` (botão de voto).
+
+O Next só reconhece a diretiva se ela for a primeira instrução do módulo. Com um
+`import` antes, o arquivo vira **Server Component em silêncio** — `typecheck`
+passa, build passa, e o defeito aparece só em runtime, quando `useState` lança ou
+a interatividade simplesmente não existe.
+
+`npm run verify:diretivas` passou a checar isso. A primeira versão da checagem deu
+**falso positivo** em `app/faq/layout.tsx`, que apenas *menciona* `"use client"`
+num comentário — o guard só conta a diretiva quando ela é uma linha real, fora de
+comentário e de string.
+
+## 1.10 O retângulo cinza no header
+
+Durante a revisão de `/metodologia` a captura mostrou um **bloco cinza vazio** no
+canto superior direito, onde deveria estar `Entrar`.
+
+Era o placeholder anti-salto de layout: enquanto a sessão carregava, renderizávamos
+um retângulo do tamanho do botão. Na prática o visitante vê um bloco sem
+significado — e a maioria absoluta de quem chega é anônima, então o estado correto
+para quase todo mundo é simplesmente `Entrar`. O usuário autenticado vê o próprio
+nome trocar em milissegundos. Um flash de "Entrar" incomoda muito menos que um
+retângulo mudo.
+
 ## 2. Por que o documento é gerado, e não desenhado
 
 A identidade precisa ser **rastreável até o código**. Um arquivo desenhado à mão

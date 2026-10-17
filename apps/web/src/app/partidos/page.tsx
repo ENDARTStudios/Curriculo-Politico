@@ -1,3 +1,4 @@
+import { formatarNota, formatarPercentual } from "@/lib/formato";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { IdeologyBadge } from "@/components/IdeologyBadge";
@@ -104,7 +105,7 @@ export default async function PartidosPage() {
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-100">Partidos</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">Partidos</h1>
         <a
           href="/partidos/comparar"
           className="rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-sky-400"
@@ -162,14 +163,14 @@ export default async function PartidosPage() {
                   </td>
                   <td className="p-4 text-center">
                     <div className="text-lg font-bold text-slate-100">
-                      {party.partyScore !== null ? party.partyScore.toFixed(1) : "—"}
+                      {formatarNota(party.partyScore)}
                     </div>
                     <div className="text-xs text-slate-400">
                       {party.rankedCount}/{party.memberCount} ranqueados
                     </div>
                   </td>
                   <td className="p-4 text-center text-slate-400">
-                    {party.avgConfidence.toFixed(0)}%
+                    {formatarPercentual(party.avgConfidence)}
                   </td>
                   <td className="p-4">
                     <div className="flex flex-wrap gap-1 text-xs">

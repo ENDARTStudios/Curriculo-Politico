@@ -46,7 +46,7 @@ export default async function STFPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="text-4xl font-bold tracking-tight text-slate-100">
+      <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
         Supremo Tribunal Federal
       </h1>
       <p className="mt-3 max-w-3xl text-lg leading-relaxed text-slate-300">

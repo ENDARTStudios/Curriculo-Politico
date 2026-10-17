@@ -80,7 +80,7 @@ export default async function StatusPage() {
             degradado ? "animate-pulse bg-amber-400" : "bg-emerald-400"
           }`}
         />
-        <h1 className="text-3xl font-bold tracking-tight text-slate-100">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
           {degradado ? "Status: degradado" : "Status: operacional"}
         </h1>
       </div>
