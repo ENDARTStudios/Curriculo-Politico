@@ -59,4 +59,28 @@ test.describe("Acessibilidade WCAG 2.2 AA @readonly", () => {
     const r = await auditar(page);
     expect(r.violations.length, `Violações:\n${resumir(r.violations)}`).toBe(0);
   });
+
+  /*
+    Páginas de formulário e de filtro.
+
+    Estas ficaram fora da varredura original — e são justamente onde as regras do
+    §6 do documento de identidade se aplicam: nome acessível do controle, erro
+    anunciado, estado de carregamento. Auditar só páginas de leitura deixava o
+    gate cego para a maior parte da superfície interativa.
+  */
+  const PAGINAS_COM_FORMULARIO = [
+    { rota: "/retificacao", nome: "retificação (canal LGPD)" },
+    { rota: "/auth/signin", nome: "entrada / cadastro" },
+    { rota: "/comparar", nome: "comparação (filtros)" },
+    { rota: "/projetos", nome: "projetos (filtros)" },
+    { rota: "/partidos", nome: "partidos (índice)" },
+  ];
+
+  for (const { rota, nome } of PAGINAS_COM_FORMULARIO) {
+    test(`${nome} não tem violações`, async ({ page }) => {
+      await page.goto(rota, { waitUntil: "networkidle" });
+      const r = await auditar(page);
+      expect(r.violations.length, `Violações em ${rota}:\n${resumir(r.violations)}`).toBe(0);
+    });
+  }
 });
