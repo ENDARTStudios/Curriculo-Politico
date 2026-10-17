@@ -194,15 +194,22 @@ export default function ComoFuncionaPage() {
           Hierarquia Eleitoral
         </h2>
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-8">
+          {/*
+            Era `bg-gradient-to-r from-sky-600 to-blue-700 text-white shadow-md`
+            em cada degrau. Gradiente decorativo e `text-white` sobre sky-600
+            (3,7:1) contrariam o conceito: azul é ação, não ornamento, e o texto
+            precisa passar em AA. O degrau agora usa cor de painel com borda de
+            ação, e a largura já comunica a hierarquia — que é o dado.
+          */}
           <div className="flex flex-col items-center space-y-3">
             {PIRAMIDE.map((item) => (
               <div
                 key={item.cargo}
-                className="rounded-lg bg-gradient-to-r from-sky-600 to-blue-700 p-3 text-center text-white shadow-md"
+                className="rounded-lg border border-sky-500/40 bg-slate-800 p-3 text-center"
                 style={{ width: item.largura }}
               >
-                <div className="text-sm font-bold">{item.cargo}</div>
-                <div className="text-xs opacity-80">{item.n}</div>
+                <div className="text-sm font-bold text-slate-50">{item.cargo}</div>
+                <div className="text-xs text-slate-300">{item.n}</div>
               </div>
             ))}
           </div>
