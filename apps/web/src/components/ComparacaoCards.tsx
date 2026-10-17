@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { exportToCSV } from "@/lib/export";
-import { formatarNota } from "@/lib/formato";
+import { formatarNota, formatarPercentual } from "@/lib/formato";
 
 export interface Comparavel {
   id: string;
@@ -231,7 +231,7 @@ export function ComparacaoCards({
                   <div className="mb-1 flex justify-between text-sm">
                     <span className="text-slate-400">Confiança dos dados</span>
                     <span className="font-semibold text-slate-200">
-                      {p.score.confidence.toFixed(0)}%
+                      {formatarPercentual(p.score.confidence)}
                     </span>
                   </div>
                   <div className="h-2 w-full rounded-full bg-slate-800">

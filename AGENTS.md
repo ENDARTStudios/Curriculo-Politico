@@ -37,11 +37,16 @@ Skills de domínio já existentes em `.claude/skills/`: `curriculo-idip`,
 ## Verificação obrigatória
 
 ```bash
-npm run typecheck       # TypeScript estrito
-npm run build           # build de produção (aciona o guard de `next dev` antes)
-npm run verify:scoring  # matemática do IDIP (roda no CI)
-npm run verify:secrets  # varredura de segredos em todo o repositório
-npm run verify:secrets:test  # autoteste das regras do scanner
+npm run typecheck           # TypeScript estrito
+npm run build               # build de produção (aciona o guard de `next dev` antes)
+npm run verify:scoring      # matemática do IDIP (roda no CI)
+npm run verify:secrets      # varredura de segredos em todo o repositório
+npm run verify:secrets:test # autoteste das regras do scanner
+npm run verify:formato      # proíbe `.toFixed(` em .tsx (número com ponto decimal)
+npm run verify:formularios  # todo controle de formulário com nome acessível
+npm run verify:diretivas    # `"use client"` como primeira instrução do módulo
+npm run verify:tokens       # paleta de estado em fonte única
+npm run audit:visual        # 28 rotas × 2 viewports: axe + overflow + captura
 ```
 
 Mudança de UI que só passou por `dev` não está verificada: confira a tela
@@ -49,28 +54,31 @@ renderizada e o comportamento em 375px / 768px / 1280px.
 
 ### Guardas automatizados
 
-Duas proteções existem porque as armadilhas abaixo já custaram tempo e risco
-reais. Ambas são scripts versionados com testes, não disciplina.
+Sete proteções existem porque as armadilhas abaixo já custaram tempo e risco
+reais. Todas são scripts versionados, não disciplina — e todas foram escritas
+depois de um defeito concreto, não antes.
 
-**1. `prebuild` — guard de `next dev`** (`scripts/verificar-dev-ativo.mjs`)
+| Guard | Impede | Nasceu de |
+|---|---|---|
+| `prebuild` (`verificar-dev-ativo`) | build com `next dev` ativo | falhas intermitentes de `.next` |
+| `pre-commit` (`verificar-segredos`) | credencial no commit | `.env` já foi destruído neste repo |
+| `verify:formato` | `.toFixed(` em `.tsx` | `/partidos` exibindo `62.6` e eixo `R$ 1.50M` |
+| `verify:formularios` | controle sem nome acessível | `aria-invalid`/`aria-describedby` em zero |
+| `verify:diretivas` | `"use client"` fora da 1ª linha | dois arquivos quebrados por script de import |
+| `verify:tokens` | paleta de estado redefinida | cor duplicada fora de `status-visual.ts` |
+| `audit:visual` | axe, overflow e regressão em 28 rotas | 6 rotas com defeito que o e2e não cobria |
 
-Roda antes de `npm run build` e **cancela** o build se houver um `next dev` deste
-projeto ativo. Transforma a armadilha do `.next` compartilhado em erro imediato e
-inequívoco, em vez de falha intermitente no meio do build com mensagem que aponta
-para o lugar errado.
-
-**2. `pre-commit` — varredura de segredos** (`scripts/verificar-segredos.mjs`)
-
-O hook mora em `.githooks/pre-commit` e é ativado uma vez por clone:
+Dois deles rodam sozinhos (`prebuild`, `pre-commit`); os outros são passo de
+verificação. O `pre-commit` é ativado uma vez por clone:
 
 ```bash
 npm run hooks:install   # git config core.hooksPath .githooks
 ```
 
-Bloqueia o commit quando detecta credencial em conteúdo adicionado, arquivo que
-nunca deve ser versionado (`.env`, chaves) ou `.gitignore` que tenha perdido a
-regra `.env*`. Cobre prefixos conhecidos (Supabase, GitHub, AWS, Google, Vercel…),
-não entropia genérica — um scanner que dá falso positivo é desligado.
+O scanner bloqueia credencial em conteúdo adicionado, arquivo que nunca deve ser
+versionado (`.env`, chaves) ou `.gitignore` que tenha perdido a regra `.env*`.
+Cobre prefixos conhecidos (Supabase, GitHub, AWS, Google, Vercel…), não entropia
+genérica — um scanner que dá falso positivo é desligado.
 
 Pular conscientemente: `git commit --no-verify`. Pular por reflexo anula a
 proteção.

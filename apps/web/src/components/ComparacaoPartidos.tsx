@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { ReliabilityStatus } from "@prisma/client";
-import { formatarNota } from "@/lib/formato";
+import { formatarNota, formatarPercentual } from "@/lib/formato";
 
 export interface PartyComparavel {
   id: string;
@@ -145,7 +145,7 @@ export function ComparacaoPartidos({ parties }: { parties: PartyComparavel[] }) 
                   <div className="mb-1 flex justify-between text-sm">
                     <span className="text-slate-400">Confiança média</span>
                     <span className="font-semibold text-slate-200">
-                      {party.avgConfidence.toFixed(0)}%
+                      {formatarPercentual(party.avgConfidence)}
                     </span>
                   </div>
                   <div className="h-2 w-full rounded-full bg-slate-800">

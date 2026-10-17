@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { POLITICAL_CONSENT_TEXTO } from "@/lib/consent";
+import { formatarPercentual } from "@/lib/formato";
 
 interface BillVoteProps {
   billId: string;
@@ -130,13 +131,13 @@ export function BillVote({ billId }: BillVoteProps) {
         <div className="flex items-center gap-2">
           <span className="h-3 w-3 rounded-full bg-emerald-500" />
           <span className="text-slate-400">
-            A Favor: {state?.favor ?? 0} ({favorPct.toFixed(0)}%)
+            A Favor: {state?.favor ?? 0} ({formatarPercentual(favorPct)})
           </span>
         </div>
         <div className="flex items-center gap-2">
           <span className="h-3 w-3 rounded-full bg-red-500" />
           <span className="text-slate-400">
-            Contra: {state?.contra ?? 0} ({contraPct.toFixed(0)}%)
+            Contra: {state?.contra ?? 0} ({formatarPercentual(contraPct)})
           </span>
         </div>
       </div>

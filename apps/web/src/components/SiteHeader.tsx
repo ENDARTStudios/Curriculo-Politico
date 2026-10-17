@@ -298,14 +298,18 @@ export function SiteHeader() {
  * Login é ação de topo de página em qualquer produto — a posição no rodapé era
  * o sintoma mais visível de que a barra nunca foi planejada, só preenchida.
  *
- * Durante o carregamento da sessão mostramos um espaço do mesmo tamanho, para o
- * botão não aparecer e empurrar o layout (salto visível).
+ * ── Por que "loading" renderiza "Entrar" ───────────────────────────────────
+ * A primeira versão most rava um retângulo cinza do tamanho do botão enquanto a
+ * sessão carregava, para evitar salto de layout. Na prática o visitante via um
+ * **bloco vazio** no canto superior direito — que parece defeito, e na captura de
+ * `/metodologia` apareceu exatamente assim.
+ *
+ * A maioria absoluta de quem chega é anônima, então o padrão certo é "Entrar":
+ * ele é o estado final para quase todo mundo, e o usuário autenticado vê o
+ * próprio nome trocar em milissegundos. Um flash de "Entrar" incomoda muito
+ * menos que um retângulo sem significado.
  */
 function Conta({ status, nome }: { status: string; nome: string | null }) {
-  if (status === "loading") {
-    return <span aria-hidden="true" className="h-9 w-20 rounded-lg bg-slate-800/60" />;
-  }
-
   if (status === "authenticated") {
     const primeiroNome = nome?.split(" ")[0] ?? "Conta";
     return (

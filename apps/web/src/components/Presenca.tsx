@@ -1,3 +1,4 @@
+import { formatarDecimal } from "@/lib/formato";
 import type { SessionAttendance } from "@prisma/client";
 
 interface PresencaProps {
@@ -31,7 +32,7 @@ export function Presenca({ presencas, total }: PresencaProps) {
 
   const maxCount = Math.max(...meses.map(([, c]) => c), 1);
   const mediaMensal =
-    meses.length > 0 ? (total / meses.length).toFixed(1) : "0";
+    meses.length > 0 ? formatarDecimal(total / meses.length, 1) : "0";
 
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">

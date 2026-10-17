@@ -36,7 +36,7 @@ export default function SobrePage() {
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
       <div className="mb-12">
-        <h1 className="mb-4 text-4xl font-bold tracking-tight text-slate-100">
+        <h1 className="mb-4 text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
           Sobre o Currículo Político
         </h1>
         <p className="text-xl leading-relaxed text-slate-400">
