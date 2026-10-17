@@ -78,6 +78,7 @@ function estaticas(): EntradaSitemap[] {
     entrada("/partidos", 0.8, "weekly"),
     entrada("/comparar", 0.7, "weekly"),
     entrada("/ranking/personalizado", 0.6, "weekly"),
+    entrada("/espectro", 0.6, "monthly"),
     entrada("/metodologia", 0.8, "monthly"),
     entrada("/como-funciona", 0.7, "monthly"),
     entrada("/stf", 0.6, "weekly"),
