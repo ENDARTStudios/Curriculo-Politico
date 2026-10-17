@@ -23,7 +23,16 @@ import { defineConfig, devices } from "@playwright/test";
  * usado via `channel: "chrome"`. Isso evita ~280 MB de download por browser.
  */
 
-const baseURL = process.env.E2E_BASE_URL ?? "http://localhost:3000";
+const PORTA_LOCAL = 3033;
+
+// O `baseURL` precisa apontar para a MESMA porta que o `webServer` sobe.
+//
+// Estava em 3000 enquanto o servidor subia na 3033: os testes navegavam para uma
+// porta onde não havia servidor nosso — e nesta máquina a 3000 é ocupada por
+// outros projetos Next, então a suíte podia auditar a interface de **outro
+// produto** e ainda passar. Um gate de acessibilidade que mede o site errado é
+// pior que nenhum.
+const baseURL = process.env.E2E_BASE_URL ?? `http://localhost:${PORTA_LOCAL}`;
 const semServidor = process.env.E2E_NO_SERVER === "1";
 
 export default defineConfig({
@@ -70,8 +79,8 @@ export default defineConfig({
         // faz o `next dev` trocar de porta sozinho ("Port 3000 is in use, using
         // 3001") e derruba a suíte com ERR_CONNECTION_REFUSED no meio da
         // execução. Uma porta improvável elimina a disputa.
-        command: "npm run dev --workspace @cp/web -- -p 3033",
-        url: "http://localhost:3033",
+        command: `npm run dev --workspace @cp/web -- -p ${PORTA_LOCAL}`,
+        url: `http://localhost:${PORTA_LOCAL}`,
         // Sem reuso: o objetivo é testar o código atual, não um servidor
         // antigo que por acaso ficou de pé.
         reuseExistingServer: false,
