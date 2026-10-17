@@ -83,4 +83,39 @@ test.describe("Acessibilidade WCAG 2.2 AA @readonly", () => {
       expect(r.violations.length, `Violações em ${rota}:\n${resumir(r.violations)}`).toBe(0);
     });
   }
+
+  /*
+    Região que só existe depois de interação.
+
+    O dropdown de busca é renderizado com `{open && query.length >= 2 && ...}` — a
+    varredura passiva **nunca o vê**.
+
+    Este é o limite honesto do axe: ele audita o DOM no momento em que roda, então
+    estado que exige ação precisa de teste que execute a ação.
+
+    ── O que este teste pegou ──────────────────────────────────────────────────
+    A primeira versão declarava `role="combobox"` no campo e `role="listbox"` no
+    painel. Era inválido: `listbox` só aceita `option`/`group` como filhos, e o
+    painel contém seções com título e `<a>`. O axe reprovou com
+    `aria-required-children` assim que o painel abriu — a varredura passiva nunca
+    teria visto.
+  */
+  test("dropdown de busca não tem violações", async ({ page }) => {
+    await page.goto("/", { waitUntil: "networkidle" });
+
+    const campo = page.getByRole("textbox", { name: /buscar políticos/i });
+    await expect(campo).toHaveCount(1);
+
+    // Duas letras: é o mínimo para o dropdown abrir.
+    await campo.fill("si");
+    const lista = page.locator("#busca-resultados");
+    await expect(lista).toBeVisible();
+
+    // O painel é uma lista de links agrupada, não um listbox de opções.
+    await expect(lista).not.toHaveAttribute("role", "listbox");
+    await expect(campo).not.toHaveAttribute("role", "combobox");
+
+    const r = await auditar(page);
+    expect(r.violations.length, `Violações na busca:\n${resumir(r.violations)}`).toBe(0);
+  });
 });
