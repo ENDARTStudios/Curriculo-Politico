@@ -291,7 +291,7 @@ Medido no código, não suposto:
 |---|---|---|
 | `<label htmlFor>` | 9 ocorrências (só `signin` e `retificacao`) | todos os controles |
 | `aria-label` onde não há rótulo visual | 0 | busca, link de compartilhamento |
-| `aria-expanded`/`aria-controls` no combobox de busca | 0 | presentes, apontando para `#busca-resultados` |
+| anúncio do resultado da busca | 0 | `role="status"` com a contagem (`N resultados para "x"`) |
 | `role="alert"` | **0** | erro de `/retificacao` (por campo) e de `/auth/signin` |
 | `aria-invalid` + `aria-describedby` por campo | **0** | `/retificacao`: cada campo aponta para o próprio erro |
 | `role="status"` | **0** | resultado da consulta de protocolo |
@@ -322,6 +322,25 @@ leitor de tela que o campo é obrigatório. O que saiu foi só a interceptação
 
 Ao falhar, o foco vai para o **primeiro campo inválido** — teclado e leitor
 seguem o foco, e a pessoa não precisa procurar onde está o problema.
+
+### 6.1.2 O combobox que não era combobox
+
+A busca recebeu `role="combobox"` no campo e `role="listbox"` no painel. Era
+**inválido**, e o axe só pegou quando o teste passou a abrir o painel:
+`aria-required-children`.
+
+Um `listbox` só aceita `option` ou `group` como filhos. Este painel contém seções
+com título e `<a>` — são **links de navegação**, não opções selecionáveis. Declarar
+`combobox` prometia ao leitor de tela um comportamento (navegação por setas,
+`aria-activedescendant`, seleção) que o componente não tem.
+
+O padrão correto para uma lista de atalhos agrupada é: **links nativos** (já
+alcançáveis por teclado) + uma região viva que anuncia quantos resultados existem.
+O `role="status"` cumpre o que o `aria-expanded` prometia, sem mentir sobre o
+controle.
+
+Converter o painel em listbox de verdade exigiria lista plana de opções e perderia
+os agrupamentos, que são informação útil. Não valia o custo.
 
 Também havia **rótulo visível sem associação** em `ProjetoFilters` e
 `ComparacaoCards`: o `<label>` existia na tela e não existia para o leitor de tela,
