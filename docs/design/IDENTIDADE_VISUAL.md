@@ -44,6 +44,7 @@ em vez de inventar um.
 | **11 · Conta** | `/conta`, `/auth/signin` |
 | **12 · Retificação** | `/retificacao`, `/contato`, `/apoie` |
 | **13 · Status** | `/status`, `/sobre` |
+| **14 · Mobile** | O sistema em 375px: hero, linha do ranking como card, formulário com erro por campo — e as regras do layout estreito |
 
 Somadas a `/` (página 03), são as 28 rotas do `apps/web/src/app`.
 
@@ -444,10 +445,47 @@ desenhar a forma de uma página mentiria nas outras.
 - O 404 é auditado junto com as 28 rotas (`npm run audit:visual`), porque é uma
   página que o usuário vê.
 
-## 9. O que não está coberto
+## 9. Responsivo — página 14
 
-- **Responsivo**: os artboards são 1440. O comportamento em 375px está verificado
-  por Playwright, não desenhado.
+O responsivo era a última lacuna declarada: todos os artboards eram 1440, e o
+comportamento em 375px estava **verificado** por teste, não **desenhado**.
+
+Verificação não é decisão. Sem artboard, cada ajuste de mobile vira improviso na
+hora de codar, e as decisões ficam implícitas no CSS — difíceis de revisar e
+fáceis de contradizer depois.
+
+| Regra | Desktop | 375px |
+|---|---|---|
+| Gutter | 80px | 16px, uma coluna |
+| h1 | 72px | 30px |
+| Alvo de toque | — | 44px de altura mínima |
+| Ranking | tabela de 6 colunas | card |
+
+### 9.1 A tabela que vira card
+
+Em 375px seis colunas não cabem. A tabela vira região de rolagem horizontal — que
+**funciona** e passa em acessibilidade, mas esconde a **nota**, que é o motivo de a
+pessoa estar ali.
+
+O documento passou a pedir card, e o card foi implementado em `/ranking`
+(`CartaoRanking`, visível abaixo de `md`; a tabela fica `hidden md:block`). Ele
+mantém na primeira dobra: posição, nome, partido/UF, nota, termômetro, confiança e
+a barra de magnitude.
+
+### 9.2 O defeito que só o render mostrou
+
+A primeira versão da página 14 tinha dois problemas invisíveis para o gerador,
+porque ele não mede altura de texto:
+
+1. O rótulo de cada tela encostava na segunda linha do parágrafo de apoio do
+   cabeçalho.
+2. As quatro regras do layout caíam fora do canvas de 1240px e não apareciam.
+
+Corrigidos com `mobTopo = yMob + 64` e canvas de 1430px. É o mesmo padrão de
+defeito das páginas 00–13: sobreposição só se vê no PNG.
+
+## 10. O que não está coberto
+
 - **Modo claro**: o tema é dark fixo por decisão de produto, então não há variante.
 - **Tokens exportados para CSS**: o FigCraft sabe exportar as variables como
   custom properties (`variable.export --format css`). Não foi feito porque o

@@ -128,6 +128,87 @@ function LinhaRanking({ row, posicao }: { row: RankingRow; posicao: number | nul
   );
 }
 
+/**
+ * A linha do ranking como card — usada só abaixo de `md`.
+ *
+ * ── Por que card, e não a tabela rolando ────────────────────────────────────
+ * Em 375px seis colunas não cabem: a tabela vira uma região de rolagem
+ * horizontal, e a **nota** — que é o motivo de a pessoa estar ali — sai da tela.
+ * A rolagem existe e funciona, mas esconde justamente o dado.
+ *
+ * O card mantém o que importa na primeira dobra: posição, nome, partido/UF, nota,
+ * termômetro e confiança. É o mesmo conteúdo da linha, reorganizado.
+ *
+ * Desenhado no documento de identidade, página 14 (Responsivo).
+ */
+function CartaoRanking({ row, posicao }: { row: RankingRow; posicao: number | null }) {
+  const destaque = posicao !== null;
+
+  return (
+    <li
+      className={`rounded-xl border border-slate-800 p-4 ${
+        destaque ? "bg-slate-900/60" : "bg-slate-900/30"
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        <Image
+          src={row.photoUrl || "/avatar-placeholder.svg"}
+          alt=""
+          width={40}
+          height={40}
+          className={`h-10 w-10 shrink-0 rounded-full object-cover ${destaque ? "" : "grayscale"}`}
+          unoptimized
+        />
+
+        <div className="min-w-0 flex-1">
+          <div className="font-mono text-xs text-slate-400">
+            {posicao !== null ? `${posicao}º` : "—"}
+          </div>
+          <Link
+            href={`/politicos/${row.id}`}
+            className={`block truncate font-semibold hover:underline ${
+              destaque ? "text-slate-100" : "text-slate-300"
+            }`}
+          >
+            {row.politicalName}
+          </Link>
+          <div className="mt-0.5 truncate text-xs text-slate-400">
+            {row.party ?? "—"} / {row.jurisdiction ?? "—"}
+          </div>
+          {row.score && (
+            <div className="mt-2">
+              <Termometro status={row.score.reliabilityStatus} />
+            </div>
+          )}
+        </div>
+
+        <div className="shrink-0 text-right">
+          <div
+            className={`font-bold tabular-nums ${
+              destaque ? "text-lg text-slate-100" : "text-slate-400"
+            }`}
+          >
+            {row.score ? formatarNota(row.score.finalScore) : "—"}
+          </div>
+          <div className="text-xs tabular-nums text-slate-400">
+            {formatarPercentual(row.score?.confidenceScore)}
+          </div>
+        </div>
+      </div>
+
+      {/* Mesma barra de magnitude da tabela: escala fixa 0–100, azul de ação. */}
+      {row.score && (
+        <span className="mt-3 block h-1 overflow-hidden rounded-full bg-slate-800">
+          <span
+            className="block h-full rounded-full bg-sky-500"
+            style={{ width: `${Math.min(100, Math.max(0, row.score.finalScore))}%` }}
+          />
+        </span>
+      )}
+    </li>
+  );
+}
+
 function Aba({ grupo, ativo, total }: { grupo: Grupo; ativo: boolean; total: number }) {
   const rotulo = grupo === "ranking" ? "Ranking" : "Dados insuficientes";
   return (
@@ -238,8 +319,13 @@ export default async function RankingPage({
 
       {/* Região rolável alcançável por teclado (WCAG 2.1.1). Sem `tabIndex`, quem
           navega sem mouse vê a tabela cortada em 375px e não consegue rolar. */}
+      {/*
+        A tabela só aparece de `md` para cima. Abaixo disso, seis colunas não cabem
+        e a nota — o motivo da visita — sairia da tela. O card logo abaixo faz o
+        mesmo papel; ver o comentário de `CartaoRanking`.
+      */}
       <div
-        className="mt-4 overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/60"
+        className="mt-4 hidden overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/60 md:block"
         role="region"
         aria-label="Tabela do ranking IDIP"
         tabIndex={0}
@@ -273,6 +359,22 @@ export default async function RankingPage({
             </tbody>
           </table>
       </div>
+
+      {/* Versão card, só abaixo de `md`. */}
+      <ul className="mt-4 space-y-3 md:hidden">
+        {visiveis.map((row, i) => (
+          <CartaoRanking
+            key={row.id}
+            row={row}
+            posicao={grupo === "ranking" ? inicio + i + 1 : null}
+          />
+        ))}
+        {visiveis.length === 0 && (
+          <li className="rounded-xl border border-slate-800 bg-slate-900/40 p-8 text-center text-sm text-slate-400">
+            Nenhum registro nesta lista.
+          </li>
+        )}
+      </ul>
 
       {totalPaginas > 1 && (
         <nav
