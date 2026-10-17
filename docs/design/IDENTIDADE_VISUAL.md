@@ -8,7 +8,10 @@
 
 ## 1. O que foi produzido
 
-Seis páginas, cada uma um artboard 1440 de largura:
+Catorze artboards de 1440 de largura: seis de **sistema** (fundamentos e
+componentes) e oito de **arquétipo de página** (as 28 rotas do app).
+
+### 1.1 Sistema
 
 | Página | Conteúdo |
 |---|---|
@@ -24,7 +27,53 @@ três leis (o dado é o herói · cor = significado · escala editorial) não pe
 identidade. Sem ela, o documento é catálogo de peças — quem chega depois não sabe
 o que está fora de negociação, e altera justamente o que dava sentido ao conjunto.
 
-### 1.1 Como reconstruir
+### 1.2 Arquétipos de página
+
+As 28 rotas não são 28 desenhos. Desenhar uma a uma produziria 20 variações do
+mesmo layout — e, pior, deixaria o sistema sem regra, porque cada página viraria
+um caso. O **arquétipo** é a unidade que se mantém: uma rota nova herda o template
+em vez de inventar um.
+
+| Página | Rotas que cobre |
+|---|---|
+| **06 · Listagem** | `/ranking`, `/ranking/personalizado`, `/partidos`, `/projetos`, `/stf`, `/calendario-eleitoral`, `/historia`, `/espectro` |
+| **07 · Perfil** | `/politicos/[id]`, `/partidos/[acronym]`, `/projetos/[id]` |
+| **08 · Comparação** | `/comparar`, `/partidos/comparar` |
+| **09 · Editorial** | `/como-funciona`, `/metodologia`, `/faq` |
+| **10 · Jurídico** | `/privacidade`, `/termos-de-uso`, `/cookies`, `/lgpd` |
+| **11 · Conta** | `/conta`, `/auth/signin` |
+| **12 · Retificação** | `/retificacao`, `/contato`, `/apoie` |
+| **13 · Status** | `/status`, `/sobre` |
+
+Somadas a `/` (página 03), são as 28 rotas do `apps/web/src/app`.
+
+Chrome comum a todas: `navegacao()` desenha a faixa de topo e `cabecalhoPagina()`
+devolve o `y` onde o conteúdo começa — nenhuma página posiciona o cabeçalho à mão,
+pela mesma razão do cursor em `gradeSwatches`.
+
+### 1.3 Decisões de arquétipo que não são óbvias
+
+- **Listagem**: a barra de nota é compartilhada entre linhas, então a distância
+  entre duas notas é visível. Número sozinho não se compara.
+- **Perfil**: a nota vem **antes** das evidências. É a pergunta que trouxe a
+  pessoa ali; invertê-la faz o leitor rolar para descobrir o que já queria saber.
+- **Comparação**: a coluna de **diferença** existe porque o olho não calcula
+  subtração entre dois números grandes. O sinal `+/−` é o portador não-cromático
+  (WCAG 1.4.1), então não há rótulo redundante de "melhor".
+- **Editorial**: medida de leitura em ~65 caracteres. Texto corrido em 1280px é
+  ilegível — a linha fica longa demais para o olho voltar.
+- **Jurídico**: quatro documentos, um template. Muda o título e o corpo; a
+  estrutura é a mesma porque a função é a mesma.
+- **Conta**: card estreito e centrado. Autenticação não é lugar de explorar
+  layout — a pessoa quer entrar e sair, e qualquer elemento extra é atrito.
+- **Retificação**: orientação ao lado do formulário. Ela não é decorativa: reduz
+  pedido incompleto, e este é o canal formal do titular (LGPD Art. 18).
+- **Status**: a página é desenhada **no estado degradado**. Um status todo verde
+  não prova nada; o caso que importa é quando uma verificação falha. Por isso o
+  resumo no topo reflete a pior linha — a primeira versão dizia "todos os sistemas
+  operacionais" em verde com uma linha âmbar logo abaixo, e se contradizia.
+
+### 1.4 Como reconstruir
 
 ```bash
 node design/construir-identidade.mjs          # gera o .figcraft e os PNGs
