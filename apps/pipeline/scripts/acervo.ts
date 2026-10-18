@@ -22,9 +22,10 @@
  * motivo — em vez de o bot quebrar silenciosamente ou baixar 500 MB por engano.
  */
 import { spawnSync } from "node:child_process";
-import { existsSync, statSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { PrismaClient } from "@prisma/client";
+import { CADEIA } from "./lib/cadeia";
 
 const prisma = new PrismaClient();
 const RAIZ = resolve(__dirname, "..", "..", "..");
@@ -35,6 +36,16 @@ const AREA_FILTRO = process.argv.find((a) => a.startsWith("--area="))?.split("="
 
 /** Um arquivo raw é considerado velho depois disso. */
 const DIAS_VELHO = 7;
+
+/**
+ * Passos que transformam métrica em nota, aplicam travas e atualizam o
+ * snapshot — os três últimos da cadeia canônica.
+ *
+ * Derivados de `CADEIA` em vez de redigitados: se a ordem mudar lá, muda aqui.
+ */
+const PASSOS_DERIVADOS = CADEIA.filter((p) =>
+  ["recalculate-scores", "apply-integrity-caps", "snapshot-scores"].includes(p.script),
+).map((p) => p.script);
 
 const TSX_CLI = join(RAIZ, "node_modules", "tsx", "dist", "cli.mjs");
 const PYTHON = process.platform === "win32" ? "python" : "python3";
@@ -208,13 +219,80 @@ function idadeDias(caminho: string): number | null {
   return Math.floor(ms / (24 * 60 * 60 * 1000));
 }
 
+/**
+ * Resolve um script do `package.json` em (comando, argumentos) executável.
+ *
+ * ── Por que não usar `npm run` ─────────────────────────────────────────────
+ * Com `shell: false`, `spawnSync("npm", …)` falha no Windows porque `npm` é
+ * `npm.cmd` — e habilitar shell só para isso reintroduz o problema de codepage e
+ * de quoting que este bot tenta evitar.
+ *
+ * Lendo o `package.json`, o bot honra a mesma declaração que um humano usaria e
+ * executa o binário direto: `python` vira o interpretador do sistema, `tsx` vira
+ * `node node_modules/tsx/dist/cli.mjs`. Nada de convenção inventada — foi uma
+ * convenção inventada (`fact-checking.py`) que fez a coleta "não achar" o ETL.
+ */
+function resolverScript(nome: string): { cmd: string; args: string[] } | null {
+  const pkg = JSON.parse(readFileSync(join(RAIZ, "package.json"), "utf-8")) as {
+    scripts?: Record<string, string>;
+  };
+  const linha = pkg.scripts?.[nome];
+  const cli = join(RAIZ, "node_modules", "tsx", "dist", "cli.mjs");
+
+  /*
+    Duas convenções convivem no projeto, e ambas são legítimas:
+
+    - `package.json` usa nomes com prefixo (`db:snapshot`, `etl:camara`);
+    - `lib/cadeia.ts` usa o nome do arquivo (`snapshot-scores`, `load-senado`).
+
+    A primeira versão só entendia a primeira, então a cadeia de derivados
+    imprimia "script snapshot-scores não encontrado" e seguia **sem atualizar o
+    snapshot** — deixando a nota nova e o histórico velho, que é exatamente a
+    divergência que este trabalho tentou eliminar.
+  */
+  if (!linha) {
+    const arquivo = join(RAIZ, "apps", "pipeline", "scripts", `${nome}.ts`);
+    if (existsSync(arquivo)) return { cmd: process.execPath, args: [cli, arquivo] };
+    return null;
+  }
+
+  const partes = linha.trim().split(/\s+/);
+
+  if (partes[0] === "python" || partes[0] === "python3") {
+    return { cmd: PYTHON, args: partes.slice(1) };
+  }
+  if (partes[0] === "tsx") {
+    return { cmd: process.execPath, args: [cli, ...partes.slice(1)] };
+  }
+
+  return null;
+}
+
 function rodar(cmd: string, args: readonly string[], desc: string): boolean {
   console.log(`\n   ▶️ ${desc}`);
   const res = spawnSync(cmd, [...args], {
     stdio: "inherit",
     cwd: RAIZ,
     shell: false,
-    env: process.env,
+    env: {
+      ...process.env,
+      /*
+        ── Por que force UTF-8 nos ETLs ──────────────────────────────────────────
+        Os scripts Python imprimem emoji (📥, ✅) e, no Windows, o `stdout` do
+        subprocesso herda a codepage do console (cp1252). O resultado é
+        `UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f4e5'`
+        e o ETL morre **antes de buscar qualquer dado**.
+
+        Foi assim que a coleta "falhava" sem motivo aparente: a mensagem de erro
+        ficava enterrada no meio do traceback do Python. Forçar `PYTHONIOENCODING`
+        resolve para todos os ETLs de uma vez, sem editar 17 arquivos.
+
+        É a mesma família de armadilha de codepage que o AGENTS.md já documenta
+        para o PowerShell neste caminho com acento.
+      */
+      PYTHONIOENCODING: "utf-8",
+      PYTHONUTF8: "1",
+    },
   });
   if (res.status !== 0) {
     console.warn(`   ⚠️  falhou (seguindo): ${desc}`);
@@ -256,17 +334,14 @@ async function main() {
     // Coleta apenas o que é automático e está ausente/velho.
     const precisa = area.automacao === "auto" && (idade === null || idade > DIAS_VELHO);
     if (COLETAR && precisa) {
-      if (area.etl) {
-        const script = join(RAIZ, "apps", "pipeline", "etl", `${area.etl.replace("etl:", "")}.py`);
-        if (existsSync(script)) {
-          rodar(PYTHON, [script], `ETL ${area.etl}`);
-        } else {
-          console.log(`   ⚠️  ETL ausente: ${script.replace(RAIZ, "")} — pulando coleta`);
+      for (const passo of [area.etl, area.carga]) {
+        if (!passo) continue;
+        const cmd = resolverScript(passo);
+        if (!cmd) {
+          console.log(`   ⚠️  script "${passo}" não encontrado no package.json — pulando`);
+          continue;
         }
-      }
-      if (area.carga) {
-        const args = area.carga.split(" ");
-        rodar("npm", ["run", args[0], ...args.slice(1)], `carga ${area.carga}`);
+        rodar(cmd.cmd, cmd.args, passo);
       }
       coletados++;
     } else if (COLETAR && area.automacao === "manual") {
@@ -276,6 +351,34 @@ async function main() {
 
   console.log("\n─── Resumo ─────────────────────────────────────────────");
   console.log(`   áreas: ${linhas.length} · coletas disparadas: ${coletados}`);
+
+  /*
+    ── Nenhuma carga termina sem recalcular ─────────────────────────────────
+
+    Este bloco nasceu de um incidente: rodar `--coletar --area=parlamentares`
+    recarregou os 513 deputados e **derrubou o ranking inteiro**. As 594 notas
+    viraram GRAY 50,00, porque `load-camara-completa` recria a linha de `Score`
+    no baseline inicial — e os passos que transformam métrica em nota, aplicam as
+    travas de integridade e atualizam o snapshot nunca rodaram.
+
+    O dado bruto estava certo; o derivado, destruído. Numa plataforma cujo produto
+    é a nota, isso é o pior defeito possível: silencioso e total.
+
+    A importação de `lib/cadeia` não é decoração — é o que impede esta lista de
+    divergir da cadeia canônica usada por `bot:fix` e pelo seed de produção.
+  */
+  if (COLETAR && coletados > 0) {
+    console.log("\n   🔄 recalculando derivados (a carga invalida nota e snapshot)");
+    for (const passo of PASSOS_DERIVADOS) {
+      const cmd = resolverScript(passo);
+      if (!cmd) {
+        console.log(`   ⚠️  script "${passo}" não encontrado — derivados podem estar inconsistentes`);
+        continue;
+      }
+      rodar(cmd.cmd, cmd.args, passo);
+    }
+  }
+
   console.log(
     "\n   O acervo não é uma fila infinita: área `manual` não vira tarefa\n" +
       "   automática por insistência. Elas estão listadas com o motivo.\n",
