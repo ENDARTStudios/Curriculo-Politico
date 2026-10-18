@@ -159,6 +159,17 @@ const ptBR = {
   "espectro.refazer": "Refazer o teste",
   "espectro.versao": "Versão do questionário: {versao}",
 
+  // ── Afinidade partidária ─────────────────────────────────────────────────
+  "afinidade.titulo": "Partidos que se enquadram no seu espectro",
+  "afinidade.lead": "No eixo econômico você ficou em {posicao} — {lado}. Abaixo, os partidos cuja posição declarada cai dentro dessa faixa.",
+  "afinidade.ladoIgualdade": "mais próximo da igualdade",
+  "afinidade.ladoMercado": "mais próximo do mercado",
+  "afinidade.ladoCentro": "num ponto de equilíbrio entre igualdade e mercado",
+  "afinidade.distancia": "distância {n}",
+  "afinidade.nenhum": "Nenhum partido classificado ficou dentro da faixa. Veja a lista completa em Partidos.",
+  "afinidade.metodo": "A comparação usa apenas o eixo econômico, porque é nele que a classificação esquerda–direita do acervo tem significado verificável. Posição sociocultural e diplomática não existe por partido no acervo — inventá-la seria fabricar dado político. A posição vem do programa declarado da legenda, não de um teste.",
+  "afinidade.semClassificacao": "{n} partido(s) sem classificação de posição ficaram fora do cálculo.",
+
   // ── Jurídico (rótulos de registro) ───────────────────────────────────────
   "juridico.investigacao": "Investigação em curso",
   "juridico.acaoJudicial": "Ação judicial em curso",
@@ -326,6 +337,16 @@ const esUS: Record<ChaveDicionario, string> = {
   "espectro.ultimoResultado": "Tu último resultado",
   "espectro.refazer": "Rehacer el test",
   "espectro.versao": "Versión del cuestionario: {versao}",
+
+  "afinidade.titulo": "Partidos que encajan en tu espectro",
+  "afinidade.lead": "En el eje económico quedaste en {posicao} — {lado}. Abajo, los partidos cuya posición declarada cae dentro de esa franja.",
+  "afinidade.ladoIgualdade": "más cerca de la igualdad",
+  "afinidade.ladoMercado": "mais próximo do mercado",
+  "afinidade.ladoCentro": "en un punto de equilibrio entre igualdad y mercado",
+  "afinidade.distancia": "distancia {n}",
+  "afinidade.nenhum": "Ningún partido clasificado quedó dentro de la franja. Mira la lista completa en Partidos.",
+  "afinidade.metodo": "La comparación usa solo el eje económico, porque es ahí donde la clasificación izquierda–derecha del acervo tiene significado verificable. Posición sociocultural y diplomática no existe por partido en el acervo — inventarla sería fabricar dato político. La posición viene del programa declarado del partido, no de un test.",
+  "afinidade.semClassificacao": "{n} partido(s) sin clasificación de posición quedaron fuera del cálculo.",
 
   "juridico.investigacao": "Investigación en curso",
   "juridico.acaoJudicial": "Acción judicial en curso",

@@ -147,6 +147,16 @@ export const enUS: Record<ChaveDicionario, string> = {
   "espectro.refazer": "Retake the test",
   "espectro.versao": "Questionnaire version: {versao}",
 
+  "afinidade.titulo": "Parties that fit your spectrum",
+  "afinidade.lead": "On the economic axis you landed at {posicao} — {lado}. Below, the parties whose declared position falls within that range.",
+  "afinidade.ladoIgualdade": "closer to equality",
+  "afinidade.ladoMercado": "closer to the market",
+  "afinidade.ladoCentro": "at a balance point between equality and the market",
+  "afinidade.distancia": "distance {n}",
+  "afinidade.nenhum": "No classified party fell within the range. See the full list under Parties.",
+  "afinidade.metodo": "The comparison uses only the economic axis, because that is where the left–right classification in our dataset has verifiable meaning. Sociocultural and diplomatic positions do not exist per party here — inventing them would mean fabricating political data. The position comes from the party's declared programme, not from a test.",
+  "afinidade.semClassificacao": "{n} party(ies) without a position classification were left out of the calculation.",
+
   "juridico.investigacao": "Ongoing investigation",
   "juridico.acaoJudicial": "Ongoing lawsuit",
   "juridico.condenacao": "Final conviction (no further appeal)",
