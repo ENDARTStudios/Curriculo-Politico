@@ -25,6 +25,17 @@ export const CONTATO = {
   reembolso: "endart.studios+reembolso@gmail.com",
   /** Direitos do titular (LGPD Art. 18 e 19). */
   direitos: "endart.studios+direitos@gmail.com",
+  /**
+   * Patrocínio institucional (empresas, fundações, editais).
+   *
+   * Separado de `parcerias` de propósito: patrocínio é transferência de recurso
+   * com contrapartida de reconhecimento; parceria é colaboração sem dinheiro
+   * (dados, revisão técnica, divulgação). Uma caixa só faria proposta de
+   * patrocínio cair na fila de parceria, e vice-versa.
+   */
+  patrocinio: "endart.studios+patrocinio@gmail.com",
+  /** Parcerias institucionais e acadêmicas (sem transferência de recurso). */
+  parcerias: "endart.studios+parcerias@gmail.com",
 } as const;
 
 /** Endereço pronto para `href` de e-mail. */

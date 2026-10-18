@@ -81,6 +81,37 @@ export default function ContatoPage() {
 
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
           <h2 className="mb-2 text-xl font-bold text-slate-100">
+            🤝 Patrocínio e Parcerias
+          </h2>
+          <p className="mb-3 text-sm leading-relaxed text-slate-400">
+            Sustentação institucional e colaboração com dados, revisão técnica ou
+            divulgação. As duas caixas são lidas pela mesma equipe; separá-las evita
+            proposta de patrocínio parar na fila de parceria. Mais contexto em{" "}
+            <Link href="/apoie" className="text-sky-400 hover:underline">
+              Apoie o projeto
+            </Link>
+            .
+          </p>
+          <p className="text-sm text-slate-400">
+            patrocínio:{" "}
+            <a
+              href={mailto(CONTATO.patrocinio)}
+              className="break-all text-sky-400 hover:underline"
+            >
+              {CONTATO.patrocinio}
+            </a>{" "}
+            · parcerias:{" "}
+            <a
+              href={mailto(CONTATO.parcerias)}
+              className="break-all text-sky-400 hover:underline"
+            >
+              {CONTATO.parcerias}
+            </a>
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+          <h2 className="mb-2 text-xl font-bold text-slate-100">
             🧾 Suporte e Doações
           </h2>
           <p className="mb-3 text-sm leading-relaxed text-slate-400">

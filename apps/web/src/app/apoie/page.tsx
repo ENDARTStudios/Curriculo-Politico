@@ -147,6 +147,59 @@ export default function ApoiePage() {
         </div>
       </div>
 
+      {/*
+        Patrocínio e parcerias por e-mail.
+
+        Estes dois canais existem independentemente de Pix ou GitHub Sponsors
+        estarem configurados: quem quer patrocinar ou firmar parceria precisa de
+        um endereço, não de um botão de pagamento. Por isso ficam fora do bloco
+        condicional — antes, a página dizia "doações não estão abertas" e não
+        oferecia nenhuma via para quem chega justamente com uma proposta.
+      */}
+      <div className="mt-8 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <h3 className="mb-1 text-xl font-bold text-slate-100">
+          Patrocínio e parcerias
+        </h3>
+        <p className="mb-5 max-w-[65ch] text-sm leading-relaxed text-slate-400">
+          Sustentação institucional não passa por botão: é conversa. Escreva para
+          a caixa certa — as duas são lidas pela mesma equipe, e separá-las é o que
+          evita proposta de patrocínio parar na fila de parceria.
+        </p>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-lg bg-slate-800/60 p-4">
+            <div className="mb-1 text-2xl">🤝</div>
+            <h4 className="font-semibold text-slate-100">Patrocínio</h4>
+            <p className="mt-1 text-xs leading-relaxed text-slate-400">
+              Empresas, fundações e editais que queiram financiar a operação em
+              troca de reconhecimento público.
+            </p>
+            <a
+              href={mailto(CONTATO.patrocinio)}
+              className="mt-3 inline-block break-all text-sm font-medium text-sky-400 hover:underline"
+            >
+              {CONTATO.patrocinio}
+            </a>
+          </div>
+
+          <div className="rounded-lg bg-slate-800/60 p-4">
+            <div className="mb-1 text-2xl">🔗</div>
+            <h4 className="font-semibold text-slate-100">Parcerias</h4>
+            <p className="mt-1 text-xs leading-relaxed text-slate-400">
+              Universidades, veículos de imprensa e organizações que queiram
+              colaborar com dados, revisão técnica ou divulgação — sem
+              transferência de recurso.
+            </p>
+            <a
+              href={mailto(CONTATO.parcerias)}
+              className="mt-3 inline-block break-all text-sm font-medium text-sky-400 hover:underline"
+            >
+              {CONTATO.parcerias}
+            </a>
+          </div>
+        </div>
+      </div>
+
       <div className="mt-8 rounded-xl border border-sky-500/30 bg-sky-500/5 p-6">
         <h3 className="mb-2 font-semibold text-slate-100">💎 Transparência Total</h3>
         <p className="mb-3 text-sm leading-relaxed text-slate-400">
