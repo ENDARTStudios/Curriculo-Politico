@@ -31,12 +31,24 @@ const BASE_CONVERTIDA = join(RAIZ, "data", "raw", "tcu_base_convertida.json");
 
 const DRY = process.argv.includes("--dry");
 
+const RAIZ_RAW = join(RAIZ, "data", "raw");
+const TSE_RAWS = ["tse_candidatos_2018_raw.json", "tse_candidatos_2022_raw.json"];
+
 interface Linha {
   nome: string;
   processo: string;
   uf?: string;
   data_decisao?: string;
   orgao?: string;
+  /**
+   * CPF só em memória — **nunca** é escrito em arquivo nem no banco.
+   *
+   * Serve para uma única coisa: cruzar com o CPF do TSE e obter o `tse_id`, que é
+   * o identificador determinístico da pessoa. Depois disso ele é descartado. O
+   * campo é removido por allowlist antes de qualquer gravação, e a saída ainda
+   * passa por uma checagem que recusa sequência de 11 dígitos.
+   */
+  cpfDigitos?: string;
 }
 
 /**
@@ -99,6 +111,8 @@ function lerCsv(): { total: number; pessoas: Linha[]; empresas: number; semDoc: 
       processo,
       orgao: "TCU",
       ...(uf ? { uf } : {}),
+      // Só em memória — ver o comentário do campo. Nunca vai para arquivo.
+      ...(doc.length === 11 ? { cpfDigitos: doc } : {}),
       ...(link ? { data_decisao: undefined } : {}),
     });
   }
@@ -114,6 +128,70 @@ function normalizar(nome: string): string {
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
+}
+
+/**
+ * Mapa CPF → tse_id, montado dos arquivos do TSE que já estão em disco.
+ *
+ * ── Por que isto resolve o problema de identidade ──────────────────────────
+ * Nome completo + UF é indício. CPF é identidade: um CPF pertence a uma pessoa e
+ * a uma só. O TSE publica, por candidatura, o CPF e o `SQ_CANDIDATO` — e o acervo
+ * guarda `Person.tseId` justamente com esse número. O cruzamento é determinístico:
+ * CPF do TCU → `tse_id` do TSE → pessoa do acervo.
+ *
+ * ── LGPD ───────────────────────────────────────────────────────────────────
+ * O CPF **entra e sai da memória** nesta função: o mapa tem CPF na chave, é usado
+ * para a busca e é descartado com o processo. Nada disso é gravado. O que se
+ * guarda do outro lado é o `tse_id`, que é identificador público de candidatura,
+ * não documento de cidadão.
+ */
+function carregarMapaTse(): Map<string, string> {
+  const mapa = new Map<string, string>();
+
+  for (const arquivo of TSE_RAWS) {
+    const caminho = join(RAIZ_RAW, arquivo);
+    if (!existsSync(caminho)) continue;
+
+    const dados = JSON.parse(readFileSync(caminho, "utf8")) as
+      | { cpf?: string; tse_id?: string }[]
+      | { dados?: { cpf?: string; tse_id?: string }[] };
+    const lista = Array.isArray(dados) ? dados : (dados.dados ?? []);
+
+    for (const c of lista) {
+      const cpf = (c.cpf ?? "").replace(/\D/g, "");
+      const tseId = (c.tse_id ?? "").toString().trim();
+      if (cpf.length === 11 && tseId) mapa.set(cpf, tseId);
+    }
+  }
+
+  return mapa;
+}
+
+/** Remove qualquer campo que não deva ser persistido. Allowlist, não denylist. */
+function paraArquivo(l: Linha): Omit<Linha, "cpfDigitos"> {
+  return {
+    nome: l.nome,
+    processo: l.processo,
+    ...(l.uf ? { uf: l.uf } : {}),
+    ...(l.data_decisao ? { data_decisao: l.data_decisao } : {}),
+    ...(l.orgao ? { orgao: l.orgao } : {}),
+  };
+}
+
+/**
+ * Guarda final: recusa gravar se aparecer sequência de 11 dígitos.
+ *
+ * Números de processo têm pontos e barras (`250.384/1997-3`), então um bloco
+ * contínuo de 11 dígitos num arquivo deste conversor é sinal de CPF vazando. É
+ * uma checagem grosseira de propósito: falha alto em vez de confiar na revisão.
+ */
+function garantirSemCpf(texto: string, onde: string): void {
+  const achado = texto.match(/\d{11}/);
+  if (achado) {
+    throw new Error(
+      `possível CPF no conteúdo de ${onde} (sequência de 11 dígitos). Abortado.`,
+    );
+  }
 }
 
 async function main() {
@@ -144,12 +222,14 @@ async function main() {
     evidencia: "nome+uf" | "nome";
   }[] = [];
   const ambiguos: string[] = [];
+  const confirmadosPorCpf: { nome: string; id: string; processo: string; uf: string | null }[] = [];
   const descartadosPorUf: { nome: string; ufTcu: string; ufPolitico: string }[] = [];
 
   try {
     const pessoasBanco = await prisma.person.findMany({
       select: {
         id: true,
+        tseId: true,
         politicalName: true,
         civilName: true,
         // A UF vem do cargo, não de uma coluna nova: o carregador cria um
@@ -158,6 +238,40 @@ async function main() {
         terms: { select: { office: { select: { jurisdiction: true } } } },
       },
     });
+
+    /* ── Passo 1: CPF → tse_id → pessoa (determinístico) ───────────────────
+       Roda antes do casamento por nome porque, quando acerta, não há dúvida: um
+       CPF pertence a uma pessoa só. Quem entra aqui não precisa de curadoria. */
+    const mapaTse = carregarMapaTse();
+    const porTseId = new Map(pessoasBanco.filter((p) => p.tseId).map((p) => [p.tseId!, p]));
+
+
+    for (const linha of pessoas) {
+      if (!linha.cpfDigitos) continue;
+      const tseId = mapaTse.get(linha.cpfDigitos);
+      if (!tseId) continue;
+      const pessoa = porTseId.get(tseId);
+      if (!pessoa) continue;
+
+      confirmadosPorCpf.push({
+        nome: pessoa.politicalName,
+        id: pessoa.id,
+        processo: linha.processo,
+        uf: linha.uf ?? null,
+      });
+    }
+
+    console.log(`\n   CPFs do TCU no mapa do TSE: ${mapaTse.size}`);
+    console.log(`   confirmados por CPF (determinístico): ${confirmadosPorCpf.length}`);
+    for (const c of confirmadosPorCpf.slice(0, 10)) {
+      console.log(`      ${c.nome} (${c.uf ?? "??"}) — processo ${c.processo}`);
+    }
+
+    // O CPF cumpriu a função; a partir daqui não é mais usado por ninguém.
+    for (const l of pessoas) delete l.cpfDigitos;
+
+    /* ── Passo 2: nome + UF (indício) ───────────────────────────────────────
+       Só para quem o CPF não alcançou. Continua sendo candidato, não carga. */
     const porNome = new Map<
       string,
       { id: string; nome: string; ufs: Set<string> }[]
@@ -256,16 +370,40 @@ async function main() {
     sem prova. O arquivo de carga passa a exigir curadoria humana.
   */
   const CANDIDATOS = join(RAIZ, "data", "raw", "tcu_casamentos_candidatos.json");
-  writeFileSync(CANDIDATOS, JSON.stringify(casados, null, 2), "utf8");
+  const CONFIRMADOS = join(RAIZ, "data", "raw", "tcu_confirmados_cpf.json");
 
-  writeFileSync(BASE_CONVERTIDA, JSON.stringify(pessoas, null, 2), "utf8");
+  /*
+    Dois arquivos, com pesos diferentes — e é isso que torna a carga possível.
+
+    1. `tcu_confirmados_cpf.json` — casados por CPF→tse_id. É identidade, não
+       semelhança: um CPF pertence a uma pessoa só. Serve para carga.
+    2. `tcu_casamentos_candidatos.json` — casados por nome+UF. É indício; exige
+       curadoria humana.
+
+    Separar os dois evita o erro de tratar "parece o mesmo" e "é o mesmo" como a
+    mesma coisa — que é exatamente o que este pipeline vinha fazendo.
+  */
+  const jsonConfirmados = JSON.stringify(confirmadosPorCpf, null, 2);
+  const jsonCandidatos = JSON.stringify(casados, null, 2);
+  const jsonBase = JSON.stringify(pessoas.map(paraArquivo), null, 2);
+
+  // Guarda antes de qualquer gravação: se houver CPF no conteúdo, nada é escrito.
+  garantirSemCpf(jsonConfirmados, "tcu_confirmados_cpf.json");
+  garantirSemCpf(jsonCandidatos, "tcu_casamentos_candidatos.json");
+  garantirSemCpf(jsonBase, "tcu_base_convertida.json");
+
+  writeFileSync(CONFIRMADOS, jsonConfirmados, "utf8");
+  writeFileSync(CANDIDATOS, jsonCandidatos, "utf8");
+  writeFileSync(BASE_CONVERTIDA, jsonBase, "utf8");
+
   console.log(`\n   ✅ ${pessoas.length} registros em data/raw/tcu_base_convertida.json`);
-  console.log(`   ✅ ${casados.length} candidato(s) em data/raw/tcu_casamentos_candidatos.json`);
+  console.log(`   ✅ ${confirmadosPorCpf.length} confirmado(s) por CPF em data/raw/tcu_confirmados_cpf.json`);
+  console.log(`   ✅ ${casados.length} candidato(s) por nome em data/raw/tcu_casamentos_candidatos.json`);
   console.log(
-    "\n   ⚠️  NADA foi escrito em tcu_contas_rejeitadas_raw.json de propósito.\n" +
-      "      Atribuir sanção a pessoa por nome comum exige revisão com documento\n" +
-      "      ou UF — o acervo não guarda nenhum dos dois. Revise os candidatos e\n" +
-      "      monte o arquivo de carga à mão com os casos confirmados.\n",
+    "\n   Nenhum CPF foi escrito: a guarda recusa sequência de 11 dígitos em\n" +
+      "   qualquer saída. O CPF existe apenas na memória do processo.\n" +
+      "      Carga determinística: use tcu_confirmados_cpf.json.\n" +
+      "      Curadoria: revise tcu_casamentos_candidatos.json.\n",
   );
 }
 
