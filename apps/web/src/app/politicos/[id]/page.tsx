@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { BotaoAcompanhar } from "@/components/BotaoAcompanhar";
 import { estadoAcompanhamento } from "@/lib/acompanhamento";
+import { chaveTipoJuridico, chaveStatusJuridico } from "@/lib/juridico";
+import { tradutor } from "@/lib/i18n/t";
+import { obterIdioma } from "@/lib/i18n/servidor";
 import { formatarNota, formatarPercentual } from "@/lib/formato";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -120,6 +123,7 @@ export default async function PoliticoPage({ params }: Props) {
   if (!politician) notFound();
 
   const acompanhamento = await estadoAcompanhamento("POLITICIAN", politician.id);
+  const tr = tradutor(await obterIdioma());
 
   const currentTerm = politician.terms[0];
   const score = currentTerm?.scores[0];
@@ -297,10 +301,23 @@ export default async function PoliticoPage({ params }: Props) {
               {politician.legalRecords.map((rec) => (
                 <li key={rec.id} className="border-l-4 border-red-500/60 py-1 pl-3">
                   <div className="text-sm font-medium text-slate-200">
-                    {rec.type.replace("_", " ")}
+                    {/* Rótulo humano e juridicamente preciso. O valor cru do
+                        enum aparecia como "ACCOUNTS REJECTED" — inglês, em
+                        maiúsculas de banco de dados, num site em português. */}
+                    {(() => {
+                      const chave = chaveTipoJuridico(rec.type);
+                      return chave ? tr(chave) : rec.type.replace(/_/g, " ").toLowerCase();
+                    })()}
                   </div>
                   <div className="text-xs text-slate-400">
-                    {rec.court ?? "órgão não informado"} · {rec.status.replace(/_/g, " ").toLowerCase()}
+                    {rec.court ?? "—"}
+                    {" · "}
+                    {(() => {
+                      const chave = chaveStatusJuridico(rec.status);
+                      return chave
+                        ? tr(chave)
+                        : rec.status.replace(/_/g, " ").toLowerCase();
+                    })()}
                   </div>
                   {rec.sourceUrl && (
                     <a
