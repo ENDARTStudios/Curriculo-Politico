@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import { CONTATO } from "@/lib/contato";
 
 export const metadata: Metadata = {
@@ -160,12 +161,14 @@ const SECOES = [
 export default function TermosDeUsoPage() {
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-        Termos de Uso
-      </h1>
-      <p className="mt-2 text-sm text-slate-400">
-        Última atualização: setembro de 2026
-      </p>
+      <CabecalhoPagina
+        titulo="Termos de Uso"
+        lead={
+          <>
+            Última atualização: setembro de 2026
+          </>
+        }
+      />
 
       <div className="mt-8 space-y-10 rounded-2xl border border-slate-800 bg-slate-900/60 p-8">
         {SECOES.map((secao) => (

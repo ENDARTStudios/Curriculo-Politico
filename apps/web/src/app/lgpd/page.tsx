@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import Link from "next/link";
 import { CONTATO, mailto } from "@/lib/contato";
 
@@ -11,13 +12,15 @@ export const metadata: Metadata = {
 export default function LGPDPage() {
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-        Lei Geral de Proteção de Dados (LGPD)
-      </h1>
-      <p className="mt-3 max-w-3xl text-xl leading-relaxed text-slate-400">
-        Como o Currículo Político trata dados pessoais em conformidade com a Lei
-        nº 13.709/2018.
-      </p>
+      <CabecalhoPagina
+        titulo="Lei Geral de Proteção de Dados (LGPD)"
+        lead={
+          <>
+            Como o Currículo Político trata dados pessoais em conformidade com a Lei
+            nº 13.709/2018.
+          </>
+        }
+      />
 
       <div className="mt-10 space-y-8 rounded-2xl border border-slate-800 bg-slate-900/60 p-8">
         <section>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import Link from "next/link";
 
 // A metadata desta rota vive em `layout.tsx`: este é um Client Component e o
@@ -187,12 +188,14 @@ export default function FAQPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-        Perguntas Frequentes
-      </h1>
-      <p className="mt-3 text-xl text-slate-400">
-        Tudo o que você precisa saber sobre o Currículo Político.
-      </p>
+      <CabecalhoPagina
+        titulo="Perguntas Frequentes"
+        lead={
+          <>
+            Tudo o que você precisa saber sobre o Currículo Político.
+          </>
+        }
+      />
 
       <div className="mt-10 space-y-3">
         {FAQS.map((faq, i) => (

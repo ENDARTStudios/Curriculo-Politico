@@ -45,6 +45,7 @@ npm run verify:secrets:test # autoteste das regras do scanner
 npm run verify:formato      # proíbe `.toFixed(` em .tsx (número com ponto decimal)
 npm run verify:formularios  # todo controle de formulário com nome acessível
 npm run verify:diretivas    # `"use client"` como primeira instrução do módulo
+npm run verify:cabecalhos   # `<h1>` só via CabecalhoPagina (exceções documentadas)
 npm run verify:tokens       # paleta de estado em fonte única
 npm run audit:visual        # 28 rotas × 2 viewports: axe + overflow + captura
 ```
@@ -54,7 +55,7 @@ renderizada e o comportamento em 375px / 768px / 1280px.
 
 ### Guardas automatizados
 
-Sete proteções existem porque as armadilhas abaixo já custaram tempo e risco
+Oito proteções existem porque as armadilhas abaixo já custaram tempo e risco
 reais. Todas são scripts versionados, não disciplina — e todas foram escritas
 depois de um defeito concreto, não antes.
 
@@ -65,6 +66,7 @@ depois de um defeito concreto, não antes.
 | `verify:formato` | `.toFixed(` em `.tsx` | `/partidos` exibindo `62.6` e eixo `R$ 1.50M` |
 | `verify:formularios` | controle sem nome acessível | `aria-invalid`/`aria-describedby` em zero |
 | `verify:diretivas` | `"use client"` fora da 1ª linha | dois arquivos quebrados por script de import |
+| `verify:cabecalhos` | `<h1>` fora de `CabecalhoPagina` | título em 3 escalas e lead em 3 tamanhos |
 | `verify:tokens` | paleta de estado redefinida | cor duplicada fora de `status-visual.ts` |
 | `audit:visual` | axe, overflow e regressão em 28 rotas | 6 rotas com defeito que o e2e não cobria |
 

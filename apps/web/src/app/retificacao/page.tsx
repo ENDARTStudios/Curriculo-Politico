@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import { CONTATO, mailto } from "@/lib/contato";
 
 /**
@@ -157,15 +158,17 @@ export default function RetificacaoPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-        Retificação e Direitos do Titular
-      </h1>
-      <p className="mt-2 text-slate-400">
-        Canal para <strong className="text-slate-200">qualquer titular de dados</strong> —
-        agentes públicos e assessorias, usuários cadastrados e terceiros —
-        exercer os direitos do Art. 18 da LGPD: retificação, acesso,
-        eliminação e demais solicitações.
-      </p>
+      <CabecalhoPagina
+        titulo="Retificação e Direitos do Titular"
+        lead={
+          <>
+            Canal para <strong className="text-slate-200">qualquer titular de dados</strong> —
+            agentes públicos e assessorias, usuários cadastrados e terceiros —
+            exercer os direitos do Art. 18 da LGPD: retificação, acesso,
+            eliminação e demais solicitações.
+          </>
+        }
+      />
 
       {protocolo ? (
         <div className="mt-8 rounded-xl border border-emerald-500/40 bg-emerald-500/5 p-6">

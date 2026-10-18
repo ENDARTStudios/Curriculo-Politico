@@ -2,6 +2,7 @@ import { formatarNota, formatarPercentual } from "@/lib/formato";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { IdeologyBadge } from "@/components/IdeologyBadge";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import Link from "next/link";
 import type { ReliabilityStatus } from "@prisma/client";
 
@@ -104,20 +105,24 @@ export default async function PartidosPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">Partidos</h1>
-        <a
-          href="/partidos/comparar"
-          className="rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-sky-400"
-        >
-          ⚖️ Comparar Partidos
-        </a>
-      </div>
-      <p className="-mt-4 mb-8 max-w-3xl text-slate-400">
-        Agregação por sigla do mandato atual. A nota média considera apenas
-        parlamentares com confiança ≥ 60% — perfis GRAY usam baseline
-        provisório e distorceriam a média.
-      </p>
+      <CabecalhoPagina
+        titulo="Partidos"
+        lead={
+          <>
+            Agregação por sigla do mandato atual. A nota média considera apenas
+            parlamentares com confiança ≥ 60% — perfis GRAY usam baseline
+            provisório e distorceriam a média.
+          </>
+        }
+        acoes={
+          <Link
+            href="/partidos/comparar"
+            className="rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-sky-400"
+          >
+            ⚖️ Comparar Partidos
+          </Link>
+        }
+      />
 
       {/* Região rolável precisa ser alcançável por teclado (WCAG 2.1.1): sem
           `tabIndex`, quem não usa mouse vê a tabela cortada e não consegue rolar.

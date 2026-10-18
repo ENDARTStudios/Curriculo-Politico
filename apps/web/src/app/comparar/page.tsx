@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import { prisma } from "@/lib/prisma";
 import { ComparacaoCards } from "@/components/ComparacaoCards";
 
@@ -60,14 +61,16 @@ export default async function CompararPage({ searchParams }: Props) {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-        Comparar Políticos
-      </h1>
-      <p className="mt-2 max-w-3xl text-slate-400">
-        Selecione de 2 a 3 políticos para comparar desempenho e confiança lado
-        a lado. Use os filtros para achar rapidamente entre {dados.length}{" "}
-        parlamentares com confiança ≥ 60%.
-      </p>
+      <CabecalhoPagina
+        titulo="Comparar Políticos"
+        lead={
+          <>
+            Selecione de 2 a 3 políticos para comparar desempenho e confiança lado
+            a lado. Use os filtros para achar rapidamente entre {dados.length}{" "}
+            parlamentares com confiança ≥ 60%.
+          </>
+        }
+      />
 
       <div className="mt-8">
         <ComparacaoCards politicians={dados} initialIds={initialIds} />

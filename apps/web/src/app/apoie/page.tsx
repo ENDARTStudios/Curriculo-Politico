@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import Link from "next/link";
 import { CONTATO, mailto } from "@/lib/contato";
 
@@ -14,13 +15,15 @@ export default function ApoiePage() {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-        Apoie o Currículo Político
-      </h1>
-      <p className="mt-3 max-w-2xl text-xl leading-relaxed text-slate-400">
-        Somos um projeto 100% gratuito e open source. Sua ajuda mantém a
-        transparência política acessível a todos.
-      </p>
+      <CabecalhoPagina
+        titulo="Apoie o Currículo Político"
+        lead={
+          <>
+            Somos um projeto 100% gratuito e open source. Sua ajuda mantém a
+            transparência política acessível a todos.
+          </>
+        }
+      />
 
       <div className="mt-10 grid gap-6 md:grid-cols-2">
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">

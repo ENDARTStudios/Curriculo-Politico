@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import { Suspense } from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
@@ -108,15 +109,17 @@ export default async function ProjetosPage({ searchParams }: Props) {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-        Projetos de Lei e Proposições
-      </h1>
-      <p className="mt-2 text-slate-400">
-        {/* `totalBase`, não `total`: o acervo não muda com o filtro aplicado. */}
-        {formatarInteiro(totalBase)} proposições catalogadas de autoria dos
-        parlamentares na base. A votação popular em cada projeto é uma camada
-        de engajamento pessoal e nunca altera a nota IDIP dos autores.
-      </p>
+      <CabecalhoPagina
+        titulo="Projetos de Lei e Proposições"
+        lead={
+          <>
+            {/* `totalBase`, não `total`: o acervo não muda com o filtro aplicado. */}
+            {formatarInteiro(totalBase)} proposições catalogadas de autoria dos
+            parlamentares na base. A votação popular em cada projeto é uma camada
+            de engajamento pessoal e nunca altera a nota IDIP dos autores.
+          </>
+        }
+      />
 
       <div className="mt-8">
         <Suspense fallback={<div className="text-slate-400">Carregando filtros...</div>}>

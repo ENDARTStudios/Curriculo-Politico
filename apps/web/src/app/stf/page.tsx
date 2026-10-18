@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { DIMENSOES_STF } from "@/lib/methodology";
@@ -46,14 +47,16 @@ export default async function STFPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-        Supremo Tribunal Federal
-      </h1>
-      <p className="mt-3 max-w-3xl text-lg leading-relaxed text-slate-300">
-        O IDIP avalia também o Judiciário, com um conjunto de pesos próprio:
-        ministro do STF é nomeado, não eleito, então as dimensões de mandato
-        (aprovação, campanha, presença em sessão) não se aplicam.
-      </p>
+      <CabecalhoPagina
+        titulo="Supremo Tribunal Federal"
+        lead={
+          <>
+            O IDIP avalia também o Judiciário, com um conjunto de pesos próprio:
+            ministro do STF é nomeado, não eleito, então as dimensões de mandato
+            (aprovação, campanha, presença em sessão) não se aplicam.
+          </>
+        }
+      />
 
       {/*
         Estado da coleta, declarado antes da metodologia de propósito: o visitante

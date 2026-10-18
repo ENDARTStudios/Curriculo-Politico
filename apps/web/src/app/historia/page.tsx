@@ -1,4 +1,5 @@
 import { formatarInteiro } from "@/lib/formato";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
@@ -32,14 +33,16 @@ export default async function HistoriaPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-        Ranking Histórico da Política Brasileira
-      </h1>
-      <p className="mt-3 max-w-3xl text-xl leading-relaxed text-slate-400">
-        Avaliação de figuras históricas com base em legado institucional,
-        estabilidade democrática e fatos documentados. Metodologia adaptada por
-        era.
-      </p>
+      <CabecalhoPagina
+        titulo="Ranking Histórico da Política Brasileira"
+        lead={
+          <>
+            Avaliação de figuras históricas com base em legado institucional,
+            estabilidade democrática e fatos documentados. Metodologia adaptada por
+            era.
+          </>
+        }
+      />
 
       <div className="mt-8 rounded-xl border border-amber-500/30 bg-amber-500/5 p-6">
         <h3 className="mb-2 font-semibold text-slate-100">⚠️ Sobre este ranking</h3>
