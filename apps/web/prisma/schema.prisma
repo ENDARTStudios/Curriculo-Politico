@@ -109,6 +109,58 @@ model Term {
   @@index([officeId])
 }
 
+/// Histórico de mudanças por entidade.
+///
+/// ── Por que uma tabela de fatos, e não colunas "updatedAt" ─────────────────
+/// A pergunta que a plataforma precisa responder é "o que mudou desde a última
+/// vez que eu olhei?" — e isso não cabe em `updatedAt`, que guarda apenas a
+/// última escrita. Também não cabe em `ScoreSnapshot`, que só cobre nota.
+///
+/// Cada linha é **uma mudança de um campo**, com valor antes e depois, e
+/// `ocorridoEm` separado de `criadoEm`: o dado pode ter mudado em 1º de março e
+/// sido carregado em 15 de março. Guardar as duas datas é o que permite dizer
+/// "mudou em março" sem mentir sobre quando o sistema soube.
+///
+/// ── Por que textos, e não tipos por campo ──────────────────────────────────
+/// `valorAntes`/`valorDepois` são `String?` porque o mesmo log guarda nota
+/// (`70.0` → `72.5`), estado (`YELLOW` → `GREEN`) e contagem. Tipar por campo
+/// exigiria uma tabela por tipo e complicaria a consulta "tudo que mudou nesta
+/// entidade" — que é justamente a consulta que a dashboard faz.
+model ChangeLog {
+  id          String       @id @default(cuid())
+  entidade    ChangeEntity
+  /// Person.id, Party.id ou Bill.id. Sem FK de propósito: o log sobrevive à
+  /// remoção da entidade — um histórico que desaparece junto com o dado não é
+  /// histórico.
+  entidadeId  String
+  tipo        ChangeType
+  campo       String
+  valorAntes  String?
+  valorDepois String?
+  /// Quando a mudança aconteceu no mundo, não quando foi registrada.
+  ocorridoEm  DateTime
+  criadoEm    DateTime     @default(now())
+
+  // Idempotência do backfill: reprocessar o mesmo snapshot não duplica linha.
+  @@unique([entidade, entidadeId, campo, ocorridoEm])
+  @@index([entidade, entidadeId, ocorridoEm])
+  @@index([ocorridoEm])
+}
+
+enum ChangeEntity {
+  PERSON
+  PARTY
+  BILL
+}
+
+enum ChangeType {
+  SCORE
+  STATUS
+  FINANCE
+  LEGAL
+  PROFILE
+}
+
 /// Histórico mensal da nota (Rastreamento Temporal — /metodologia)
 model ScoreSnapshot {
   id                String            @id @default(cuid())

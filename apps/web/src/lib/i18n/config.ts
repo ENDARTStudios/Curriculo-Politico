@@ -22,7 +22,7 @@
  * mudar nenhuma URL existente.
  */
 
-export const LOCALES = ["pt-BR", "es-US", "es-ES"] as const;
+export const LOCALES = ["pt-BR", "en-US", "es-US", "es-ES"] as const;
 
 export type Locale = (typeof LOCALES)[number];
 
@@ -34,6 +34,7 @@ export const COOKIE_IDIOMA = "cp_idioma";
 /** Rótulo de cada idioma, escrito **no próprio idioma**. */
 export const ROTULO_IDIOMA: Record<Locale, string> = {
   "pt-BR": "Português",
+  "en-US": "English",
   "es-US": "Español (EE. UU.)",
   "es-ES": "Español (España)",
 };
@@ -41,6 +42,7 @@ export const ROTULO_IDIOMA: Record<Locale, string> = {
 /** Código BCP-47 para `<html lang>` e para `Intl`. */
 export const TAG_HTML: Record<Locale, string> = {
   "pt-BR": "pt-BR",
+  "en-US": "en-US",
   "es-US": "es-US",
   "es-ES": "es-ES",
 };
@@ -61,6 +63,7 @@ export function normalizarLocale(valor: string | undefined | null): Locale {
   }
 
   if (v.startsWith("pt")) return "pt-BR";
+  if (v.startsWith("en")) return "en-US";
   // `es-US` é o público latino nos EUA; qualquer outro espanhol cai em es-ES,
   // que é a variante com mais material de referência.
   if (v === "es-us" || v === "es_us") return "es-US";
