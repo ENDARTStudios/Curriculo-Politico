@@ -25,54 +25,83 @@ export default function ApoiePage() {
         }
       />
 
-      <div className="mt-10 grid gap-6 md:grid-cols-2">
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
-          <div className="mb-3 text-3xl">💰</div>
-          <h3 className="mb-2 text-xl font-bold text-slate-100">Doação via Pix</h3>
-          <p className="mb-4 text-sm leading-relaxed text-slate-400">
-            Qualquer valor ajuda a manter os servidores e APIs funcionando.
-          </p>
-          <div className="rounded-lg bg-slate-800/60 p-4 text-center">
-            <p className="mb-2 text-xs text-slate-400">Chave Pix (CNPJ):</p>
-            {pixKey ? (
-              <p className="font-mono text-lg font-bold text-slate-100">{pixKey}</p>
-            ) : (
-              <p className="text-sm italic text-slate-400">
-                Chave em configuração
-              </p>
-            )}
-          </div>
-        </div>
+      {/*
+        Só aparece o canal que existe.
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
-          <div className="mb-3 text-3xl">⭐</div>
-          <h3 className="mb-2 text-xl font-bold text-slate-100">
-            GitHub Sponsors
-          </h3>
-          <p className="mb-4 text-sm leading-relaxed text-slate-400">
-            Apoie mensalmente e receba reconhecimento como patrocinador.
-          </p>
-          {sponsorsUrl ? (
-            <a
-              href={sponsorsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block w-full rounded-lg bg-slate-800 px-4 py-2 text-center text-white transition hover:bg-slate-700"
-            >
-              Patrocinar no GitHub
-            </a>
-          ) : (
-            <a
-              href="https://github.com/ENDARTStudios/Curriculo-Politico"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block w-full rounded-lg border border-slate-700 px-4 py-2 text-center text-sm text-slate-300 transition hover:bg-slate-800"
-            >
-              Ver repositório no GitHub
-            </a>
+        Antes, sem `NEXT_PUBLIC_PIX_KEY` configurada, o card do Pix continuava na
+        tela anunciando "Doação via Pix" e, no lugar da chave, exibia
+        **"Chave em configuração"** em itálico. Uma página de doação que oferece um
+        meio de pagamento que não recebe nada é pior que uma que não o oferece: a
+        pessoa tenta doar e não consegue, e a confiança cai no ponto em que ela
+        estava mais disposta a ajudar.
+
+        É a mesma regra da faixa de prova da home, que some quando o banco está
+        vazio em vez de mostrar zero.
+      */}
+      {(pixKey || sponsorsUrl) && (
+        <div className="mt-10 grid gap-6 md:grid-cols-2">
+          {pixKey && (
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+              <div className="mb-3 text-3xl">💰</div>
+              <h2 className="mb-2 text-xl font-bold text-slate-100">
+                Doação via Pix
+              </h2>
+              <p className="mb-4 text-sm leading-relaxed text-slate-400">
+                Qualquer valor ajuda a manter os servidores e APIs funcionando.
+              </p>
+              <div className="rounded-lg bg-slate-800/60 p-4 text-center">
+                <p className="mb-2 text-xs text-slate-400">Chave Pix (CNPJ)</p>
+                <p className="font-mono text-lg font-bold text-slate-50">{pixKey}</p>
+              </div>
+            </div>
+          )}
+
+          {sponsorsUrl && (
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+              <div className="mb-3 text-3xl">⭐</div>
+              <h2 className="mb-2 text-xl font-bold text-slate-100">
+                GitHub Sponsors
+              </h2>
+              <p className="mb-4 text-sm leading-relaxed text-slate-400">
+                Apoie mensalmente e receba reconhecimento como patrocinador.
+              </p>
+              <a
+                href={sponsorsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block w-full rounded-lg bg-sky-500 px-4 py-2 text-center font-semibold text-slate-950 transition hover:bg-sky-400"
+              >
+                Patrocinar no GitHub
+              </a>
+            </div>
           )}
         </div>
-      </div>
+      )}
+
+      {/*
+        Sem canal de pagamento ativo, a página não fica vazia nem finge: diz o que
+        está acontecendo e oferece as formas que existem hoje — código, divulgação
+        e relato de erro não dependem de configuração nenhuma.
+      */}
+      {!pixKey && !sponsorsUrl && (
+        <div className="mt-10 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+          <h2 className="text-xl font-bold text-slate-100">
+            Doações ainda não estão abertas
+          </h2>
+          <p className="mt-2 max-w-[65ch] text-sm leading-relaxed text-slate-400">
+            Os canais de contribuição financeira estão em configuração. Enquanto
+            isso, as formas abaixo ajudam do mesmo jeito — e algumas ajudam mais.
+          </p>
+          <a
+            href="https://github.com/ENDARTStudios/Curriculo-Politico"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-block rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-300 transition hover:bg-slate-800"
+          >
+            Ver o repositório no GitHub
+          </a>
+        </div>
+      )}
 
       <div className="mt-8 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
         <h3 className="mb-4 text-xl font-bold text-slate-100">
