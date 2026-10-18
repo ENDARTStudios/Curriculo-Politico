@@ -34,6 +34,7 @@ const DRY = process.argv.includes("--dry");
 interface Linha {
   nome: string;
   processo: string;
+  uf?: string;
   data_decisao?: string;
   orgao?: string;
 }
@@ -57,6 +58,7 @@ function lerCsv(): { total: number; pessoas: Linha[]; empresas: number; semDoc: 
   const iDoc = cabecalho.findIndex((c) => /cpf/i.test(c));
   const iProcesso = cabecalho.findIndex((c) => /^processo$/i.test(c.trim()));
   const iLink = cabecalho.findIndex((c) => /link do processo/i.test(c));
+  const iUf = cabecalho.findIndex((c) => /^uf$/i.test(c.trim()));
 
   if (iNome < 0 || iDoc < 0 || iProcesso < 0) {
     throw new Error(
@@ -90,10 +92,13 @@ function lerCsv(): { total: number; pessoas: Linha[]; empresas: number; semDoc: 
 
     const link = iLink >= 0 ? (campos[iLink] ?? "").trim() : "";
 
+    const uf = iUf >= 0 ? (campos[iUf] ?? "").trim().toUpperCase() : "";
+
     pessoas.push({
       nome,
       processo,
       orgao: "TCU",
+      ...(uf ? { uf } : {}),
       ...(link ? { data_decisao: undefined } : {}),
     });
   }
@@ -130,19 +135,43 @@ async function main() {
 
   // Declarados fora do `try` porque são usados depois do `finally`, na gravação
   // dos candidatos — dentro do bloco, sairiam de escopo.
-  const casados: { nome: string; id: string; processo: string }[] = [];
+  const casados: {
+    nome: string;
+    id: string;
+    processo: string;
+    ufPolitico: string | null;
+    ufTcu: string | null;
+    evidencia: "nome+uf" | "nome";
+  }[] = [];
   const ambiguos: string[] = [];
+  const descartadosPorUf: { nome: string; ufTcu: string; ufPolitico: string }[] = [];
 
   try {
     const pessoasBanco = await prisma.person.findMany({
-      select: { id: true, politicalName: true, civilName: true },
+      select: {
+        id: true,
+        politicalName: true,
+        civilName: true,
+        // A UF vem do cargo, não de uma coluna nova: o carregador cria um
+        // `Office` por UF com `jurisdiction` de 2 letras. Verificado: 594/594
+        // termos têm UF e nenhuma pessoa tem mais de uma.
+        terms: { select: { office: { select: { jurisdiction: true } } } },
+      },
     });
-    const porNome = new Map<string, { id: string; nome: string }[]>();
+    const porNome = new Map<
+      string,
+      { id: string; nome: string; ufs: Set<string> }[]
+    >();
     for (const p of pessoasBanco) {
+      const ufs = new Set(
+        p.terms
+          .map((t) => t.office.jurisdiction ?? "")
+          .filter((j) => /^[A-Z]{2}$/.test(j)),
+      );
       for (const n of [p.politicalName, p.civilName]) {
         const k = normalizar(n);
         const atual = porNome.get(k) ?? [];
-        atual.push({ id: p.id, nome: p.politicalName });
+        atual.push({ id: p.id, nome: p.politicalName, ufs });
         porNome.set(k, atual);
       }
     }
@@ -154,13 +183,51 @@ async function main() {
         ambiguos.push(linha.nome);
         continue;
       }
-      casados.push({ nome: achados[0].nome, id: achados[0].id, processo: linha.processo });
+
+      const alvo = achados[0];
+      const ufTcu = linha.uf ?? null;
+      const ufPolitico = [...alvo.ufs][0] ?? null;
+
+      /*
+        UF como evidência, não como certeza.
+
+        Nome completo igual **e** mesmo estado é um indício forte; nome igual em
+        estado diferente é quase certamente homônimo e é descartado. Mas dois
+        "Carlos Gomes" no mesmo estado ainda são possíveis — por isso o resultado
+        continua sendo candidato para curadoria, e não carga automática.
+      */
+      if (ufTcu && ufPolitico && ufTcu !== ufPolitico) {
+        descartadosPorUf.push({ nome: linha.nome, ufTcu, ufPolitico });
+        continue;
+      }
+
+      casados.push({
+        nome: alvo.nome,
+        id: alvo.id,
+        processo: linha.processo,
+        ufPolitico,
+        ufTcu,
+        evidencia: ufTcu && ufPolitico ? "nome+uf" : "nome",
+      });
     }
 
+    const comUf = casados.filter((c) => c.evidencia === "nome+uf");
     console.log(`\n   casados com o acervo: ${casados.length}`);
+    console.log(`      com nome + UF: ${comUf.length}`);
+    console.log(`      só nome (sem UF no CSV ou no acervo): ${casados.length - comUf.length}`);
+    console.log(`   descartados por UF divergente: ${descartadosPorUf.length}`);
     console.log(`   ambíguos (mais de uma pessoa com o mesmo nome): ${ambiguos.length}`);
-    for (const c of casados.slice(0, 8)) {
-      console.log(`      ${c.nome} — processo ${c.processo}`);
+
+    for (const c of casados.slice(0, 10)) {
+      console.log(
+        `      ${c.nome} (${c.ufPolitico ?? "??"}) — processo ${c.processo} [${c.evidencia}]`,
+      );
+    }
+    if (descartadosPorUf.length > 0) {
+      console.log(`\n   descartados por UF (provável homônimo):`);
+      for (const d of descartadosPorUf.slice(0, 5)) {
+        console.log(`      ${d.nome} — TCU:${d.ufTcu} vs acervo:${d.ufPolitico}`);
+      }
     }
     if (ambiguos.length > 0) {
       console.log(`\n   ⚠️  ambíguos NÃO devem ser carregados sem revisão:`);
