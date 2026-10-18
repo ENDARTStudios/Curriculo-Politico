@@ -123,8 +123,32 @@ async function main() {
     return;
   }
 
-  // `createMany` com `skipDuplicates` usa a chave única como guarda: o banco
-  // recusa o que já existe e o restante entra numa transação só.
+  /*
+    ── Mês corrente: recalcula. Meses passados: intocados. ──────────────────
+
+    `ChangeLog` parece um log de auditoria, mas não é: é **dado derivado** — a
+    diferença entre snapshots consecutivos, materializada para ser consultável e
+    indexável por data. Por isso pode ser reconciliado quando a fonte muda.
+
+    E a fonte muda: `db:snapshot` passou a atualizar o snapshot do mês corrente
+    (ver o comentário lá), então uma correção no meio do mês altera as diferenças.
+    Sem apagar e regravar este mês, a chave única preservaria as linhas antigas e o
+    histórico continuaria dizendo 66,8 para quem hoje vale 39,9.
+
+    Meses fechados não são tocados: reescrever passado é reescrever história.
+  */
+  const agora = new Date();
+  const inicioDoMes = new Date(
+    Date.UTC(agora.getUTCFullYear(), agora.getUTCMonth(), 1),
+  );
+
+  const apagadas = await prisma.changeLog.deleteMany({
+    where: { ocorridoEm: { gte: inicioDoMes } },
+  });
+  console.log(`   mês corrente reconciliado: ${apagadas.count} linha(s) removida(s)`);
+
+  // `createMany` com `skipDuplicates` protege os meses passados: a chave única
+  // `(entidade, entidadeId, campo, ocorridoEm)` recusa o que já existe.
   let gravadas = 0;
   const LOTE = 500;
   for (let i = 0; i < mudancas.length; i += LOTE) {

@@ -45,13 +45,72 @@ async function snapshot() {
     breakdown: breakdown(s),
   }));
 
-  // createMany + skipDuplicates: mais rápido que upsert por linha (500+)
-  const res = await prisma.scoreSnapshot.createMany({
-    data,
-    skipDuplicates: true,
-  });
+  /*
+    ── Mês corrente: atualiza. Meses passados: nunca.
 
-  console.log(`✅ ${res.count} snapshots criados (de ${scores.length} scores não-GRAY).`);
+    A versão anterior usava `skipDuplicates` para tudo, o que era idempotente mas
+    **errado dentro do mês**: se a nota mudasse no dia 18 (trava de integridade,
+    recálculo, correção de dado), o snapshot do dia 1 continuava com o valor
+    antigo. O site mostrava 39,9 e o histórico dizia 66,8 para a mesma data —
+    exatamente o tipo de divergência que a plataforma não pode ter.
+
+    Pior: `bot:historico` deriva de snapshots, então a mudança **não aparecia em
+    "novidades"** nenhuma. Foi assim que o problema apareceu — carreguei três
+    registros do TCU, apliquei as travas, e o bot reportou "+0 mudanças".
+
+    A regra agora:
+    - snapshot do mês corrente → `upsert`, porque o mês ainda está em curso;
+    - snapshots de meses anteriores → intocados, porque reescrever passado é
+      reescrever história.
+  */
+  const inicioDoMes = Date.UTC(
+    snapshotDate.getUTCFullYear(),
+    snapshotDate.getUTCMonth(),
+    1,
+  );
+  const doMesCorrente = (d: Date) => d.getTime() >= inicioDoMes;
+
+  let criados = 0;
+  let atualizados = 0;
+
+  for (const linha of data) {
+    if (!doMesCorrente(snapshotDate)) {
+      // Salvaguarda: nunca sobrescrever mês fechado, mesmo se a data mudar.
+      continue;
+    }
+
+    const anterior = await prisma.scoreSnapshot.findUnique({
+      where: { termId_snapshotDate: { termId: linha.termId, snapshotDate } },
+      select: { finalScore: true, reliabilityStatus: true },
+    });
+
+    if (!anterior) {
+      await prisma.scoreSnapshot.create({ data: linha });
+      criados++;
+      continue;
+    }
+
+    // Só escreve se algo mudou — evita `updatedAt`/ruído em execução repetida.
+    if (
+      anterior.finalScore !== linha.finalScore ||
+      anterior.reliabilityStatus !== linha.reliabilityStatus
+    ) {
+      await prisma.scoreSnapshot.update({
+        where: { termId_snapshotDate: { termId: linha.termId, snapshotDate } },
+        data: {
+          finalScore: linha.finalScore,
+          confidenceScore: linha.confidenceScore,
+          reliabilityStatus: linha.reliabilityStatus,
+          breakdown: linha.breakdown,
+        },
+      });
+      atualizados++;
+    }
+  }
+
+  console.log(
+    `✅ ${criados} snapshot(s) criado(s), ${atualizados} atualizado(s) no mês corrente (de ${scores.length} scores não-GRAY).`,
+  );
 }
 
 snapshot()
