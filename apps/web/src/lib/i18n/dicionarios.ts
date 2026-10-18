@@ -159,6 +159,18 @@ const ptBR = {
   "espectro.refazer": "Refazer o teste",
   "espectro.versao": "Versão do questionário: {versao}",
 
+  // ── Novidades ────────────────────────────────────────────────────────────
+  "novidades.titulo": "O que mudou desde sua última visita",
+  "novidades.desde": "Desde {data}",
+  "novidades.primeiraVisita": "Você ainda não marcou nada como visto — mostrando o histórico disponível.",
+  "novidades.vazio": "Nenhuma mudança registrada desde então nas entidades que você acompanha.",
+  "novidades.semAcompanhamento": "Acompanhe um político para ver aqui quando a nota dele mudar.",
+  "novidades.marcar": "Marcar como visto",
+  "novidades.marcado": "Marcado como visto",
+  "novidades.score": "Nota",
+  "novidades.status": "Confiabilidade",
+  "novidades.cobertura": "Hoje só nota e confiabilidade geram histórico. Financiamento e registros jurídicos ainda não têm série histórica.",
+
   // ── Comum ────────────────────────────────────────────────────────────────
   "comum.carregando": "Carregando o conteúdo…",
   "comum.erro.titulo": "Não foi possível carregar esta página",
@@ -302,6 +314,17 @@ const esUS: Record<ChaveDicionario, string> = {
   "espectro.ultimoResultado": "Tu último resultado",
   "espectro.refazer": "Rehacer el test",
   "espectro.versao": "Versión del cuestionario: {versao}",
+
+  "novidades.titulo": "Qué cambió desde tu última visita",
+  "novidades.desde": "Desde {data}",
+  "novidades.primeiraVisita": "Todavía no marcaste nada como visto — mostrando el historial disponible.",
+  "novidades.vazio": "No hay cambios registrados desde entonces en las entidades que sigues.",
+  "novidades.semAcompanhamento": "Sigue a un político para ver aquí cuando cambie su nota.",
+  "novidades.marcar": "Marcar como visto",
+  "novidades.marcado": "Marcado como visto",
+  "novidades.score": "Nota",
+  "novidades.status": "Confiabilidad",
+  "novidades.cobertura": "Hoy solo la nota y la confiabilidad generan historial. Financiamiento y registros legales aún no tienen serie histórica.",
 
   "comum.carregando": "Cargando el contenido…",
   "comum.erro.titulo": "No fue posible cargar esta página",

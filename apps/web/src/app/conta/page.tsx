@@ -7,6 +7,8 @@ import { prisma } from "@/lib/prisma";
 import { ContaAcoes } from "./ContaAcoes";
 import { CONTATO, mailto } from "@/lib/contato";
 import { listarAcompanhamentos } from "@/lib/acompanhamento";
+import { BotaoMarcarVisto } from "@/components/BotaoMarcarVisto";
+import { novidadesParaUsuario } from "@/lib/novidades";
 import { obterIdioma } from "@/lib/i18n/servidor";
 import { tradutor } from "@/lib/i18n/t";
 import { EIXOS, type Pontuacoes } from "@/lib/espectro";
@@ -63,15 +65,16 @@ export default async function ContaPage() {
   const fmt = (d: Date | null) =>
     d ? d.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "—";
 
-  // Dashboard: acompanhamentos e último resultado do espectro.
-  // As duas consultas são independentes e vão em paralelo.
-  const [acompanhamentos, ultimoEspectro] = await Promise.all([
+  // Dashboard: acompanhamentos, novidades e último resultado do espectro.
+  // As três consultas são independentes e vão em paralelo.
+  const [acompanhamentos, ultimoEspectro, novidades] = await Promise.all([
     listarAcompanhamentos(userId),
     prisma.spectrumResult.findFirst({
       where: { userId },
       orderBy: { createdAt: "desc" },
       select: { scores: true, versao: true, createdAt: true },
     }),
+    novidadesParaUsuario(userId),
   ]);
 
   /*
@@ -120,6 +123,67 @@ export default async function ContaPage() {
             </dd>
           </div>
         </dl>
+      </section>
+
+      {/* ── Novidades desde a última visita ────────────────────────────────
+          Fica acima dos acompanhamentos porque responde à pergunta que traz a
+          pessoa de volta ("mudou alguma coisa?"), enquanto a lista de
+          acompanhamentos é o inventário do que ela escolheu seguir. */}
+      <section className="mt-6 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <h2 className="text-lg font-semibold text-slate-100">
+            {tr("novidades.titulo")}
+          </h2>
+          <span className="text-xs text-slate-400">
+            {novidades.desde
+              ? tr("novidades.desde", {
+                  data: novidades.desde.toLocaleDateString("pt-BR"),
+                })
+              : tr("novidades.primeiraVisita")}
+          </span>
+        </div>
+
+        {acompanhamentos.total === 0 ? (
+          <p className="mt-3 text-sm leading-relaxed text-slate-300">
+            {tr("novidades.semAcompanhamento")}
+          </p>
+        ) : novidades.novidades.length === 0 ? (
+          <p className="mt-3 text-sm leading-relaxed text-slate-300">
+            {tr("novidades.vazio")}
+          </p>
+        ) : (
+          <ul className="mt-4 divide-y divide-slate-800">
+            {novidades.novidades.map((n) => (
+              <li key={n.id} className="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-2.5">
+                <Link
+                  href={n.href}
+                  className="min-w-0 flex-1 truncate text-sm font-medium text-slate-200 hover:text-slate-50 hover:underline"
+                >
+                  {n.rotulo}
+                </Link>
+                <span className="text-xs text-slate-400">
+                  {n.tipo === "SCORE" ? tr("novidades.score") : tr("novidades.status")}
+                </span>
+                <span className="font-mono text-sm tabular-nums text-slate-300">
+                  {n.valorAntes ?? "—"} <span aria-hidden="true">→</span>{" "}
+                  <span className="text-slate-100">{n.valorDepois ?? "—"}</span>
+                </span>
+                <time
+                  dateTime={n.ocorridoEm.toISOString()}
+                  className="w-full text-xs text-slate-400 sm:w-auto"
+                >
+                  {n.ocorridoEm.toLocaleDateString("pt-BR")}
+                </time>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <BotaoMarcarVisto desabilitado={novidades.novidades.length === 0} />
+
+        <p className="mt-3 text-xs leading-relaxed text-slate-400">
+          {tr("novidades.cobertura")}
+        </p>
       </section>
 
       {/* ── Dashboard: o que a pessoa acompanha ─────────────────────────────
