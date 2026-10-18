@@ -147,6 +147,17 @@ export const enUS: Record<ChaveDicionario, string> = {
   "espectro.refazer": "Retake the test",
   "espectro.versao": "Questionnaire version: {versao}",
 
+  "novidades.titulo": "What changed since your last visit",
+  "novidades.desde": "Since {data}",
+  "novidades.primeiraVisita": "You have not marked anything as seen yet — showing the available history.",
+  "novidades.vazio": "No changes recorded since then in the entities you follow.",
+  "novidades.semAcompanhamento": "Follow a politician to see here when their score changes.",
+  "novidades.marcar": "Mark as seen",
+  "novidades.marcado": "Marked as seen",
+  "novidades.score": "Score",
+  "novidades.status": "Reliability",
+  "novidades.cobertura": "Only scores and reliability generate history today. Campaign finance and legal records do not have a historical series yet.",
+
   "comum.carregando": "Loading content…",
   "comum.erro.titulo": "We could not load this page",
   "comum.erro.lead":

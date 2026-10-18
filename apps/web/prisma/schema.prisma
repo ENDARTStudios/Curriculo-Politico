@@ -216,6 +216,12 @@ model User {
   politicalConsentVersion     String? // versão do consentimento específico (dado sensível)
   politicalConsentAt          DateTime?
   politicalConsentWithdrawnAt DateTime? // revogação — elimina UserBillVote
+  /// Até quando a pessoa já viu as mudanças na área dela.
+  ///
+  /// É um marcador de **leitura**, não de acesso: abrir a dashboard não deve
+  /// apagar as novidades — quem abre e sai sem ler perderia o que importava.
+  /// Só avança quando a pessoa clica em "marcar como visto".
+  novidadesVistasEm          DateTime?
   accounts                    Account[]
   sessions                    Session[]
   billVotes                   UserBillVote[]
