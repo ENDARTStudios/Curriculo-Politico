@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { RODAPE } from "@/lib/navegacao";
+import { obterIdioma } from "@/lib/i18n/servidor";
+import { tradutor } from "@/lib/i18n/t";
 
 /**
  * Rodapé do site.
@@ -18,7 +20,12 @@ import { RODAPE } from "@/lib/navegacao";
  * `SiteHeader`). Ele continua no rodapé porque é convenção útil, mas não é mais
  * o único caminho para entrar.
  */
-export function SiteFooter() {
+export async function SiteFooter() {
+  // Componente de servidor: lê o idioma direto, sem passar pelo contexto do
+  // cliente. O rodapé é estático o bastante para não justificar um hook.
+  const locale = await obterIdioma();
+  const tr = tradutor(locale);
+
   return (
     <footer className="mt-20 border-t border-slate-800/80 bg-slate-950">
       <div className="mx-auto max-w-5xl px-6 py-14">
@@ -44,14 +51,14 @@ export function SiteFooter() {
               dado público auditável.
             </p>
             <p className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-300">
-              <span aria-hidden="true">🟢</span> Código aberto · AGPL-3.0
+              <span aria-hidden="true">🟢</span> {tr("rodape.codigoAberto")}
             </p>
           </div>
 
           {RODAPE.map((coluna) => (
-            <div key={coluna.titulo}>
+            <div key={coluna.chaveTitulo}>
               <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
-                {coluna.titulo}
+                {tr(coluna.chaveTitulo)}
               </h2>
               <ul className="mt-3 space-y-2">
                 {coluna.itens.map((item) => (
@@ -60,7 +67,7 @@ export function SiteFooter() {
                       href={item.href}
                       className="text-sm text-slate-300 transition hover:text-slate-50"
                     >
-                      {item.label}
+                      {tr(item.chaveRotulo)}
                     </Link>
                   </li>
                 ))}

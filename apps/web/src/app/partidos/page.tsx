@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { IdeologyBadge } from "@/components/IdeologyBadge";
 import { CabecalhoPagina } from "@/components/CabecalhoPagina";
+import { LogoPartido } from "@/components/LogoPartido";
 import Link from "next/link";
 import type { ReliabilityStatus } from "@prisma/client";
 
@@ -22,6 +23,8 @@ interface PartyRow {
   name: string;
   position: string | null;
   ideology: string | null;
+  color: string | null;
+  logoUrl: string | null;
   memberCount: number;
   rankedCount: number;
   avgScore: number | null;
@@ -73,6 +76,8 @@ async function getPartyStats(): Promise<PartyRow[]> {
         name: party.name,
         position: party.position,
         ideology: party.ideology,
+        color: party.color,
+        logoUrl: party.logoUrl,
         memberCount: party.members.length,
         rankedCount: ranked.length,
         avgScore,
@@ -148,14 +153,25 @@ export default async function PartidosPage() {
               {stats.map((party) => (
                 <tr key={party.id} className="transition hover:bg-slate-800/40">
                   <td className="p-4">
-                    <Link
-                      href={`/partidos/${encodeURIComponent(party.acronym)}`}
-                      className="font-semibold text-slate-100 hover:underline"
-                    >
-                      {party.acronym}
-                    </Link>
-                    <div className="mt-0.5 max-w-[220px] truncate text-xs text-slate-400">
-                      {party.name}
+                    <div className="flex items-center gap-3">
+                      <LogoPartido
+                        acronym={party.acronym}
+                        name={party.name}
+                        logoUrl={party.logoUrl}
+                        color={party.color}
+                        tamanho={36}
+                      />
+                      <div className="min-w-0">
+                        <Link
+                          href={`/partidos/${encodeURIComponent(party.acronym)}`}
+                          className="font-semibold text-slate-100 hover:underline"
+                        >
+                          {party.acronym}
+                        </Link>
+                        <div className="mt-0.5 max-w-[220px] truncate text-xs text-slate-400">
+                          {party.name}
+                        </div>
+                      </div>
                     </div>
                   </td>
                   <td className="p-4 text-center text-slate-300">{party.memberCount}</td>

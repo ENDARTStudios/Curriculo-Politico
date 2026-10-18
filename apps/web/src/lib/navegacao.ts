@@ -1,43 +1,33 @@
+import type { ChaveDicionario } from "@/lib/i18n/dicionarios";
+
 /**
  * Arquitetura de informação do site.
  *
  * ── Por que existe ─────────────────────────────────────────────────────────
- * A barra superior tinha **12 links planos** num `flex-wrap`: Ranking, Partidos,
- * Projetos, Comparar, Meu Espectro, História, Como Funciona, Calendário, STF,
- * FAQ, Metodologia, Sobre. Sem agrupamento, sem hierarquia e — no desktop —
- * quebrando em duas linhas. E o acesso à conta existia apenas no rodapé.
- *
- * O problema não era o número de destinos: eram os 28 do site. Era a **falta de
- * modelo**. Toda rota tinha o mesmo peso visual, então nenhuma se destacava, e a
- * pessoa precisava ler doze rótulos para descobrir onde clicar.
+ * A barra superior tinha **12 links planos** num `flex-wrap`, sem agrupamento e
+ * sem hierarquia. O problema não era o número de destinos — eram 28 no site. Era
+ * a **falta de modelo**: toda rota tinha o mesmo peso visual.
  *
  * Este arquivo é a fonte única. Header, drawer mobile e rodapé leem daqui, então
- * não há como divergirem — que é como a barra chegou a doze itens: cada rota nova
- * era acrescentada em um lugar e esquecida nos outros.
+ * não há como divergirem.
  *
- * ── O critério do agrupamento ──────────────────────────────────────────────
- * Agrupamos por **intenção de quem chega**, não por tipo de dado:
- *
- * - *Ranking* — "quero ver quem presta" (a tarefa nº 1 do produto)
- * - *Partidos* — "quero ver por agremiação"
- * - *Projetos* — "quero ver o que foi proposto"
- * - *Comparar* — "quero decidir entre dois"
- * - *Metodologia* — "quero saber se posso confiar no número"
- *
- * Cinco grupos, três deles com submenu. As rotas institucionais não entram aqui:
- * elas vivem no rodapé, onde são procuradas.
+ * ── Por que guarda CHAVES, e não rótulos ───────────────────────────────────
+ * Com três idiomas, um rótulo fixo aqui obrigaria a duplicar a estrutura inteira
+ * no dicionário. Guardando a chave (`nav.ranking`), a navegação é a mesma nos
+ * três idiomas e o texto vem de `t()`. O guard `verify:i18n` confere que toda
+ * chave usada existe nos três dicionários.
  */
 
 export type ItemNav = {
   href: string;
-  label: string;
-  /** Uma linha explicando o destino. Só aparece no submenu e no drawer. */
-  descricao?: string;
+  chaveRotulo: ChaveDicionario;
+  /** Chave da linha explicativa. Só aparece no submenu e no drawer. */
+  chaveDescricao?: ChaveDicionario;
 };
 
 export type GrupoNav = {
   id: string;
-  label: string;
+  chaveRotulo: ChaveDicionario;
   /** Link direto: o grupo não abre submenu. */
   href?: string;
   /** Submenu. Quando presente, `href` é ignorado no topo. */
@@ -48,132 +38,129 @@ export type GrupoNav = {
 export const NAV_PRIMARIA: readonly GrupoNav[] = [
   {
     id: "ranking",
-    label: "Ranking",
+    chaveRotulo: "nav.ranking",
     itens: [
       {
         href: "/ranking",
-        label: "Ranking IDIP",
-        descricao: "Quem tem confiança acima de 60, do maior para o menor",
+        chaveRotulo: "nav.ranking.idip",
+        chaveDescricao: "nav.ranking.idip.desc",
       },
       {
         href: "/ranking/personalizado",
-        label: "Ranking personalizado",
-        descricao: "Pondera os temas que importam para você",
+        chaveRotulo: "nav.ranking.personalizado",
+        chaveDescricao: "nav.ranking.personalizado.desc",
       },
       {
         href: "/espectro",
-        label: "Meu Espectro",
-        descricao: "Responda e veja seu posicionamento",
+        chaveRotulo: "nav.ranking.espectro",
+        chaveDescricao: "nav.ranking.espectro.desc",
       },
       {
         href: "/stf",
-        label: "Supremo Tribunal Federal",
-        descricao: "Índice próprio para os ministros",
+        chaveRotulo: "nav.ranking.stf",
+        chaveDescricao: "nav.ranking.stf.desc",
       },
     ],
   },
   {
     id: "partidos",
-    label: "Partidos",
+    chaveRotulo: "nav.partidos",
     itens: [
       {
         href: "/partidos",
-        label: "Todos os partidos",
-        descricao: "Média, distribuição do Termômetro e bancada",
+        chaveRotulo: "nav.partidos.todos",
+        chaveDescricao: "nav.partidos.todos.desc",
       },
       {
         href: "/partidos/comparar",
-        label: "Comparar partidos",
-        descricao: "Duas agremiações lado a lado",
+        chaveRotulo: "nav.partidos.comparar",
+        chaveDescricao: "nav.partidos.comparar.desc",
       },
     ],
   },
-  { id: "projetos", label: "Projetos", href: "/projetos" },
-  { id: "comparar", label: "Comparar", href: "/comparar" },
+  { id: "projetos", chaveRotulo: "nav.projetos", href: "/projetos" },
+  { id: "comparar", chaveRotulo: "nav.comparar", href: "/comparar" },
   {
     id: "metodologia",
-    label: "Metodologia",
+    chaveRotulo: "nav.metodologia",
     itens: [
       {
         href: "/metodologia",
-        label: "O índice IDIP",
-        descricao: "Fórmula, pesos e o que cada dimensão mede",
+        chaveRotulo: "nav.metodologia.idip",
+        chaveDescricao: "nav.metodologia.idip.desc",
       },
       {
         href: "/como-funciona",
-        label: "Como funciona a política",
-        descricao: "Os três poderes e a hierarquia eleitoral",
+        chaveRotulo: "nav.metodologia.como",
+        chaveDescricao: "nav.metodologia.como.desc",
       },
       {
         href: "/historia",
-        label: "História",
-        descricao: "Como o índice evoluiu, versão por versão",
+        chaveRotulo: "nav.metodologia.historia",
+        chaveDescricao: "nav.metodologia.historia.desc",
       },
       {
         href: "/calendario-eleitoral",
-        label: "Calendário eleitoral",
-        descricao: "Próximas eleições e cargos em disputa",
+        chaveRotulo: "nav.metodologia.calendario",
+        chaveDescricao: "nav.metodologia.calendario.desc",
       },
       {
         href: "/faq",
-        label: "Perguntas frequentes",
-        descricao: "Dúvidas sobre nota, dados e neutralidade",
+        chaveRotulo: "nav.metodologia.faq",
+        chaveDescricao: "nav.metodologia.faq.desc",
       },
       {
         href: "/sobre",
-        label: "Sobre o projeto",
-        descricao: "Quem mantém, com que dinheiro e por quê",
+        chaveRotulo: "nav.metodologia.sobre",
+        chaveDescricao: "nav.metodologia.sobre.desc",
       },
     ],
   },
 ] as const;
 
-/**
- * Rodapé, organizado por **finalidade** em vez de uma linha de onze links.
- *
- * O rodapé antigo misturava produto (Ranking), institucional (Sobre) e jurídico
- * (LGPD) na mesma fileira, todos com o mesmo peso. Quem procurava a política de
- * privacidade tinha de varrer oito links de produto antes de chegar nela.
- */
-export const RODAPE: readonly { titulo: string; itens: readonly ItemNav[] }[] = [
+/** Rodapé, organizado por **finalidade** em vez de uma linha de onze links. */
+export const RODAPE: readonly {
+  chaveTitulo: ChaveDicionario;
+  itens: readonly ItemNav[];
+}[] = [
   {
-    titulo: "Explorar",
+    chaveTitulo: "rodape.explorar",
     itens: [
-      { href: "/ranking", label: "Ranking IDIP" },
-      { href: "/partidos", label: "Partidos" },
-      { href: "/projetos", label: "Projetos de lei" },
-      { href: "/comparar", label: "Comparar políticos" },
-      { href: "/stf", label: "Supremo Tribunal Federal" },
-      { href: "/espectro", label: "Meu Espectro" },
+      { href: "/ranking", chaveRotulo: "nav.ranking.idip" },
+      { href: "/partidos", chaveRotulo: "nav.partidos" },
+      { href: "/projetos", chaveRotulo: "nav.projetos" },
+      { href: "/comparar", chaveRotulo: "nav.comparar" },
+      { href: "/stf", chaveRotulo: "nav.ranking.stf" },
+      { href: "/espectro", chaveRotulo: "nav.ranking.espectro" },
     ],
   },
   {
-    titulo: "Entender",
+    chaveTitulo: "rodape.entender",
     itens: [
-      { href: "/metodologia", label: "Metodologia do IDIP" },
-      { href: "/como-funciona", label: "Como funciona a política" },
-      { href: "/historia", label: "História do índice" },
-      { href: "/calendario-eleitoral", label: "Calendário eleitoral" },
-      { href: "/faq", label: "Perguntas frequentes" },
-      { href: "/status", label: "Estado da plataforma" },
+      { href: "/metodologia", chaveRotulo: "nav.metodologia" },
+      { href: "/como-funciona", chaveRotulo: "nav.metodologia.como" },
+      { href: "/historia", chaveRotulo: "nav.metodologia.historia" },
+      { href: "/calendario-eleitoral", chaveRotulo: "nav.metodologia.calendario" },
+      { href: "/faq", chaveRotulo: "nav.metodologia.faq" },
+      { href: "/status", chaveRotulo: "rodape.status" },
     ],
   },
   {
-    titulo: "Projeto",
+    chaveTitulo: "rodape.projeto",
     itens: [
-      { href: "/sobre", label: "Sobre" },
-      { href: "/apoie", label: "Apoie o projeto" },
-      { href: "/contato", label: "Contato" },
-      { href: "/retificacao", label: "Retificação de dados" },
+      { href: "/sobre", chaveRotulo: "nav.metodologia.sobre" },
+      { href: "/apoie", chaveRotulo: "rodape.apoie" },
+      { href: "/contato", chaveRotulo: "rodape.contato" },
+      { href: "/retificacao", chaveRotulo: "rodape.retificacao" },
     ],
   },
   {
-    titulo: "Jurídico",
+    chaveTitulo: "rodape.juridico",
     itens: [
-      { href: "/termos-de-uso", label: "Termos de uso" },
-      { href: "/privacidade", label: "Privacidade" },
-      { href: "/lgpd", label: "LGPD" },
-      { href: "/cookies", label: "Cookies" },
+      { href: "/termos-de-uso", chaveRotulo: "rodape.termos" },
+      { href: "/privacidade", chaveRotulo: "rodape.privacidade" },
+      { href: "/lgpd", chaveRotulo: "rodape.lgpd" },
+      { href: "/cookies", chaveRotulo: "rodape.cookies" },
     ],
   },
 ] as const;
@@ -183,11 +170,8 @@ export const RODAPE: readonly { titulo: string; itens: readonly ItemNav[] }[] = 
  *
  * Casa por prefixo porque rotas dinâmicas não estão na lista: `/politicos/abc` é
  * o destino natural de quem veio do ranking, então pertence visualmente a ele.
- * Sem esse mapa, o perfil de um político ficaria como a única tela do site sem
- * nenhum item de menu aceso — e a pessoa perderia a noção de onde está.
  */
 export function grupoAtivo(pathname: string): GrupoNav | undefined {
-  // Rotas dinâmicas: o perfil herda o grupo de quem leva até ele.
   const heranca: Record<string, string> = {
     "/politicos": "ranking",
     "/partidos": "partidos",
