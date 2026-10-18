@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import Link from "next/link";
 import { CONTATO, mailto } from "@/lib/contato";
 
@@ -11,12 +12,14 @@ export const metadata: Metadata = {
 export default function ContatoPage() {
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-        Fale Conosco
-      </h1>
-      <p className="mt-2 text-slate-400">
-        Canais oficiais de comunicação do Currículo Político.
-      </p>
+      <CabecalhoPagina
+        titulo="Fale Conosco"
+        lead={
+          <>
+            Canais oficiais de comunicação do Currículo Político.
+          </>
+        }
+      />
 
       <div className="mt-8 space-y-6">
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">

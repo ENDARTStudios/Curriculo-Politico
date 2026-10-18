@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import { useEffect } from "react";
 
 /**
@@ -39,25 +40,21 @@ export default function ErroDaRota({
 
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-3xl flex-col justify-center px-6 py-16">
-      <p className="text-[13px] font-semibold uppercase tracking-[0.1em] text-amber-300">
-        Falha ao carregar
-      </p>
+      <CabecalhoPagina
+        olho="Falha ao carregar"
+        tomOlho="alerta"
+        titulo="Não foi possível carregar esta página"
+        lead={
+          <>
+            A consulta ao banco de dados não respondeu. Isso costuma ser temporário —
+            a nota não mudou, o acesso é que falhou. Se persistir, o estado da
+            plataforma mostra qual parte está fora do ar. Você também pode voltar ao
+            ranking ou tentar de novo.
+          </>
+        }
+      />
 
-      <h1 className="mt-3 text-4xl font-bold tracking-tight text-slate-50 sm:text-5xl">
-        Não foi possível carregar esta página
-      </h1>
-
-      <p className="mt-5 max-w-[65ch] text-lg leading-relaxed text-slate-300">
-        A consulta ao banco de dados não respondeu. Isso costuma ser temporário — a
-        nota não mudou, o acesso é que falhou.
-      </p>
-
-      <p className="mt-3 max-w-[65ch] text-base leading-relaxed text-slate-400">
-        Se persistir, o estado da plataforma mostra qual parte está fora do ar. Você
-        também pode voltar ao ranking ou tentar de novo.
-      </p>
-
-      <div className="mt-9 flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
           onClick={reset}

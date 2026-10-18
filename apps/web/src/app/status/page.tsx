@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { mesAnoSnapshot } from "@/lib/snapshot";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 
 export const dynamic = "force-dynamic";
 
@@ -74,20 +75,27 @@ export default async function StatusPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <div className="flex items-center gap-3">
-        <span
-          className={`inline-block h-3 w-3 rounded-full ${
-            degradado ? "animate-pulse bg-amber-400" : "bg-emerald-400"
-          }`}
-        />
-        <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-          {degradado ? "Status: degradado" : "Status: operacional"}
-        </h1>
-      </div>
-      <p className="mt-2 text-slate-400">
-        Volumes vivos da base e saúde do pipeline. Atualizado a cada acesso
-        (página dinâmica).
-      </p>
+      <CabecalhoPagina
+        titulo={
+          <span className="flex items-center gap-3">
+            {/* Ponto de saúde: âmbar pulsa enquanto há item com erro. O texto do
+                título carrega o mesmo significado, então a cor não é o único sinal. */}
+            <span
+              aria-hidden="true"
+              className={`inline-block h-3 w-3 shrink-0 rounded-full ${
+                degradado ? "animate-pulse bg-amber-400 motion-reduce:animate-none" : "bg-emerald-400"
+              }`}
+            />
+            {degradado ? "Status: degradado" : "Status: operacional"}
+          </span>
+        }
+        lead={
+          <>
+            Volumes vivos da base e saúde do pipeline. Atualizado a cada acesso
+            (página dinâmica).
+          </>
+        }
+      />
 
       <div className="mt-8 overflow-hidden rounded-xl border border-slate-800 bg-slate-900/60">
         <table className="w-full text-left text-sm">

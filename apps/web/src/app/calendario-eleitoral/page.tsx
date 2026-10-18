@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 
 export const metadata: Metadata = {
   title: "Calendário Eleitoral",
@@ -58,14 +59,16 @@ export default function CalendarioEleitoralPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-        Calendário Eleitoral Brasileiro
-      </h1>
-      <p className="mt-3 max-w-3xl text-xl leading-relaxed text-slate-400">
-        Eleições ocorrem a cada 2 anos, alternando entre gerais (Federais +
-        Estaduais) e municipais. Sempre no primeiro domingo de outubro, com
-        eventual 2º turno no último domingo do mês.
-      </p>
+      <CabecalhoPagina
+        titulo="Calendário Eleitoral Brasileiro"
+        lead={
+          <>
+            Eleições ocorrem a cada 2 anos, alternando entre gerais (Federais +
+            Estaduais) e municipais. Sempre no primeiro domingo de outubro, com
+            eventual 2º turno no último domingo do mês.
+          </>
+        }
+      />
 
       {proxima && (
         /*

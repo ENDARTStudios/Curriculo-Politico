@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -60,13 +61,15 @@ export default async function ContaPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-        Minha Conta
-      </h1>
-      <p className="mt-2 text-sm text-slate-400">
-        Transparência total sobre o que guardamos — e controle direto, sem
-        depender de e-mail (Art. 18 da LGPD).
-      </p>
+      <CabecalhoPagina
+        titulo="Minha Conta"
+        lead={
+          <>
+            Transparência total sobre o que guardamos — e controle direto, sem
+            depender de e-mail (Art. 18 da LGPD).
+          </>
+        }
+      />
 
       {/* Dados da conta */}
       <section className="mt-8 rounded-xl border border-slate-800 bg-slate-900/60 p-6">

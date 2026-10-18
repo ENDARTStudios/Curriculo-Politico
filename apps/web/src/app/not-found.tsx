@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 
 /**
  * 404 — página inexistente.
@@ -16,25 +17,20 @@ import Link from "next/link";
 export default function NaoEncontrado() {
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-3xl flex-col justify-center px-6 py-16">
-      <p className="text-[13px] font-semibold uppercase tracking-[0.1em] text-sky-400">
-        404
-      </p>
+      <CabecalhoPagina
+        olho="404"
+        titulo="Esta página não existe"
+        lead={
+          <>
+            O endereço não corresponde a nenhuma página da plataforma. Pode ser um
+            link antigo, um cadastro removido ou um endereço digitado pela metade.
+            Nenhum dado foi perdido — as notas continuam no ar, e a metodologia
+            segue aberta para consulta.
+          </>
+        }
+      />
 
-      <h1 className="mt-3 text-4xl font-bold tracking-tight text-slate-50 sm:text-5xl">
-        Esta página não existe
-      </h1>
-
-      <p className="mt-5 max-w-[65ch] text-lg leading-relaxed text-slate-300">
-        O endereço não corresponde a nenhuma página da plataforma. Pode ser um link
-        antigo, um cadastro removido ou um endereço digitado pela metade.
-      </p>
-
-      <p className="mt-3 max-w-[65ch] text-base leading-relaxed text-slate-400">
-        Nenhum dado foi perdido — as notas continuam no ar, e a metodologia segue
-        aberta para consulta.
-      </p>
-
-      <div className="mt-9 flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <Link
           href="/ranking"
           className="rounded-lg bg-sky-500 px-6 py-3 font-semibold text-slate-950 transition hover:bg-sky-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-50"

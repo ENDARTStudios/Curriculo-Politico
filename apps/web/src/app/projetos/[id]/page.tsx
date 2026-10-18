@@ -66,11 +66,14 @@ export default async function ProjetoPage({ params }: Props) {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
+      {/* O pai de um projeto de lei é a lista de projetos, não o ranking: quem
+          estava em `/projetos` e abriu um item precisa voltar para os filtros que
+          aplicou, não recomeçar do ranking. */}
       <Link
-        href="/ranking"
+        href="/projetos"
         className="mb-6 inline-block text-sm text-slate-400 transition hover:text-slate-100"
       >
-        ← Voltar ao ranking
+        ← Voltar aos projetos
       </Link>
 
       <BillDetails bill={bill} authorships={bill.authorships} />

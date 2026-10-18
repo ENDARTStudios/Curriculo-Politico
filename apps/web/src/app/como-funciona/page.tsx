@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 
 export const metadata: Metadata = {
   title: "Como Funciona a Política Brasileira",
@@ -100,13 +101,15 @@ const PIRAMIDE = [
 export default function ComoFuncionaPage() {
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-        Como Funciona a Política Brasileira
-      </h1>
-      <p className="mt-3 max-w-3xl text-xl leading-relaxed text-slate-400">
-        Entenda a estrutura do Estado brasileiro, os três poderes e as esferas
-        de governo para avaliar seus representantes com conhecimento de causa.
-      </p>
+      <CabecalhoPagina
+        titulo="Como Funciona a Política Brasileira"
+        lead={
+          <>
+            Entenda a estrutura do Estado brasileiro, os três poderes e as esferas
+            de governo para avaliar seus representantes com conhecimento de causa.
+          </>
+        }
+      />
 
       {/* Três Poderes */}
       <section className="mt-12">

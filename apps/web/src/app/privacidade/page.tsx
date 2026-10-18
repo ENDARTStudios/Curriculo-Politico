@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import Link from "next/link";
 import { CONTATO, mailto } from "@/lib/contato";
 
@@ -24,12 +25,14 @@ const PROVEDORES = [
 export default function PrivacidadePage() {
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-        Política de Privacidade
-      </h1>
-      <p className="mt-2 text-sm text-slate-400">
-        Última atualização: setembro de 2026 · Em revisão jurídica
-      </p>
+      <CabecalhoPagina
+        titulo="Política de Privacidade"
+        lead={
+          <>
+            Última atualização: setembro de 2026 · Em revisão jurídica
+          </>
+        }
+      />
 
       <div className="mt-6 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm leading-relaxed text-amber-200/80">
         <strong>⚠️ Divisão fundamental deste documento:</strong>

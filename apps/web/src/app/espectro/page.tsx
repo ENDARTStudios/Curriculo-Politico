@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import Link from "next/link";
 import { EspectroQuiz } from "@/components/EspectroQuiz";
 import { EIXOS, QUESTOES, VERSAO_MODELO } from "@/lib/espectro";
@@ -24,17 +25,19 @@ export default function EspectroPage() {
       <p className="text-xs uppercase tracking-wider text-slate-400">
         Autoavaliação educativa
       </p>
-      <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-        Você sabe onde está no espectro político?
-      </h1>
-      <p className="mt-4 max-w-3xl text-base leading-relaxed text-slate-300">
-        Esquerda e direita resumem só uma dimensão do debate. Responda{" "}
-        {QUESTOES.length} afirmações e descubra sua posição em{" "}
-        <strong className="text-slate-100">3 eixos</strong> — econômico,
-        sociocultural e diplomático — com gráficos que mostram por que duas
-        pessoas &ldquo;de esquerda&rdquo; ou &ldquo;de direita&rdquo; podem
-        discordar completamente entre si.
-      </p>
+      <CabecalhoPagina
+        titulo="Você sabe onde está no espectro político?"
+        lead={
+          <>
+            Esquerda e direita resumem só uma dimensão do debate. Responda{" "}
+            {QUESTOES.length} afirmações e descubra sua posição em{" "}
+            <strong className="text-slate-100">3 eixos</strong> — econômico,
+            sociocultural e diplomático — com gráficos que mostram por que duas
+            pessoas &ldquo;de esquerda&rdquo; ou &ldquo;de direita&rdquo; podem
+            discordar completamente entre si.
+          </>
+        }
+      />
 
       <div className="mt-8">
         <EspectroQuiz />

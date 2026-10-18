@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import { PesosCartao } from "@/components/PesosCartao";
 import {
   DIMENSOES_LEGISLATIVO,
@@ -92,23 +93,25 @@ const FONTES_STATUS = [
 export default function MetodologiaPage() {
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-        Metodologia IDIP v1.1
-      </h1>
-      <p className="mt-2 max-w-3xl text-slate-400">
-        Índice de Desempenho e Integridade Pública: nota de 0 a 100 calculada
-        algoritmicamente sobre dados públicos. Sem voto popular na{" "}
-        <strong className="text-slate-200">nota</strong>. Código aberto e
-        auditável —{" "}
-        <a
-          href="https://github.com/"
-          className="text-sky-400 hover:underline"
-          title="repositório do projeto"
-        >
-          packages/idip/src/scoring.ts
-        </a>
-        .
-      </p>
+      <CabecalhoPagina
+        titulo="Metodologia IDIP v1.1"
+        lead={
+          <>
+            Índice de Desempenho e Integridade Pública: nota de 0 a 100 calculada
+            algoritmicamente sobre dados públicos. Sem voto popular na{" "}
+            <strong className="text-slate-200">nota</strong>. Código aberto e
+            auditável —{" "}
+            <a
+            href="https://github.com/"
+            className="text-sky-400 hover:underline"
+            title="repositório do projeto"
+            >
+            packages/idip/src/scoring.ts
+            </a>
+            .
+          </>
+        }
+      />
       <p className="mt-3 max-w-3xl rounded-lg border border-slate-800 bg-slate-900/60 p-3 text-xs leading-relaxed text-slate-400">
         Esta página separa explicitamente o que o algoritmo{" "}
         <strong className="text-emerald-300">faz hoje</strong> do que está{" "}
