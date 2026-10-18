@@ -25,6 +25,12 @@ import { defineConfig, devices } from "@playwright/test";
 
 const PORTA_LOCAL = 3033;
 
+/**
+ * Servidor de teste com o banco fora, usado só para exercitar `app/error.tsx`.
+ * Ver o comentário do `webServer` abaixo.
+ */
+export const PORTA_SEM_BANCO = 3034;
+
 // O `baseURL` precisa apontar para a MESMA porta que o `webServer` sobe.
 //
 // Estava em 3000 enquanto o servidor subia na 3033: os testes navegavam para uma
@@ -79,6 +85,10 @@ export default defineConfig({
         // faz o `next dev` trocar de porta sozinho ("Port 3000 is in use, using
         // 3001") e derruba a suíte com ERR_CONNECTION_REFUSED no meio da
         // execução. Uma porta improvável elimina a disputa.
+        //
+        // A fronteira de erro (`app/error.tsx`) precisa de um servidor com o
+        // banco fora, que não convive com esta suíte: ver `playwright.erro.config.ts`
+        // e `npm run e2e:erro`.
         command: `npm run dev --workspace @cp/web -- -p ${PORTA_LOCAL}`,
         url: `http://localhost:${PORTA_LOCAL}`,
         // Sem reuso: o objetivo é testar o código atual, não um servidor
