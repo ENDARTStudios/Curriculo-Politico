@@ -313,9 +313,19 @@ export default async function PoliticoPage({ params }: Props) {
             <h2 className="mb-4 text-xl font-bold text-slate-100">
               Financiamento de Campanha ({finance.year})
             </h2>
+            {/*
+              Dois números de naturezas diferentes, e o rótulo antigo os fazia
+              parecer contraditórios: "Total arrecadado R$ 2.925.148,19" ao lado de
+              "Receitas registradas 0" lê como dado quebrado.
+
+              Não é: o total vem do **resumo** que o TSE publica por candidato, e a
+              contagem se refere às **receitas itemizadas**, que ainda não estão
+              integradas. O projeto trata ausência de dado como ausência — `—`, não
+              `0` —, porque zero é um resultado e "não temos a lista" é outro.
+            */}
             <div className="mb-5 grid grid-cols-2 gap-4">
               <div>
-                <div className="text-sm text-slate-400">Total arrecadado</div>
+                <div className="text-sm text-slate-400">Total declarado ao TSE</div>
                 <div className="text-2xl font-bold text-slate-100">
                   R${" "}
                   {finance.totalReceived.toLocaleString("pt-BR", {
@@ -324,10 +334,16 @@ export default async function PoliticoPage({ params }: Props) {
                 </div>
               </div>
               <div>
-                <div className="text-sm text-slate-400">Receitas registradas</div>
+                <div className="text-sm text-slate-400">Receitas itemizadas</div>
                 <div className="text-2xl font-bold text-slate-100">
-                  {finance.donorCount}
+                  {finance.donorCount > 0 ? finance.donorCount : "—"}
                 </div>
+                {finance.donorCount === 0 && (
+                  <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                    O TSE publica o total por candidato; a lista de receitas
+                    individuais ainda não está integrada.
+                  </p>
+                )}
               </div>
             </div>
             {topDonors.length > 0 && (

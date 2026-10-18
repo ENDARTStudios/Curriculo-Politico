@@ -122,29 +122,44 @@ export default async function PartidoPage({ params }: Props) {
         ← Todos os partidos
       </Link>
 
-      <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-          {party.acronym}
-        </h1>
-        <p className="mt-1 text-lg text-slate-400">{party.name}</p>
-        <div className="mt-3 flex flex-wrap items-center gap-4">
-          <IdeologyBadge
-            position={party.position}
-            ideology={party.ideology}
-            size="md"
-          />
-          {party.foundedYear && (
-            <span className="text-sm text-slate-400">
-              Fundado em {party.foundedYear}
-            </span>
+      {/*
+        Cabeçalho de entidade.
+
+        Antes empilhava tudo à esquerda: sigla, nome, badges e dois números —
+        deixando **metade direita do card vazia**. Numa tela de detalhe isso lê
+        como página inacabada. Agora a identidade fica à esquerda e os números à
+        direita, que é onde o olho procura o dado.
+
+        O nome só aparece quando difere da sigla: "PP" sobre "PP" era repetição.
+      */}
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-6 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+        <div className="min-w-0">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
+            {party.acronym}
+          </h1>
+          {party.name && party.name !== party.acronym && (
+            <p className="mt-1 text-lg text-slate-400">{party.name}</p>
           )}
-          {party.tseNumber && (
-            <span className="text-sm text-slate-400">
-              Nº TSE: {party.tseNumber}
-            </span>
-          )}
+          <div className="mt-3 flex flex-wrap items-center gap-4">
+            <IdeologyBadge
+              position={party.position}
+              ideology={party.ideology}
+              size="md"
+            />
+            {party.foundedYear && (
+              <span className="text-sm text-slate-400">
+                Fundado em {party.foundedYear}
+              </span>
+            )}
+            {party.tseNumber && (
+              <span className="text-sm text-slate-400">
+                Nº TSE: {party.tseNumber}
+              </span>
+            )}
+          </div>
         </div>
-        <div className="mt-4 flex gap-8">
+
+        <div className="flex gap-8">
           <div>
             <div className="text-xs uppercase tracking-wide text-slate-400">
               Parlamentares

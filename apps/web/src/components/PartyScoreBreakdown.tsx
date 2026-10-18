@@ -28,25 +28,50 @@ export function PartyScoreBreakdown({
 
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-2 flex items-center justify-between">
         <h2 className="text-xl font-bold text-slate-100">Composição da Nota</h2>
         <div className="text-4xl font-bold text-slate-100">
           {formatarNota(finalScore)}
         </div>
       </div>
 
+      {/*
+        A soma, escrita por extenso.
+
+        A tela mostrava três números (59,8, 64,0, 44,8) e o leitor tinha de
+        descobrir sozinho como se relacionavam. Não se relacionavam por acidente:
+        cada componente tem **peso próprio** (de 70, de 20, de 10), e o
+        `membersComponent` é a média dos membros já multiplicada pelo peso dela.
+        Deixar a conta visível é o mesmo princípio do "pesos que não fecham em
+        100% ficam na tela" — o método é auditável ou não é.
+      */}
+      <p className="mb-6 text-xs leading-relaxed text-slate-400">
+        Nota do partido ={" "}
+        <span className="font-mono tabular-nums">
+          {formatarNota(membersComponent)} + {formatarNota(transparencyComponent)} +{" "}
+          {formatarNota(complianceComponent)} = {formatarNota(finalScore)}
+        </span>
+      </p>
+
       <div className="space-y-4">
         {/* 1. Média dos membros */}
         <div>
-          <div className="mb-2 flex items-baseline justify-between">
+          <div className="mb-2 flex items-baseline justify-between gap-3">
             <span className="text-sm font-medium text-slate-300">
               Média dos Membros Ranqueados
             </span>
-            <span className="text-sm font-bold text-slate-200">
+            <span className="whitespace-nowrap text-sm font-bold text-slate-200">
               {formatarNota(membersComponent)}{" "}
               <span className="text-xs text-slate-400">de 70</span>
             </span>
           </div>
+          {/*
+            Todas as barras em `sky`: são três medidas da MESMA natureza
+            (magnitude dentro do próprio peso). A versão anterior pintava uma de
+            `sky`, uma de `emerald` e uma de `purple` — e verde, neste sistema,
+            significa confiabilidade GREEN, não "transparência institucional".
+            Magenta não existe na paleta. Cor aqui é magnitude, não categoria.
+          */}
           <div className="mb-1 h-2 w-full rounded-full bg-slate-800">
             <div
               className="h-2 rounded-full bg-sky-500"
@@ -55,24 +80,24 @@ export function PartyScoreBreakdown({
           </div>
           <div className="text-xs text-slate-400">
             {rankedCount}/{memberCount} membros com dados suficientes • Média:{" "}
-            {formatarNota(avgMembersScore)}
+            {formatarNota(avgMembersScore)} (já multiplicada pelo peso de 70%)
           </div>
         </div>
 
         {/* 2. Transparência institucional */}
         <div>
-          <div className="mb-2 flex items-baseline justify-between">
+          <div className="mb-2 flex items-baseline justify-between gap-3">
             <span className="text-sm font-medium text-slate-300">
               Transparência Institucional
             </span>
-            <span className="text-sm font-bold text-slate-200">
+            <span className="whitespace-nowrap text-sm font-bold text-slate-200">
               {formatarNota(transparencyComponent)}{" "}
               <span className="text-xs text-slate-400">de 20</span>
             </span>
           </div>
           <div className="mb-1 h-2 w-full rounded-full bg-slate-800">
             <div
-              className="h-2 rounded-full bg-emerald-500"
+              className="h-2 rounded-full bg-sky-500"
               style={{ width: `${(transparencyComponent / 20) * 100}%` }}
             />
           </div>
@@ -84,18 +109,18 @@ export function PartyScoreBreakdown({
 
         {/* 3. Conformidade eleitoral */}
         <div>
-          <div className="mb-2 flex items-baseline justify-between">
+          <div className="mb-2 flex items-baseline justify-between gap-3">
             <span className="text-sm font-medium text-slate-300">
               Conformidade Eleitoral
             </span>
-            <span className="text-sm font-bold text-slate-200">
+            <span className="whitespace-nowrap text-sm font-bold text-slate-200">
               {formatarNota(complianceComponent)}{" "}
               <span className="text-xs text-slate-400">de 10</span>
             </span>
           </div>
           <div className="mb-1 h-2 w-full rounded-full bg-slate-800">
             <div
-              className="h-2 rounded-full bg-purple-500"
+              className="h-2 rounded-full bg-sky-500"
               style={{ width: `${(complianceComponent / 10) * 100}%` }}
             />
           </div>
