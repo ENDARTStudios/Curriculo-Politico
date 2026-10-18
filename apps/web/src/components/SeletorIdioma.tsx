@@ -7,6 +7,23 @@ import { LOCALES, ROTULO_IDIOMA, type Locale } from "@/lib/i18n/config";
 import { useLocale, useT } from "@/lib/i18n/cliente";
 
 /**
+ * Abreviação por idioma.
+ *
+ * `Record<Locale, string>` em vez de ternário encadeado: quando o inglês entrou
+ * como quarto idioma, o encadeamento antigo fazia `en-US` cair no ramo final e
+ * aparecer como "ES·ES" — a barra mostrava espanhol duas vezes e o inglês não
+ * existia em lugar nenhum. Com o mapa, o compilador exige o rótulo de todo
+ * idioma novo.
+ */
+const ABREVIACAO: Record<Locale, string> = {
+  "pt-BR": "PT",
+  "en-US": "EN",
+  "es-US": "ES·US",
+  "es-ES": "ES·ES",
+};
+
+
+/**
  * Seletor de idioma.
  *
  * ── Por que é um `<form>` com Server Action ────────────────────────────────
@@ -70,7 +87,7 @@ export function SeletorIdioma({ compacto = false }: { compacto?: boolean }) {
             >
               {/* Abreviação de duas letras, que é o que cabe na barra. O nome
                   completo fica no `title` e no leitor de tela via `sr-only`. */}
-              {opcao === "pt-BR" ? "PT" : opcao === "es-US" ? "ES·US" : "ES·ES"}
+              {ABREVIACAO[opcao]}
               <span className="sr-only"> — {ROTULO_IDIOMA[opcao]}</span>
             </button>
           );
