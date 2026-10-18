@@ -646,22 +646,46 @@ O teste guarda o contrato de acessibilidade do esqueleto: `role="status"`,
 aplica ao papel), e a primeira versão do teste falhou com string vazia. O teste
 estava errado sobre ARIA; o componente não.
 
-### 8.4 A fronteira de erro continua sem teste
+### 8.4 A fronteira de erro, agora exercitada
 
 `app/error.tsx` só renderiza quando um Server Component lança, e não há rota que
-lance de propósito. Abortar a requisição RSC faz o Next cair para navegação dura e
-a página resolve normalmente — verificado, não suposto.
+lance de propósito — nem deve haver.
 
-Cobri-lo exigiria uma de duas coisas:
+A saída foi um **segundo servidor** com o banco deliberadamente inacessível
+(`playwright.erro.config.ts`, porta 3034, `DATABASE_URL` numa porta sem listener).
+Toda página que consulta o banco lança, e a fronteira entra em ação. É
+determinístico: não depende de tempo nem de derrubar conexão real. O log do
+servidor confirma `PrismaClientInitializationError`.
 
-1. um servidor de produção com o banco inacessível — determinístico, mas dobra o
-   tempo da suíte e depende de orquestração extra;
-2. uma rota que lance sob flag de ambiente — barata, mas coloca um caminho de
-   falha no produto por causa do teste.
+**Por que em configuração separada, e não na suíte principal.** A primeira versão
+colocou um segundo `webServer` no mesmo arquivo. Dois efeitos medidos:
 
-Nenhuma das duas foi feita. **Inventar um teste que "passa" sem exercitar a
-fronteira seria pior que a lacuna declarada** — e é exatamente o tipo de cobertura
-falsa que este projeto evita em outras áreas.
+| | Antes | Com dois servidores |
+|---|---|---|
+| Duração da suíte | 2,3 min | 5,3 min |
+| Falhas | 0 | 2 (contenção; passam isoladas) |
+
+E um risco maior: o workflow `a11y.yml` roda o diretório principal com
+`--grep @readonly` **contra produção**, com `E2E_NO_SERVER=1`. Um teste que espera
+a página de erro rodaria lá — onde `/ranking` funciona — e falharia por motivo
+errado.
+
+Separado: `npm run e2e` (72 testes, 2,3 min) e `npm run e2e:erro` (4 testes, 28 s).
+
+O que **não** funciona, verificado antes de escrever o teste: abortar a requisição
+RSC numa navegação cliente. O Next detecta a falha, cai para navegação dura, e a
+página resolve normalmente — a fronteira nunca é chamada.
+
+### 8.4.1 Um diagnóstico errado, corrigido
+
+Ao ver 10 falhas na home depois de adicionar o segundo servidor, atribuí a causa à
+disputa pelo mesmo `.next`. **Era falso**: a causa real era o túnel do banco
+fechado, que deixava a faixa de destaques vazia.
+
+A separação de `distDir` (`NEXT_DIST_DIR`) continua no código como **prevenção** —
+dois `next dev` não devem dividir o mesmo diretório — mas o registro importa:
+prevenção não é diagnóstico, e gravar a causa errada envenenaria a próxima
+investigação.
 
 ## 9. Responsivo — página 14
 
