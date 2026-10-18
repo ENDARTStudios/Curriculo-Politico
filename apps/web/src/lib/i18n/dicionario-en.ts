@@ -147,6 +147,17 @@ export const enUS: Record<ChaveDicionario, string> = {
   "espectro.refazer": "Retake the test",
   "espectro.versao": "Questionnaire version: {versao}",
 
+  "juridico.investigacao": "Ongoing investigation",
+  "juridico.acaoJudicial": "Ongoing lawsuit",
+  "juridico.condenacao": "Final conviction (no further appeal)",
+  "juridico.impeachment": "Impeachment",
+  "juridico.arquivado": "Dismissed or acquitted",
+  "juridico.contasRejeitadas": "Accounts rejected by the TCU",
+  "juridico.reuAcaoPenal": "Defendant in a criminal case",
+  "juridico.statusAtivo": "in progress",
+  "juridico.statusArquivado": "closed without conviction",
+  "juridico.statusDefinitivo": "no pending appeal",
+
   "novidades.titulo": "What changed since your last visit",
   "novidades.desde": "Since {data}",
   "novidades.primeiraVisita": "You have not marked anything as seen yet — showing the available history.",

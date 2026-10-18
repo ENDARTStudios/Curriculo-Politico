@@ -159,6 +159,18 @@ const ptBR = {
   "espectro.refazer": "Refazer o teste",
   "espectro.versao": "Versão do questionário: {versao}",
 
+  // ── Jurídico (rótulos de registro) ───────────────────────────────────────
+  "juridico.investigacao": "Investigação em curso",
+  "juridico.acaoJudicial": "Ação judicial em curso",
+  "juridico.condenacao": "Condenação transitada em julgado",
+  "juridico.impeachment": "Impeachment",
+  "juridico.arquivado": "Arquivado ou absolvido",
+  "juridico.contasRejeitadas": "Contas rejeitadas pelo TCU",
+  "juridico.reuAcaoPenal": "Réu em ação penal",
+  "juridico.statusAtivo": "em andamento",
+  "juridico.statusArquivado": "encerrado sem condenação",
+  "juridico.statusDefinitivo": "sem recurso pendente",
+
   // ── Novidades ────────────────────────────────────────────────────────────
   "novidades.titulo": "O que mudou desde sua última visita",
   "novidades.desde": "Desde {data}",
@@ -314,6 +326,17 @@ const esUS: Record<ChaveDicionario, string> = {
   "espectro.ultimoResultado": "Tu último resultado",
   "espectro.refazer": "Rehacer el test",
   "espectro.versao": "Versión del cuestionario: {versao}",
+
+  "juridico.investigacao": "Investigación en curso",
+  "juridico.acaoJudicial": "Acción judicial en curso",
+  "juridico.condenacao": "Condena en firme",
+  "juridico.impeachment": "Impeachment",
+  "juridico.arquivado": "Archivado o absuelto",
+  "juridico.contasRejeitadas": "Cuentas rechazadas por el TCU",
+  "juridico.reuAcaoPenal": "Acusado en acción penal",
+  "juridico.statusAtivo": "en trámite",
+  "juridico.statusArquivado": "cerrado sin condena",
+  "juridico.statusDefinitivo": "sin recurso pendiente",
 
   "novidades.titulo": "Qué cambió desde tu última visita",
   "novidades.desde": "Desde {data}",

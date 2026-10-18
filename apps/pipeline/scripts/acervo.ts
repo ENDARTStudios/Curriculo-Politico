@@ -128,11 +128,26 @@ const AREAS: AreaAcervo[] = [
   {
     id: "juridico",
     nome: "Registros jurídicos",
-    raw: "legal_records_raw.json",
-    etl: "etl:legal",
-    carga: "db:load-legal",
+    raw: null,
+    etl: null,
+    carga: null,
     tabela: { nome: "LegalRecord", contar: () => prisma.legalRecord.count() },
-    automacao: "auto",
+    /*
+      Corrigido de `auto` para `manual`.
+
+      A primeira versão classificava como automático porque existia `etl:legal`.
+      Mas aquele script é **local-first**: não coleta nada, só repassa arquivos
+      que alguém colocou em `data/raw/`. Chamar de automático prometia uma coleta
+      que nunca existiria.
+
+      O bloqueio é em duas camadas: (1) TCU retorna 401 sem credenciais e o STF
+      não tem API consolidada; (2) mesmo com os CSV oficiais em disco, atribuir a
+      sanção a uma pessoa exige casar identidade — o acervo não guarda CPF nem UF
+      por mandato, e homônimo é o caso comum ("Carlos Gomes").
+    */
+    automacao: "manual",
+    motivo:
+      "Fonte local-first (TCU 401, STF sem API) e casamento de identidade inseguro. `npm run bot:tcu` converte os CSV e gera candidatos; a carga exige curadoria humana.",
   },
   {
     id: "checagem",
