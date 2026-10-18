@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { BotaoAcompanhar } from "@/components/BotaoAcompanhar";
 import { LogoPartido } from "@/components/LogoPartido";
+import { notaPartido } from "@/lib/nota-partido";
 import { estadoAcompanhamento } from "@/lib/acompanhamento";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -114,7 +115,17 @@ export default async function PartidoPage({ params }: Props) {
   const avgMembersScore = ranked.length
     ? ranked.reduce((sum, m) => sum + m.score!.finalScore, 0) / ranked.length
     : 0;
-  const partyScore = avgMembersScore * 0.7 + 50 * 0.2 + 50 * 0.1;
+  /*
+    A nota composta (70% parlamentares + 20% transparência + 10% conformidade)
+    só é publicada quando os três componentes têm fonte. Hoje os dois últimos
+    não têm: usar 50 fixo publicava um número em que 30% era constante.
+  */
+  const nota = notaPartido({
+    mediaParlamentares: ranked.length ? avgMembersScore : null,
+    transparencia: null,
+    conformidade: null,
+  });
+  const partyScore = nota.valor;
 
   const acompanhamento = await estadoAcompanhamento("PARTY", party.id);
 
@@ -208,8 +219,8 @@ export default async function PartidoPage({ params }: Props) {
             avgMembersScore={avgMembersScore}
             memberCount={members.length}
             rankedCount={ranked.length}
-            transparencyScore={50}
-            complianceScore={50}
+            transparencyScore={null}
+            complianceScore={null}
             finalScore={partyScore}
           />
         ) : (

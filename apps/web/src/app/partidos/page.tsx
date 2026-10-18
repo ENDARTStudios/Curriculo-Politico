@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { IdeologyBadge } from "@/components/IdeologyBadge";
 import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import { LogoPartido } from "@/components/LogoPartido";
+import { notaPartido } from "@/lib/nota-partido";
 import Link from "next/link";
 import type { ReliabilityStatus } from "@prisma/client";
 
@@ -65,7 +66,14 @@ async function getPartyStats(): Promise<PartyRow[]> {
         ? ranked.reduce((sum, s) => sum + s!.finalScore, 0) / ranked.length
         : null;
       // PARTY_SCORING.md: 70% média membros + 30% placeholders (50) até TSE
-      const partyScore = avgScore !== null ? avgScore * 0.7 + 50 * 0.3 : null;
+      // A nota composta exige transparência e conformidade, que não têm fonte ainda.
+        // Publicar `média * 0.7 + 50 * 0.3` seria 30% constante disfarçada de medida.
+        const nota = notaPartido({
+          mediaParlamentares: avgScore,
+          transparencia: null,
+          conformidade: null,
+        });
+        const partyScore = nota.valor;
       const avgConfidence = scores.length
         ? scores.reduce((sum, s) => sum + s!.confidenceScore, 0) / scores.length
         : 0;
@@ -144,7 +152,12 @@ export default async function PartidosPage() {
                 <th className="p-4">Partido</th>
                 <th className="p-4 text-center">Parlamentares</th>
                 <th className="p-4">Ideologia</th>
-                <th className="p-4 text-center">Nota do Partido</th>
+                <th className="p-4 text-center">
+                Média dos parlamentares
+                <span className="block text-[10px] font-normal normal-case tracking-normal text-slate-400">
+                  nota composta pendente
+                </span>
+              </th>
                 <th className="p-4 text-center">Confiança média</th>
                 <th className="p-4">Distribuição</th>
               </tr>
