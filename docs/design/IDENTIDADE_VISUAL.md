@@ -625,6 +625,44 @@ desenhar a forma de uma página mentiria nas outras.
 - O 404 é auditado junto com as 28 rotas (`npm run audit:visual`), porque é uma
   página que o usuário vê.
 
+### 8.3 Como o carregamento passou a ser testado
+
+`audit:visual` roda axe nas 28 rotas, mas sempre no estado **final**. O esqueleto
+existe por milissegundos e nunca era visto por teste nenhum.
+
+`tests/e2e/estados.spec.ts` captura com **navegação dura** e `waitUntil: "commit"`:
+o Next transmite o shell com o `loading.tsx` antes de a página resolver, então o
+esqueleto está no DOM desde o primeiro instante. Medido: visível já na primeira
+sonda, estável em três execuções seguidas.
+
+A abordagem óbvia — atrasar a requisição RSC numa navegação cliente — **não
+funciona**: o header pré-carrega os links, a navegação é instantânea e o esqueleto
+nunca aparece. Foi a primeira tentativa, e ela falhava em silêncio: o teste passaria
+sem verificar nada.
+
+O teste guarda o contrato de acessibilidade do esqueleto: `role="status"`,
+`aria-live="polite"` e o texto de anúncio. **Não** usa `toHaveAccessibleName` —
+`role="status"` não deriva nome acessível dos filhos (contents-based naming não se
+aplica ao papel), e a primeira versão do teste falhou com string vazia. O teste
+estava errado sobre ARIA; o componente não.
+
+### 8.4 A fronteira de erro continua sem teste
+
+`app/error.tsx` só renderiza quando um Server Component lança, e não há rota que
+lance de propósito. Abortar a requisição RSC faz o Next cair para navegação dura e
+a página resolve normalmente — verificado, não suposto.
+
+Cobri-lo exigiria uma de duas coisas:
+
+1. um servidor de produção com o banco inacessível — determinístico, mas dobra o
+   tempo da suíte e depende de orquestração extra;
+2. uma rota que lance sob flag de ambiente — barata, mas coloca um caminho de
+   falha no produto por causa do teste.
+
+Nenhuma das duas foi feita. **Inventar um teste que "passa" sem exercitar a
+fronteira seria pior que a lacuna declarada** — e é exatamente o tipo de cobertura
+falsa que este projeto evita em outras áreas.
+
 ## 9. Responsivo — página 14
 
 O responsivo era a última lacuna declarada: todos os artboards eram 1440, e o
