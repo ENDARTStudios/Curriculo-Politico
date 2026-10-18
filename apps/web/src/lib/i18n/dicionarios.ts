@@ -1,4 +1,5 @@
 import { LOCALE_PADRAO, type Locale } from "./config";
+import { enUS } from "./dicionario-en";
 
 /**
  * Dicionários da interface.
@@ -351,6 +352,7 @@ const esES: Record<ChaveDicionario, string> = {
 
 export const DICIONARIOS: Record<Locale, Record<ChaveDicionario, string>> = {
   "pt-BR": ptBR,
+  "en-US": enUS,
   "es-US": esUS,
   "es-ES": esES,
 };
