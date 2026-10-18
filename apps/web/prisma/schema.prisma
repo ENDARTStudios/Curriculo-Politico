@@ -48,6 +48,7 @@ model Person {
   terms         Term[]
   legalRecords  LegalRecord[]
   billAuthorships BillAuthorship[]
+  follows       Follow[]
   verifiedClaims  VerifiedClaim[]
   patrimonyHistory PatrimonyHistory[]
   municipalExpenses MunicipalExpense[]
@@ -64,7 +65,17 @@ model Party {
   history     String?  @db.Text
   tseNumber   Int?
   color       String? // hex para gráficos
+  /// URL da logo oficial da legenda.
+  ///
+  /// Nulo é o estado normal, não um defeito: a maioria das legendas não teve a
+  /// logo carregada. A interface cai para um monograma com a sigla e a cor do
+  /// partido — nunca para uma imagem quebrada nem para o logo de outro partido.
+  ///
+  /// As marcas pertencem às legendas; o uso aqui é nominativo (identificar a
+  /// agremiação), não endosso.
+  logoUrl     String?
   members     Term[]
+  follows     Follow[]
 }
 
 model Office {
@@ -128,6 +139,7 @@ model Bill {
   keyPoints     Json?
   authorships   BillAuthorship[]
   userVotes     UserBillVote[]
+  follows       Follow[]
   createdAt     DateTime @default(now())
 
   @@index([externalId])
@@ -155,8 +167,62 @@ model User {
   accounts                    Account[]
   sessions                    Session[]
   billVotes                   UserBillVote[]
+  follows                     Follow[]
+  spectrumResults             SpectrumResult[]
   createdAt                   DateTime       @default(now())
   updatedAt                   DateTime       @updatedAt
+}
+
+/// O que a pessoa acompanha: político, partido ou projeto.
+///
+/// ── Por que três FKs anuláveis, e não `targetType` + `targetId` ────────────
+/// Um discriminador textual exigiria que a integridade fosse mantida pela
+/// aplicação: ao remover um político do acervo, o acompanhamento ficaria órfão e
+/// a dashboard mostraria "desconhecido". Com FK real, `onDelete: Cascade`
+/// resolve, e o banco recusa um id que não existe.
+///
+/// O custo é uma restrição `CHECK` para garantir que exatamente uma das três
+/// colunas esteja preenchida — adicionada na migração, porque o Prisma não
+/// expressa isso no schema.
+model Follow {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  personId  String?
+  person    Person?  @relation(fields: [personId], references: [id], onDelete: Cascade)
+  partyId   String?
+  party     Party?   @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  billId    String?
+  bill      Bill?    @relation(fields: [billId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  // No Postgres, NULLs são distintos: cada restrição só vale quando a coluna
+  // está preenchida, então um usuário pode seguir 1 político, 1 partido e 1
+  // projeto sem que as três colisões se atrapalhem.
+  @@unique([userId, personId])
+  @@unique([userId, partyId])
+  @@unique([userId, billId])
+  @@index([userId, createdAt])
+  @@index([personId])
+  @@index([partyId])
+  @@index([billId])
+}
+
+/// Resultado do teste de espectro político, salvo pelo próprio usuário.
+model SpectrumResult {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Pontuação por eixo, de -100 a 100. Guardado como JSON porque o conjunto de
+  /// eixos muda com o questionário — colunas fixas obrigariam uma migração a
+  /// cada eixo novo, e resultados antigos ficariam incomparáveis em silêncio.
+  scores    Json
+  /// Versão do questionário. Sem isto, comparar um resultado de hoje com um de
+  /// meses atrás seria enganoso e a pessoa não saberia por quê.
+  versao    String
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model Account {

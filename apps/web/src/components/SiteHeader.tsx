@@ -6,6 +6,8 @@ import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 import { NAV_PRIMARIA, grupoAtivo } from "@/lib/navegacao";
 import { SearchBar } from "@/components/SearchBar";
+import { SeletorIdioma } from "@/components/SeletorIdioma";
+import { useT } from "@/lib/i18n/cliente";
 
 /**
  * Barra superior do site.
@@ -32,6 +34,7 @@ import { SearchBar } from "@/components/SearchBar";
 export function SiteHeader() {
   const pathname = usePathname();
   const { data: sessao, status } = useSession();
+  const t = useT();
   const [aberto, setAberto] = useState<string | null>(null);
   const [drawer, setDrawer] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -82,7 +85,7 @@ export function SiteHeader() {
         {/* Marca — o reflexo nº 1 de "voltar ao início". */}
         <Link
           href="/"
-          aria-label="Currículo Político — página inicial"
+          aria-label={t("nav.marca")}
           className="-m-2 flex shrink-0 items-center gap-2 rounded-lg p-2 text-base font-bold tracking-tight transition hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
         >
           <span aria-hidden="true">📡</span>
@@ -96,7 +99,7 @@ export function SiteHeader() {
         </Link>
 
         {/* Navegação primária — só a partir de lg, onde há largura de verdade. */}
-        <nav aria-label="Navegação principal" className="hidden lg:flex lg:items-center lg:gap-1">
+        <nav aria-label={t("nav.principal")} className="hidden lg:flex lg:items-center lg:gap-1">
           {NAV_PRIMARIA.map((grupo) => {
             const ativo = grupoAtual?.id === grupo.id;
 
@@ -112,7 +115,7 @@ export function SiteHeader() {
                       : "text-slate-300 hover:bg-slate-800/60 hover:text-slate-50"
                   }`}
                 >
-                  {grupo.label}
+                  {t(grupo.chaveRotulo)}
                 </Link>
               );
             }
@@ -131,7 +134,7 @@ export function SiteHeader() {
                       : "text-slate-300 hover:bg-slate-800/60 hover:text-slate-50"
                   }`}
                 >
-                  {grupo.label}
+                  {t(grupo.chaveRotulo)}
                   <svg
                     aria-hidden="true"
                     viewBox="0 0 12 12"
@@ -157,11 +160,11 @@ export function SiteHeader() {
                         className="block rounded-lg px-3 py-2.5 transition hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
                       >
                         <span className="block text-sm font-medium text-slate-100">
-                          {item.label}
+                          {t(item.chaveRotulo)}
                         </span>
-                        {item.descricao && (
+                        {item.chaveDescricao && (
                           <span className="mt-0.5 block text-xs leading-relaxed text-slate-400">
-                            {item.descricao}
+                            {t(item.chaveDescricao)}
                           </span>
                         )}
                       </Link>
@@ -179,6 +182,17 @@ export function SiteHeader() {
             <SearchBar />
           </div>
 
+          {/*
+            Seletor de idiomas só a partir de `md`.
+
+            Em 375px a barra já tem marca, Entrar e hambúrguer; somar o seletor
+            estourava a largura em 60px — medido pelo `audit:visual`, que passou a
+            acusar overflow em quase todas as rotas. No mobile ele vive no drawer.
+          */}
+          <div className="hidden md:block">
+            <SeletorIdioma compacto />
+          </div>
+
           <Conta status={status} nome={sessao?.user?.name ?? null} />
 
           {/* Hambúrguer: abaixo de lg. */}
@@ -186,7 +200,7 @@ export function SiteHeader() {
             type="button"
             aria-expanded={drawer}
             aria-controls="menu-mobile"
-            aria-label={drawer ? "Fechar menu" : "Abrir menu"}
+            aria-label={drawer ? t("nav.fecharMenu") : t("nav.abrirMenu")}
             onClick={() => setDrawer((v) => !v)}
             className="rounded-lg border border-slate-700 p-2 text-slate-200 transition hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 lg:hidden"
           >
@@ -216,13 +230,21 @@ export function SiteHeader() {
         >
           <SearchBar />
 
-          <nav aria-label="Navegação principal (mobile)" className="mt-6 space-y-6">
+          {/* Idioma no drawer: no mobile a barra não tem largura para ele. */}
+          <div className="mt-4 md:hidden">
+            <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+              {t("idioma.rotulo")}
+            </p>
+            <SeletorIdioma compacto />
+          </div>
+
+          <nav aria-label={`${t("nav.principal")} (mobile)`} className="mt-6 space-y-6">
             {NAV_PRIMARIA.map((grupo) => (
               <div key={grupo.id}>
                 {grupo.itens ? (
                   <>
                     <p className="px-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
-                      {grupo.label}
+                      {t(grupo.chaveRotulo)}
                     </p>
                     <ul className="mt-2 space-y-0.5">
                       {grupo.itens.map((item) => (
@@ -232,7 +254,7 @@ export function SiteHeader() {
                             aria-current={pathname === item.href ? "page" : undefined}
                             className="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800"
                           >
-                            {item.label}
+                            {t(item.chaveRotulo)}
                           </Link>
                         </li>
                       ))}
@@ -249,7 +271,7 @@ export function SiteHeader() {
                     aria-current={grupoAtual?.id === grupo.id ? "page" : undefined}
                     className="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800"
                   >
-                    {grupo.label}
+                    {t(grupo.chaveRotulo)}
                   </Link>
                 )}
               </div>
@@ -263,21 +285,21 @@ export function SiteHeader() {
             </p>
             <ul className="mt-2 grid grid-cols-2 gap-x-2">
               {[
-                { href: "/sobre", label: "Sobre" },
-                { href: "/apoie", label: "Apoie" },
-                { href: "/contato", label: "Contato" },
-                { href: "/status", label: "Status" },
-                { href: "/retificacao", label: "Retificação" },
-                { href: "/termos-de-uso", label: "Termos" },
-                { href: "/privacidade", label: "Privacidade" },
-                { href: "/lgpd", label: "LGPD" },
+                { href: "/sobre", chaveRotulo: "nav.metodologia.sobre" as const },
+                { href: "/apoie", chaveRotulo: "rodape.apoie" as const },
+                { href: "/contato", chaveRotulo: "rodape.contato" as const },
+                { href: "/status", chaveRotulo: "rodape.status" as const },
+                { href: "/retificacao", chaveRotulo: "rodape.retificacao" as const },
+                { href: "/termos-de-uso", chaveRotulo: "rodape.termos" as const },
+                { href: "/privacidade", chaveRotulo: "rodape.privacidade" as const },
+                { href: "/lgpd", chaveRotulo: "rodape.lgpd" as const },
               ].map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
                     className="block rounded-lg px-3 py-2 text-sm text-slate-400 transition hover:bg-slate-800 hover:text-slate-200"
                   >
-                    {item.label}
+                    {t(item.chaveRotulo)}
                   </Link>
                 </li>
               ))}
@@ -310,8 +332,10 @@ export function SiteHeader() {
  * menos que um retângulo sem significado.
  */
 function Conta({ status, nome }: { status: string; nome: string | null }) {
+  const t = useT();
+
   if (status === "authenticated") {
-    const primeiroNome = nome?.split(" ")[0] ?? "Conta";
+    const primeiroNome = nome?.split(" ")[0] ?? t("conta.minhaConta");
     return (
       <Link
         href="/conta"
@@ -333,7 +357,7 @@ function Conta({ status, nome }: { status: string; nome: string | null }) {
       href="/auth/signin"
       className="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-50"
     >
-      Entrar
+      {t("conta.entrar")}
     </Link>
   );
 }

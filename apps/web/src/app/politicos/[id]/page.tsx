@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { BotaoAcompanhar } from "@/components/BotaoAcompanhar";
+import { estadoAcompanhamento } from "@/lib/acompanhamento";
 import { formatarNota, formatarPercentual } from "@/lib/formato";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -117,6 +119,8 @@ export default async function PoliticoPage({ params }: Props) {
 
   if (!politician) notFound();
 
+  const acompanhamento = await estadoAcompanhamento("POLITICIAN", politician.id);
+
   const currentTerm = politician.terms[0];
   const score = currentTerm?.scores[0];
   const finance = currentTerm?.finances[0];
@@ -173,6 +177,17 @@ export default async function PoliticoPage({ params }: Props) {
       <Link href="/ranking" className="mb-6 inline-block text-sm text-slate-400 transition hover:text-slate-100">
         ← Voltar ao ranking
       </Link>
+
+      {/* Acompanhar — fica acima do cartão de identidade porque é a ação da
+          página, não um detalhe do perfil. */}
+      <div className="mb-4">
+        <BotaoAcompanhar
+          tipo="POLITICIAN"
+          alvoId={politician.id}
+          inicial={acompanhamento.seguindo}
+          logado={acompanhamento.logado}
+        />
+      </div>
 
       {/* Header do político */}
       <div className="mb-6 flex flex-col items-start gap-6 rounded-2xl border border-slate-800 bg-slate-900/60 p-6 md:flex-row">

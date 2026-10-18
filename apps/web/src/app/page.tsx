@@ -6,6 +6,8 @@ import { carregarNumerosHero } from "@/lib/hero-stats";
 import { formatarNota } from "@/lib/formato";
 import { METODOLOGIA_VERSAO, NOTA_MAXIMA_TRAVADA } from "@/lib/methodology";
 import { STATUS_ORDEM, STATUS_VISUAL } from "@/lib/status-visual";
+import { obterIdioma } from "@/lib/i18n/servidor";
+import { tradutor } from "@/lib/i18n/t";
 
 export const metadata: Metadata = {
   title: "Currículo Político",
@@ -66,6 +68,7 @@ const CAMINHOS = [
 ] as const;
 
 export default async function Home() {
+  const tr = tradutor(await obterIdioma());
   const numeros = await carregarNumerosHero();
   const destaques = numeros?.destaques ?? [];
 
@@ -76,7 +79,7 @@ export default async function Home() {
         <div className="mx-auto grid max-w-5xl gap-12 px-6 py-16 lg:grid-cols-[1.25fr_1fr] lg:items-center lg:py-24">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-400">
-              Antes de votar, confira o que ele fez
+              {tr("home.olho")}
             </p>
 
             {/*
@@ -86,8 +89,8 @@ export default async function Home() {
               longa) está controlado pelo `max-w` do parágrafo abaixo.
             */}
             <h1 className="mt-5 text-4xl font-bold leading-[1.05] tracking-tight text-slate-50 sm:text-5xl">
-              Uma campanha não revela o candidato.
-              <span className="mt-2 block text-sky-400">O currículo dele sim.</span>
+              {tr("home.titulo1")}
+              <span className="mt-2 block text-sky-400">{tr("home.titulo2")}</span>
             </h1>
 
             <p className="mt-6 max-w-[58ch] text-lg leading-relaxed text-slate-300">
@@ -151,9 +154,9 @@ export default async function Home() {
           {destaques.length > 0 && (
             <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5">
               <div className="flex items-baseline justify-between gap-3">
-                <h2 className="text-sm font-semibold text-slate-100">Ranking IDIP</h2>
+                <h2 className="text-sm font-semibold text-slate-100">{tr("nav.ranking.idip")}</h2>
                 <span className="text-xs text-slate-400">
-                  {numeros?.politicosAvaliados.toLocaleString("pt-BR")} avaliados
+                  {tr("home.avaliados", { n: (numeros?.politicosAvaliados ?? 0).toLocaleString("pt-BR") })}
                 </span>
               </div>
 
@@ -198,7 +201,7 @@ export default async function Home() {
                 href="/ranking"
                 className="mt-3 block rounded-lg border border-slate-700 px-4 py-2.5 text-center text-sm font-medium text-slate-200 transition hover:bg-slate-800"
               >
-                Ver o ranking completo →
+                {tr("home.ctaCompleto")} →
               </Link>
             </div>
           )}
@@ -218,13 +221,13 @@ export default async function Home() {
         <section id="termometro" className="scroll-mt-20 py-16">
           <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
             <h2 className="text-2xl font-semibold tracking-tight text-slate-100">
-              Nota alta não basta: existe o risco
+              {tr("home.termometro.titulo")}
             </h2>
             <Link
               href="/metodologia"
               className="text-sm font-medium text-sky-400 transition hover:text-sky-300"
             >
-              Metodologia completa →
+              {tr("home.termometro.link")} →
             </Link>
           </div>
 
@@ -261,7 +264,7 @@ export default async function Home() {
             representa você" sem oferecer porta além do ranking. */}
         <section className="border-t border-slate-800 py-16">
           <h2 className="text-2xl font-semibold tracking-tight text-slate-100">
-            Por onde começar
+            {tr("home.caminhos.titulo")}
           </h2>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {CAMINHOS.map((caminho) => (
@@ -290,7 +293,7 @@ export default async function Home() {
         {/* ── 6 · Fecho ───────────────────────────────────────────────────── */}
         <section className="border-t border-slate-800 py-16 text-center">
           <h2 className="text-2xl font-semibold tracking-tight text-slate-100 sm:text-3xl">
-            Confira quem representa você
+            {tr("home.fecho.titulo")}
           </h2>
           <p className="mx-auto mt-3 max-w-2xl leading-relaxed text-slate-400">
             Leva menos de um minuto. Se a nota parecer errada, o cálculo é aberto e
@@ -301,13 +304,13 @@ export default async function Home() {
               href="/ranking"
               className="rounded-lg bg-sky-500 px-6 py-3 text-base font-semibold text-slate-950 transition hover:bg-sky-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-50"
             >
-              Começar pelo ranking
+              {tr("home.fecho.cta")}
             </Link>
             <Link
               href="/retificacao"
               className="text-sm font-medium text-slate-400 transition hover:text-slate-200"
             >
-              Solicitar retificação
+              {tr("home.fecho.retificacao")}
             </Link>
           </div>
         </section>

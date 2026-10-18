@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AcoesEspectro } from "@/components/AcoesEspectro";
 import {
   EIXOS,
   FAIXAS_CLASSICAS,
@@ -184,6 +185,8 @@ export function EspectroResultado({
             Responder novamente
           </button>
         </div>
+
+        <AcoesEspectro pontuacoes={pontuacoes} />
       </section>
     </div>
   );

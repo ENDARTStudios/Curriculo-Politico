@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { BotaoAcompanhar } from "@/components/BotaoAcompanhar";
+import { LogoPartido } from "@/components/LogoPartido";
+import { estadoAcompanhamento } from "@/lib/acompanhamento";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { chaveDiaSnapshot } from "@/lib/snapshot";
@@ -113,6 +116,8 @@ export default async function PartidoPage({ params }: Props) {
     : 0;
   const partyScore = avgMembersScore * 0.7 + 50 * 0.2 + 50 * 0.1;
 
+  const acompanhamento = await estadoAcompanhamento("PARTY", party.id);
+
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
       <Link
@@ -134,9 +139,18 @@ export default async function PartidoPage({ params }: Props) {
       */}
       <div className="mb-6 flex flex-wrap items-start justify-between gap-6 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
         <div className="min-w-0">
-          <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
-            {party.acronym}
-          </h1>
+          <div className="flex items-center gap-4">
+            <LogoPartido
+              acronym={party.acronym}
+              name={party.name}
+              logoUrl={party.logoUrl}
+              color={party.color}
+              tamanho={56}
+            />
+            <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
+              {party.acronym}
+            </h1>
+          </div>
           {party.name && party.name !== party.acronym && (
             <p className="mt-1 text-lg text-slate-400">{party.name}</p>
           )}
@@ -177,6 +191,15 @@ export default async function PartidoPage({ params }: Props) {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="mb-6">
+        <BotaoAcompanhar
+          tipo="PARTY"
+          alvoId={party.id}
+          inicial={acompanhamento.seguindo}
+          logado={acompanhamento.logado}
+        />
       </div>
 
       <div className="mb-6 grid gap-6 lg:grid-cols-2">

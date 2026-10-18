@@ -4,6 +4,8 @@ import { Providers } from "@/components/Providers";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { CookieBanner } from "@/components/CookieBanner";
+import { obterIdioma } from "@/lib/i18n/servidor";
+import { TAG_HTML } from "@/lib/i18n/config";
 
 /**
  * URL canônica do site em produção.
@@ -57,15 +59,22 @@ export const metadata: Metadata = {
 };
 
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  /*
+    O idioma é resolvido no servidor (cookie → Accept-Language → padrão) e
+    repassado ao `Providers`. Ler no cliente faria a página nascer em português e
+    trocar de idioma na frente da pessoa.
+  */
+  const locale = await obterIdioma();
+
   return (
-    <html lang="pt-BR">
+    <html lang={TAG_HTML[locale]}>
       <body className="min-h-screen bg-slate-950 text-slate-100 antialiased">
-        <Providers>
+        <Providers locale={locale}>
           <SiteHeader />
           {children}
           <SiteFooter />
