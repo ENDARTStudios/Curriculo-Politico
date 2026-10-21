@@ -119,7 +119,7 @@ const CSP = [
   "form-action 'self'",
 ].join("; ");
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const agora = Date.now();
   let response: NextResponse;
 
