@@ -48,6 +48,7 @@ model Person {
   terms         Term[]
   legalRecords  LegalRecord[]
   billAuthorships BillAuthorship[]
+  follows       Follow[]
   verifiedClaims  VerifiedClaim[]
   patrimonyHistory PatrimonyHistory[]
   municipalExpenses MunicipalExpense[]
@@ -64,7 +65,17 @@ model Party {
   history     String?  @db.Text
   tseNumber   Int?
   color       String? // hex para gráficos
+  /// URL da logo oficial da legenda.
+  ///
+  /// Nulo é o estado normal, não um defeito: a maioria das legendas não teve a
+  /// logo carregada. A interface cai para um monograma com a sigla e a cor do
+  /// partido — nunca para uma imagem quebrada nem para o logo de outro partido.
+  ///
+  /// As marcas pertencem às legendas; o uso aqui é nominativo (identificar a
+  /// agremiação), não endosso.
+  logoUrl     String?
   members     Term[]
+  follows     Follow[]
 }
 
 model Office {
@@ -98,6 +109,58 @@ model Term {
   @@index([officeId])
 }
 
+/// Histórico de mudanças por entidade.
+///
+/// ── Por que uma tabela de fatos, e não colunas "updatedAt" ─────────────────
+/// A pergunta que a plataforma precisa responder é "o que mudou desde a última
+/// vez que eu olhei?" — e isso não cabe em `updatedAt`, que guarda apenas a
+/// última escrita. Também não cabe em `ScoreSnapshot`, que só cobre nota.
+///
+/// Cada linha é **uma mudança de um campo**, com valor antes e depois, e
+/// `ocorridoEm` separado de `criadoEm`: o dado pode ter mudado em 1º de março e
+/// sido carregado em 15 de março. Guardar as duas datas é o que permite dizer
+/// "mudou em março" sem mentir sobre quando o sistema soube.
+///
+/// ── Por que textos, e não tipos por campo ──────────────────────────────────
+/// `valorAntes`/`valorDepois` são `String?` porque o mesmo log guarda nota
+/// (`70.0` → `72.5`), estado (`YELLOW` → `GREEN`) e contagem. Tipar por campo
+/// exigiria uma tabela por tipo e complicaria a consulta "tudo que mudou nesta
+/// entidade" — que é justamente a consulta que a dashboard faz.
+model ChangeLog {
+  id          String       @id @default(cuid())
+  entidade    ChangeEntity
+  /// Person.id, Party.id ou Bill.id. Sem FK de propósito: o log sobrevive à
+  /// remoção da entidade — um histórico que desaparece junto com o dado não é
+  /// histórico.
+  entidadeId  String
+  tipo        ChangeType
+  campo       String
+  valorAntes  String?
+  valorDepois String?
+  /// Quando a mudança aconteceu no mundo, não quando foi registrada.
+  ocorridoEm  DateTime
+  criadoEm    DateTime     @default(now())
+
+  // Idempotência do backfill: reprocessar o mesmo snapshot não duplica linha.
+  @@unique([entidade, entidadeId, campo, ocorridoEm])
+  @@index([entidade, entidadeId, ocorridoEm])
+  @@index([ocorridoEm])
+}
+
+enum ChangeEntity {
+  PERSON
+  PARTY
+  BILL
+}
+
+enum ChangeType {
+  SCORE
+  STATUS
+  FINANCE
+  LEGAL
+  PROFILE
+}
+
 /// Histórico mensal da nota (Rastreamento Temporal — /metodologia)
 model ScoreSnapshot {
   id                String            @id @default(cuid())
@@ -128,6 +191,7 @@ model Bill {
   keyPoints     Json?
   authorships   BillAuthorship[]
   userVotes     UserBillVote[]
+  follows       Follow[]
   createdAt     DateTime @default(now())
 
   @@index([externalId])
@@ -152,11 +216,71 @@ model User {
   politicalConsentVersion     String? // versão do consentimento específico (dado sensível)
   politicalConsentAt          DateTime?
   politicalConsentWithdrawnAt DateTime? // revogação — elimina UserBillVote
+  /// Até quando a pessoa já viu as mudanças na área dela.
+  ///
+  /// É um marcador de **leitura**, não de acesso: abrir a dashboard não deve
+  /// apagar as novidades — quem abre e sai sem ler perderia o que importava.
+  /// Só avança quando a pessoa clica em "marcar como visto".
+  novidadesVistasEm          DateTime?
   accounts                    Account[]
   sessions                    Session[]
   billVotes                   UserBillVote[]
+  follows                     Follow[]
+  spectrumResults             SpectrumResult[]
   createdAt                   DateTime       @default(now())
   updatedAt                   DateTime       @updatedAt
+}
+
+/// O que a pessoa acompanha: político, partido ou projeto.
+///
+/// ── Por que três FKs anuláveis, e não `targetType` + `targetId` ────────────
+/// Um discriminador textual exigiria que a integridade fosse mantida pela
+/// aplicação: ao remover um político do acervo, o acompanhamento ficaria órfão e
+/// a dashboard mostraria "desconhecido". Com FK real, `onDelete: Cascade`
+/// resolve, e o banco recusa um id que não existe.
+///
+/// O custo é uma restrição `CHECK` para garantir que exatamente uma das três
+/// colunas esteja preenchida — adicionada na migração, porque o Prisma não
+/// expressa isso no schema.
+model Follow {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  personId  String?
+  person    Person?  @relation(fields: [personId], references: [id], onDelete: Cascade)
+  partyId   String?
+  party     Party?   @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  billId    String?
+  bill      Bill?    @relation(fields: [billId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  // No Postgres, NULLs são distintos: cada restrição só vale quando a coluna
+  // está preenchida, então um usuário pode seguir 1 político, 1 partido e 1
+  // projeto sem que as três colisões se atrapalhem.
+  @@unique([userId, personId])
+  @@unique([userId, partyId])
+  @@unique([userId, billId])
+  @@index([userId, createdAt])
+  @@index([personId])
+  @@index([partyId])
+  @@index([billId])
+}
+
+/// Resultado do teste de espectro político, salvo pelo próprio usuário.
+model SpectrumResult {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Pontuação por eixo, de -100 a 100. Guardado como JSON porque o conjunto de
+  /// eixos muda com o questionário — colunas fixas obrigariam uma migração a
+  /// cada eixo novo, e resultados antigos ficariam incomparáveis em silêncio.
+  scores    Json
+  /// Versão do questionário. Sem isto, comparar um resultado de hoje com um de
+  /// meses atrás seria enganoso e a pessoa não saberia por quê.
+  versao    String
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model Account {

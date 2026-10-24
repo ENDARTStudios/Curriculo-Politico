@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -34,15 +35,17 @@ const NAO_PROCESSAMOS = [
 
 export default function SobrePage() {
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
+    <main className="mx-auto max-w-5xl px-6 py-12">
       <div className="mb-12">
-        <h1 className="mb-4 text-4xl font-bold tracking-tight text-slate-100">
-          Sobre o Currículo Político
-        </h1>
-        <p className="text-xl leading-relaxed text-slate-400">
-          Transparência radical para fortalecer a democracia. Dados públicos,
-          algoritmos abertos, zero opinião.
-        </p>
+        <CabecalhoPagina
+          titulo="Sobre o Currículo Político"
+          lead={
+            <>
+              Transparência radical para fortalecer a democracia. Dados públicos,
+              algoritmos abertos, zero opinião.
+            </>
+          }
+        />
       </div>
 
       {/* Propósito */}

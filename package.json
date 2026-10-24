@@ -23,7 +23,11 @@
     "verify:tokens": "node scripts/verificar-tokens.mjs",
     "verify:formato": "node scripts/verificar-formato.mjs",
     "verify:formularios": "node scripts/verificar-formularios.mjs",
+    "verify:diretivas": "node scripts/verificar-diretivas.mjs",
+    "verify:cabecalhos": "node scripts/verificar-cabecalhos.mjs",
+    "audit:visual": "node scripts/auditar-rotas.mjs",
     "e2e": "playwright test",
+    "e2e:erro": "playwright test --config playwright.erro.config.ts",
     "e2e:ui": "playwright test --ui",
     "e2e:prod": "playwright test --grep @readonly",
     "design:detect": "impeccable detect apps/web/src",
@@ -86,14 +90,18 @@
     "etl:bens": "python apps/pipeline/etl/tse_bens.py",
     "etl:bens-historico": "python apps/pipeline/etl/tse_patrimony_history.py",
     "etl:municipal": "python apps/pipeline/etl/municipal_gazettes.py",
+    "bot:tcu": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/converter-tcu.ts",
+    "bot:acervo": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/acervo.ts",
+    "bot:traduzir": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/traduzir.ts",
+    "bot:historico": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/historico.ts",
     "bot:gaps": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/gap-scan.ts",
     "bot:fix": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/auto-fix.ts",
     "bot:fix:etl": "tsx --env-file-if-exists=apps/web/.env apps/pipeline/scripts/auto-fix.ts --with-etl"
   },
   "devDependencies": {
     "prisma": "^6.16.0",
-    "railway": "^3.15.0",
+    "railway": "^3.16.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.7.0"
+    "typescript": "^7.0.2"
   }
 }

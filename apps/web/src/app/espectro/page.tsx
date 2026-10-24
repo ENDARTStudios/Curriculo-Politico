@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import Link from "next/link";
 import { EspectroQuiz } from "@/components/EspectroQuiz";
+import { prisma } from "@/lib/prisma";
 import { EIXOS, QUESTOES, VERSAO_MODELO } from "@/lib/espectro";
 
 export const metadata: Metadata = {
@@ -17,27 +19,46 @@ export const metadata: Metadata = {
  * dados de políticos), e o teste em si roda no cliente para que as respostas
  * — opinião política, dado sensível pela LGPD — nunca chegem ao servidor.
  */
-export default function EspectroPage() {
+export default async function EspectroPage() {
+  /*
+    Os partidos são buscados aqui, no servidor, e descem por prop até o
+    resultado. O teste em si continua no cliente: as respostas são opinião
+    política (dado sensível) e não devem sair do navegador.
+  */
+  const partidos = await prisma.party.findMany({
+    select: {
+      acronym: true,
+      name: true,
+      position: true,
+      ideology: true,
+      color: true,
+      logoUrl: true,
+    },
+    orderBy: { acronym: "asc" },
+  });
+
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
+    <main className="mx-auto max-w-5xl px-6 py-12">
       {/* Gancho + promessa */}
       <p className="text-xs uppercase tracking-wider text-slate-400">
         Autoavaliação educativa
       </p>
-      <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-100 sm:text-4xl">
-        Você sabe onde está no espectro político?
-      </h1>
-      <p className="mt-4 max-w-3xl text-base leading-relaxed text-slate-300">
-        Esquerda e direita resumem só uma dimensão do debate. Responda{" "}
-        {QUESTOES.length} afirmações e descubra sua posição em{" "}
-        <strong className="text-slate-100">3 eixos</strong> — econômico,
-        sociocultural e diplomático — com gráficos que mostram por que duas
-        pessoas &ldquo;de esquerda&rdquo; ou &ldquo;de direita&rdquo; podem
-        discordar completamente entre si.
-      </p>
+      <CabecalhoPagina
+        titulo="Você sabe onde está no espectro político?"
+        lead={
+          <>
+            Esquerda e direita resumem só uma dimensão do debate. Responda{" "}
+            {QUESTOES.length} afirmações e descubra sua posição em{" "}
+            <strong className="text-slate-100">3 eixos</strong> — econômico,
+            sociocultural e diplomático — com gráficos que mostram por que duas
+            pessoas &ldquo;de esquerda&rdquo; ou &ldquo;de direita&rdquo; podem
+            discordar completamente entre si.
+          </>
+        }
+      />
 
       <div className="mt-8">
-        <EspectroQuiz />
+        <EspectroQuiz partidos={partidos} />
       </div>
 
       {/* Prova: metodologia aberta e auditável */}

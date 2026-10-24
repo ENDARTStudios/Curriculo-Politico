@@ -1,6 +1,10 @@
+import { formatarNota, formatarPercentual } from "@/lib/formato";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { IdeologyBadge } from "@/components/IdeologyBadge";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
+import { LogoPartido } from "@/components/LogoPartido";
+import { notaPartido } from "@/lib/nota-partido";
 import Link from "next/link";
 import type { ReliabilityStatus } from "@prisma/client";
 
@@ -20,6 +24,8 @@ interface PartyRow {
   name: string;
   position: string | null;
   ideology: string | null;
+  color: string | null;
+  logoUrl: string | null;
   memberCount: number;
   rankedCount: number;
   avgScore: number | null;
@@ -60,7 +66,14 @@ async function getPartyStats(): Promise<PartyRow[]> {
         ? ranked.reduce((sum, s) => sum + s!.finalScore, 0) / ranked.length
         : null;
       // PARTY_SCORING.md: 70% média membros + 30% placeholders (50) até TSE
-      const partyScore = avgScore !== null ? avgScore * 0.7 + 50 * 0.3 : null;
+      // A nota composta exige transparência e conformidade, que não têm fonte ainda.
+        // Publicar `média * 0.7 + 50 * 0.3` seria 30% constante disfarçada de medida.
+        const nota = notaPartido({
+          mediaParlamentares: avgScore,
+          transparencia: null,
+          conformidade: null,
+        });
+        const partyScore = nota.valor;
       const avgConfidence = scores.length
         ? scores.reduce((sum, s) => sum + s!.confidenceScore, 0) / scores.length
         : 0;
@@ -71,6 +84,8 @@ async function getPartyStats(): Promise<PartyRow[]> {
         name: party.name,
         position: party.position,
         ideology: party.ideology,
+        color: party.color,
+        logoUrl: party.logoUrl,
         memberCount: party.members.length,
         rankedCount: ranked.length,
         avgScore,
@@ -103,20 +118,24 @@ export default async function PartidosPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-100">Partidos</h1>
-        <a
-          href="/partidos/comparar"
-          className="rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-sky-400"
-        >
-          ⚖️ Comparar Partidos
-        </a>
-      </div>
-      <p className="-mt-4 mb-8 max-w-3xl text-slate-400">
-        Agregação por sigla do mandato atual. A nota média considera apenas
-        parlamentares com confiança ≥ 60% — perfis GRAY usam baseline
-        provisório e distorceriam a média.
-      </p>
+      <CabecalhoPagina
+        titulo="Partidos"
+        lead={
+          <>
+            Agregação por sigla do mandato atual. A nota média considera apenas
+            parlamentares com confiança ≥ 60% — perfis GRAY usam baseline
+            provisório e distorceriam a média.
+          </>
+        }
+        acoes={
+          <Link
+            href="/partidos/comparar"
+            className="rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-sky-400"
+          >
+            ⚖️ Comparar Partidos
+          </Link>
+        }
+      />
 
       {/* Região rolável precisa ser alcançável por teclado (WCAG 2.1.1): sem
           `tabIndex`, quem não usa mouse vê a tabela cortada e não consegue rolar.
@@ -133,7 +152,12 @@ export default async function PartidosPage() {
                 <th className="p-4">Partido</th>
                 <th className="p-4 text-center">Parlamentares</th>
                 <th className="p-4">Ideologia</th>
-                <th className="p-4 text-center">Nota do Partido</th>
+                <th className="p-4 text-center">
+                Média dos parlamentares
+                <span className="block text-[10px] font-normal normal-case tracking-normal text-slate-400">
+                  nota composta pendente
+                </span>
+              </th>
                 <th className="p-4 text-center">Confiança média</th>
                 <th className="p-4">Distribuição</th>
               </tr>
@@ -142,14 +166,25 @@ export default async function PartidosPage() {
               {stats.map((party) => (
                 <tr key={party.id} className="transition hover:bg-slate-800/40">
                   <td className="p-4">
-                    <Link
-                      href={`/partidos/${encodeURIComponent(party.acronym)}`}
-                      className="font-semibold text-slate-100 hover:underline"
-                    >
-                      {party.acronym}
-                    </Link>
-                    <div className="mt-0.5 max-w-[220px] truncate text-xs text-slate-400">
-                      {party.name}
+                    <div className="flex items-center gap-3">
+                      <LogoPartido
+                        acronym={party.acronym}
+                        name={party.name}
+                        logoUrl={party.logoUrl}
+                        color={party.color}
+                        tamanho={36}
+                      />
+                      <div className="min-w-0">
+                        <Link
+                          href={`/partidos/${encodeURIComponent(party.acronym)}`}
+                          className="font-semibold text-slate-100 hover:underline"
+                        >
+                          {party.acronym}
+                        </Link>
+                        <div className="mt-0.5 max-w-[220px] truncate text-xs text-slate-400">
+                          {party.name}
+                        </div>
+                      </div>
                     </div>
                   </td>
                   <td className="p-4 text-center text-slate-300">{party.memberCount}</td>
@@ -162,14 +197,14 @@ export default async function PartidosPage() {
                   </td>
                   <td className="p-4 text-center">
                     <div className="text-lg font-bold text-slate-100">
-                      {party.partyScore !== null ? party.partyScore.toFixed(1) : "—"}
+                      {formatarNota(party.partyScore)}
                     </div>
                     <div className="text-xs text-slate-400">
                       {party.rankedCount}/{party.memberCount} ranqueados
                     </div>
                   </td>
                   <td className="p-4 text-center text-slate-400">
-                    {party.avgConfidence.toFixed(0)}%
+                    {formatarPercentual(party.avgConfidence)}
                   </td>
                   <td className="p-4">
                     <div className="flex flex-wrap gap-1 text-xs">

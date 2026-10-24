@@ -42,7 +42,25 @@ interface Item {
   label: string;
 }
 
-export function SearchBar() {
+/**
+ * Campo de busca com resultados agrupados.
+ *
+ * ── `idLista` e `rotuloBusca` ───────────────────────────────────────────────
+ * Ambos são configuráveis porque a home renderiza **duas** instâncias (a do
+ * header e a do herói, que é a ação principal da página).
+ *
+ * Com id fixo, as duas emitiam `id="busca-resultados"` e o documento passava a
+ * ter id duplicado — HTML inválido e `getElementById` ambíguo.
+ *
+ * Com o mesmo `aria-label` nas duas, o leitor de tela anuncia dois campos de
+ * nome idêntico na mesma página, e a busca por papel + nome fica ambígua (foi o
+ * que derrubou o teste de acessibilidade). Nomes distintos resolvem os dois
+ * problemas de uma vez.
+ */
+export function SearchBar({
+  idLista = "busca-resultados",
+  rotuloBusca = "Buscar políticos, partidos e projetos",
+}: { idLista?: string; rotuloBusca?: string } = {}) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -149,6 +167,38 @@ export function SearchBar() {
       results.bills.length > 0 ||
       results.historical.length > 0);
 
+  const totalResultados = results
+    ? results.politicians.length +
+      results.parties.length +
+      results.bills.length +
+      results.historical.length
+    : 0;
+
+  /**
+   * Anúncio do estado da busca.
+   *
+   * ── Por que região viva, e não `role="listbox"` ─────────────────────────────
+   * A primeira versão deste componente recebeu `role="combobox"` no campo e
+   * `role="listbox"` no painel. Era **inválido**: um `listbox` só aceita
+   * `option` (ou `group`) como filhos, e este painel contém seções com título e
+   * `<a>` — links de navegação, não opções selecionáveis. O axe reprovou com
+   * `aria-required-children` assim que o painel abriu.
+   *
+   * O padrão `combobox`+`listbox` exigiria reescrever o painel como lista plana
+   * de opções, com `aria-activedescendant` e navegação por setas — e perderia os
+   * agrupamentos, que são informação útil. Como o painel é uma lista de atalhos
+   * para navegar, o padrão honesto é: links nativos (já alcançáveis por teclado)
+   * + uma região viva que anuncia quantos resultados existem.
+   */
+  const anuncioBusca =
+    open && query.length >= 2
+      ? loading
+        ? "Buscando…"
+        : totalResultados > 0
+          ? `${totalResultados} ${totalResultados === 1 ? "resultado" : "resultados"} para ${query}`
+          : `Nenhum resultado para ${query}`
+      : "";
+
   const sectionClass = "border-t border-slate-800 p-2 first:border-t-0";
   const headerClass =
     "px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-slate-400";
@@ -164,6 +214,11 @@ export function SearchBar() {
           O campo de busca não tem rótulo visível por desenho (ícone + placeholder).
           `aria-label` é o nome acessível nesse caso; o placeholder fica só como
           dica e não é lido de forma confiável por leitor de tela.
+
+          Sem `role="combobox"`: ver o comentário de `anuncioBusca` — o painel de
+          resultados é uma lista de links agrupada, não um listbox de opções, e
+          anunciar `combobox` prometeria ao leitor de tela um comportamento que o
+          componente não tem.
         */}
         <input
           ref={inputRef}
@@ -172,12 +227,14 @@ export function SearchBar() {
           onChange={(e) => handleChange(e.target.value)}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          aria-label="Buscar políticos, partidos e projetos"
-          role="combobox"
-          aria-expanded={open}
-          aria-controls="busca-resultados"
-          aria-autocomplete="list"
-          placeholder="Buscar políticos, partidos, projetos... (Ctrl+K)"
+          aria-label={rotuloBusca}
+          /*
+            Placeholder curto: "Buscar políticos, partidos, projetos... (Ctrl+K)"
+            era truncado em 375px e sobrava "(Ctrl+" cortado, que parece defeito.
+            O atalho virou um chip visual (`kbd` abaixo), que só aparece onde há
+            espaço. O texto do campo não é o lugar de anunciar atalho de teclado.
+          */
+          placeholder="Buscar político, partido…"
           className="w-full rounded-lg border border-slate-700 bg-slate-950 py-2 pl-9 pr-8 text-sm text-slate-100 placeholder-slate-400 focus:border-sky-500 focus:outline-none"
         />
         <svg
@@ -200,10 +257,17 @@ export function SearchBar() {
         )}
       </div>
 
+      {/*
+        Região viva: anuncia quantos resultados apareceram sem interromper a
+        leitura. É o que substitui o `aria-expanded` do combobox que não existe.
+      */}
+      <p role="status" aria-live="polite" className="sr-only">
+        {anuncioBusca}
+      </p>
+
       {open && query.length >= 2 && (
         <div
-          id="busca-resultados"
-          role="listbox"
+          id={idLista}
           aria-label="Resultados da busca"
           className="absolute top-full z-50 mt-2 max-h-[70vh] w-full overflow-y-auto rounded-xl border border-slate-700 bg-slate-950 shadow-xl"
         >

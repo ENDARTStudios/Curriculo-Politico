@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { BotaoAcompanhar } from "@/components/BotaoAcompanhar";
+import { LogoPartido } from "@/components/LogoPartido";
+import { notaPartido } from "@/lib/nota-partido";
+import { estadoAcompanhamento } from "@/lib/acompanhamento";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { chaveDiaSnapshot } from "@/lib/snapshot";
@@ -111,10 +115,22 @@ export default async function PartidoPage({ params }: Props) {
   const avgMembersScore = ranked.length
     ? ranked.reduce((sum, m) => sum + m.score!.finalScore, 0) / ranked.length
     : 0;
-  const partyScore = avgMembersScore * 0.7 + 50 * 0.2 + 50 * 0.1;
+  /*
+    A nota composta (70% parlamentares + 20% transparência + 10% conformidade)
+    só é publicada quando os três componentes têm fonte. Hoje os dois últimos
+    não têm: usar 50 fixo publicava um número em que 30% era constante.
+  */
+  const nota = notaPartido({
+    mediaParlamentares: ranked.length ? avgMembersScore : null,
+    transparencia: null,
+    conformidade: null,
+  });
+  const partyScore = nota.valor;
+
+  const acompanhamento = await estadoAcompanhamento("PARTY", party.id);
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
+    <main className="mx-auto max-w-5xl px-6 py-12">
       <Link
         href="/partidos"
         className="mb-6 inline-block text-sm text-slate-400 transition hover:text-slate-100"
@@ -122,29 +138,53 @@ export default async function PartidoPage({ params }: Props) {
         ← Todos os partidos
       </Link>
 
-      <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-        <h1 className="text-4xl font-bold tracking-tight text-slate-100">
-          {party.acronym}
-        </h1>
-        <p className="mt-1 text-lg text-slate-400">{party.name}</p>
-        <div className="mt-3 flex flex-wrap items-center gap-4">
-          <IdeologyBadge
-            position={party.position}
-            ideology={party.ideology}
-            size="md"
-          />
-          {party.foundedYear && (
-            <span className="text-sm text-slate-400">
-              Fundado em {party.foundedYear}
-            </span>
+      {/*
+        Cabeçalho de entidade.
+
+        Antes empilhava tudo à esquerda: sigla, nome, badges e dois números —
+        deixando **metade direita do card vazia**. Numa tela de detalhe isso lê
+        como página inacabada. Agora a identidade fica à esquerda e os números à
+        direita, que é onde o olho procura o dado.
+
+        O nome só aparece quando difere da sigla: "PP" sobre "PP" era repetição.
+      */}
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-6 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+        <div className="min-w-0">
+          <div className="flex items-center gap-4">
+            <LogoPartido
+              acronym={party.acronym}
+              name={party.name}
+              logoUrl={party.logoUrl}
+              color={party.color}
+              tamanho={56}
+            />
+            <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
+              {party.acronym}
+            </h1>
+          </div>
+          {party.name && party.name !== party.acronym && (
+            <p className="mt-1 text-lg text-slate-400">{party.name}</p>
           )}
-          {party.tseNumber && (
-            <span className="text-sm text-slate-400">
-              Nº TSE: {party.tseNumber}
-            </span>
-          )}
+          <div className="mt-3 flex flex-wrap items-center gap-4">
+            <IdeologyBadge
+              position={party.position}
+              ideology={party.ideology}
+              size="md"
+            />
+            {party.foundedYear && (
+              <span className="text-sm text-slate-400">
+                Fundado em {party.foundedYear}
+              </span>
+            )}
+            {party.tseNumber && (
+              <span className="text-sm text-slate-400">
+                Nº TSE: {party.tseNumber}
+              </span>
+            )}
+          </div>
         </div>
-        <div className="mt-4 flex gap-8">
+
+        <div className="flex gap-8">
           <div>
             <div className="text-xs uppercase tracking-wide text-slate-400">
               Parlamentares
@@ -164,14 +204,23 @@ export default async function PartidoPage({ params }: Props) {
         </div>
       </div>
 
+      <div className="mb-6">
+        <BotaoAcompanhar
+          tipo="PARTY"
+          alvoId={party.id}
+          inicial={acompanhamento.seguindo}
+          logado={acompanhamento.logado}
+        />
+      </div>
+
       <div className="mb-6 grid gap-6 lg:grid-cols-2">
         {ranked.length > 0 ? (
           <PartyScoreBreakdown
             avgMembersScore={avgMembersScore}
             memberCount={members.length}
             rankedCount={ranked.length}
-            transparencyScore={50}
-            complianceScore={50}
+            transparencyScore={null}
+            complianceScore={null}
             finalScore={partyScore}
           />
         ) : (

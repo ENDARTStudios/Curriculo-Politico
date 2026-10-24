@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import { prisma } from "@/lib/prisma";
 import { ComparacaoPartidos } from "@/components/ComparacaoPartidos";
 import Link from "next/link";
@@ -73,7 +74,7 @@ export default async function CompararPartidosPage() {
     .sort((a, b) => (b.avgScore ?? -1) - (a.avgScore ?? -1));
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
+    <main className="mx-auto max-w-5xl px-6 py-12">
       <Link
         href="/partidos"
         className="mb-6 inline-block text-sm text-slate-400 transition hover:text-slate-100"
@@ -81,13 +82,15 @@ export default async function CompararPartidosPage() {
         ← Todos os partidos
       </Link>
 
-      <h1 className="text-3xl font-bold tracking-tight text-slate-100">
-        Comparar Partidos
-      </h1>
-      <p className="mt-2 max-w-3xl text-slate-400">
-        Selecione de 2 a 4 partidos para comparar desempenho agregado,
-        distribuição do termômetro e confiança média dos dados.
-      </p>
+      <CabecalhoPagina
+        titulo="Comparar Partidos"
+        lead={
+          <>
+            Selecione de 2 a 4 partidos para comparar desempenho agregado,
+            distribuição do termômetro e confiança média dos dados.
+          </>
+        }
+      />
 
       <div className="mt-8">
         <ComparacaoPartidos parties={stats} />

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import { Suspense } from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { formatarInteiro } from "@/lib/formato";
 import { ProjetoFilters } from "@/components/ProjetoFilters";
 import type { Prisma } from "@prisma/client";
 
@@ -40,7 +42,7 @@ async function getBills(params: Awaited<Props["searchParams"]>) {
     where.date = { gte: new Date(`${y}-01-01`), lte: new Date(`${y}-12-31`) };
   }
 
-  const [bills, total] = await Promise.all([
+  const [bills, total, totalBase] = await Promise.all([
     prisma.bill.findMany({
       where,
       include: {
@@ -51,9 +53,20 @@ async function getBills(params: Awaited<Props["searchParams"]>) {
       take: limit,
     }),
     prisma.bill.count({ where }),
+    /*
+      Total da base, SEM filtro, em consulta própria.
+
+      O texto de abertura dizia "{total} proposições catalogadas" usando o total
+      **filtrado** — então uma busca sem resultado exibia "0 proposições
+      catalogadas de autoria dos parlamentares na base", como se o banco estivesse
+      vazio. Numa plataforma de transparência isso não é erro de layout: é afirmar
+      um fato falso sobre a base. O número do acervo não pode depender do filtro que
+      o visitante aplicou.
+    */
+    prisma.bill.count(),
   ]);
 
-  return { bills, total, page, limit };
+  return { bills, total, totalBase, page, limit };
 }
 
 function montarQuery(params: Awaited<Props["searchParams"]>, page: number): string {
@@ -67,7 +80,7 @@ function montarQuery(params: Awaited<Props["searchParams"]>, page: number): stri
 
 export default async function ProjetosPage({ searchParams }: Props) {
   const params = await searchParams;
-  const { bills, total, page, limit } = await getBills(params);
+  const { bills, total, totalBase, page, limit } = await getBills(params);
   const totalPages = Math.ceil(total / limit);
 
   // Tipos e anos derivados dos dados (o filtro 'status' não existe no
@@ -95,15 +108,18 @@ export default async function ProjetosPage({ searchParams }: Props) {
   const filtrosAtivos = [params.q, params.type, params.year].filter(Boolean).length;
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-100">
-        Projetos de Lei e Proposições
-      </h1>
-      <p className="mt-2 text-slate-400">
-        {total.toLocaleString("pt-BR")} proposições catalogadas de autoria dos
-        parlamentares na base. A votação popular em cada projeto é uma camada
-        de engajamento pessoal e nunca altera a nota IDIP dos autores.
-      </p>
+    <main className="mx-auto max-w-5xl px-6 py-12">
+      <CabecalhoPagina
+        titulo="Projetos de Lei e Proposições"
+        lead={
+          <>
+            {/* `totalBase`, não `total`: o acervo não muda com o filtro aplicado. */}
+            {formatarInteiro(totalBase)} proposições catalogadas de autoria dos
+            parlamentares na base. A votação popular em cada projeto é uma camada
+            de engajamento pessoal e nunca altera a nota IDIP dos autores.
+          </>
+        }
+      />
 
       <div className="mt-8">
         <Suspense fallback={<div className="text-slate-400">Carregando filtros...</div>}>

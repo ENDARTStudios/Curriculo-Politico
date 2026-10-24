@@ -1,4 +1,11 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
+import { PesosCartao } from "@/components/PesosCartao";
+import {
+  DIMENSOES_LEGISLATIVO,
+  DIMENSOES_EXECUTIVO,
+  DIMENSOES_STF,
+} from "@/lib/methodology";
 
 export const metadata: Metadata = {
   title: "Metodologia IDIP",
@@ -85,24 +92,26 @@ const FONTES_STATUS = [
 
 export default function MetodologiaPage() {
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-100">
-        Metodologia IDIP v1.1
-      </h1>
-      <p className="mt-2 max-w-3xl text-slate-400">
-        Índice de Desempenho e Integridade Pública: nota de 0 a 100 calculada
-        algoritmicamente sobre dados públicos. Sem voto popular na{" "}
-        <strong className="text-slate-200">nota</strong>. Código aberto e
-        auditável —{" "}
-        <a
-          href="https://github.com/"
-          className="text-sky-400 hover:underline"
-          title="repositório do projeto"
-        >
-          packages/idip/src/scoring.ts
-        </a>
-        .
-      </p>
+    <main className="mx-auto max-w-5xl px-6 py-12">
+      <CabecalhoPagina
+        titulo="Metodologia IDIP v1.1"
+        lead={
+          <>
+            Índice de Desempenho e Integridade Pública: nota de 0 a 100 calculada
+            algoritmicamente sobre dados públicos. Sem voto popular na{" "}
+            <strong className="text-slate-200">nota</strong>. Código aberto e
+            auditável —{" "}
+            <a
+            href="https://github.com/"
+            className="text-sky-400 hover:underline"
+            title="repositório do projeto"
+            >
+            packages/idip/src/scoring.ts
+            </a>
+            .
+          </>
+        }
+      />
       <p className="mt-3 max-w-3xl rounded-lg border border-slate-800 bg-slate-900/60 p-3 text-xs leading-relaxed text-slate-400">
         Esta página separa explicitamente o que o algoritmo{" "}
         <strong className="text-emerald-300">faz hoje</strong> do que está{" "}
@@ -509,6 +518,37 @@ export default function MetodologiaPage() {
             — confira sempre a <strong>Confiança</strong> exibida e os selos de
             baseline antes de comparar parlamentares.
           </p>
+        </div>
+
+        {/*
+          Pesos por perfil — movidos da home.
+          
+          Lá eles faziam a página de entrada parecer documentação: o visitante via
+          a fórmula antes de ver o produto. Aqui é o lugar deles, ao lado da
+          tabela de dimensões.
+          
+          A **soma** em cada cartão não é enfeite: pesos que não fecham em 100%
+          são defeito de metodologia, e defeito de metodologia tem de ficar
+          visível na tela em vez de escondido no código. Os números vêm de
+          `@/lib/methodology`, validados contra o motor por `verify:scoring`.
+        */}
+        <div className="mt-10 grid gap-6 lg:grid-cols-2">
+          <PesosCartao
+            titulo="Legislativo"
+            descricao="Deputados federais e senadores"
+            dimensoes={DIMENSOES_LEGISLATIVO}
+          />
+          <PesosCartao
+            titulo="Executivo"
+            descricao="Presidente e governadores"
+            dimensoes={DIMENSOES_EXECUTIVO}
+          />
+          <PesosCartao
+            titulo="Judiciário"
+            descricao="Ministros do Supremo Tribunal Federal"
+            dimensoes={DIMENSOES_STF}
+            nota="Índice próprio (IDIP-STF), com pesos diferentes do Legislativo: ministro é nomeado, não eleito. A coleta das decisões do STF está em construção — elas são publicadas no Diário de Justiça Eletrônico sem API consolidada — então ainda não há nota publicada."
+          />
         </div>
       </section>
 

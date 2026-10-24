@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import Link from "next/link";
 import { CONTATO, mailto } from "@/lib/contato";
 
@@ -13,63 +14,94 @@ export default function ApoiePage() {
   const sponsorsUrl = process.env.NEXT_PUBLIC_GITHUB_SPONSORS_URL;
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
-      <h1 className="text-4xl font-bold tracking-tight text-slate-100">
-        Apoie o Currículo Político
-      </h1>
-      <p className="mt-3 max-w-2xl text-xl leading-relaxed text-slate-400">
-        Somos um projeto 100% gratuito e open source. Sua ajuda mantém a
-        transparência política acessível a todos.
-      </p>
+    <main className="mx-auto max-w-5xl px-6 py-12">
+      <CabecalhoPagina
+        titulo="Apoie o Currículo Político"
+        lead={
+          <>
+            Somos um projeto 100% gratuito e open source. Sua ajuda mantém a
+            transparência política acessível a todos.
+          </>
+        }
+      />
 
-      <div className="mt-10 grid gap-6 md:grid-cols-2">
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
-          <div className="mb-3 text-3xl">💰</div>
-          <h3 className="mb-2 text-xl font-bold text-slate-100">Doação via Pix</h3>
-          <p className="mb-4 text-sm leading-relaxed text-slate-400">
-            Qualquer valor ajuda a manter os servidores e APIs funcionando.
-          </p>
-          <div className="rounded-lg bg-slate-800/60 p-4 text-center">
-            <p className="mb-2 text-xs text-slate-400">Chave Pix (CNPJ):</p>
-            {pixKey ? (
-              <p className="font-mono text-lg font-bold text-slate-100">{pixKey}</p>
-            ) : (
-              <p className="text-sm italic text-slate-400">
-                Chave em configuração
+      {/*
+        Só aparece o canal que existe.
+
+        Antes, sem `NEXT_PUBLIC_PIX_KEY` configurada, o card do Pix continuava na
+        tela anunciando "Doação via Pix" e, no lugar da chave, exibia
+        **"Chave em configuração"** em itálico. Uma página de doação que oferece um
+        meio de pagamento que não recebe nada é pior que uma que não o oferece: a
+        pessoa tenta doar e não consegue, e a confiança cai no ponto em que ela
+        estava mais disposta a ajudar.
+
+        É a mesma regra da faixa de prova da home, que some quando o banco está
+        vazio em vez de mostrar zero.
+      */}
+      {(pixKey || sponsorsUrl) && (
+        <div className="mt-10 grid gap-6 md:grid-cols-2">
+          {pixKey && (
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+              <div className="mb-3 text-3xl">💰</div>
+              <h2 className="mb-2 text-xl font-bold text-slate-100">
+                Doação via Pix
+              </h2>
+              <p className="mb-4 text-sm leading-relaxed text-slate-400">
+                Qualquer valor ajuda a manter os servidores e APIs funcionando.
               </p>
-            )}
-          </div>
-        </div>
+              <div className="rounded-lg bg-slate-800/60 p-4 text-center">
+                <p className="mb-2 text-xs text-slate-400">Chave Pix (CNPJ)</p>
+                <p className="font-mono text-lg font-bold text-slate-50">{pixKey}</p>
+              </div>
+            </div>
+          )}
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
-          <div className="mb-3 text-3xl">⭐</div>
-          <h3 className="mb-2 text-xl font-bold text-slate-100">
-            GitHub Sponsors
-          </h3>
-          <p className="mb-4 text-sm leading-relaxed text-slate-400">
-            Apoie mensalmente e receba reconhecimento como patrocinador.
-          </p>
-          {sponsorsUrl ? (
-            <a
-              href={sponsorsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block w-full rounded-lg bg-slate-800 px-4 py-2 text-center text-white transition hover:bg-slate-700"
-            >
-              Patrocinar no GitHub
-            </a>
-          ) : (
-            <a
-              href="https://github.com/ENDARTStudios/Curriculo-Politico"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block w-full rounded-lg border border-slate-700 px-4 py-2 text-center text-sm text-slate-300 transition hover:bg-slate-800"
-            >
-              Ver repositório no GitHub
-            </a>
+          {sponsorsUrl && (
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+              <div className="mb-3 text-3xl">⭐</div>
+              <h2 className="mb-2 text-xl font-bold text-slate-100">
+                GitHub Sponsors
+              </h2>
+              <p className="mb-4 text-sm leading-relaxed text-slate-400">
+                Apoie mensalmente e receba reconhecimento como patrocinador.
+              </p>
+              <a
+                href={sponsorsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block w-full rounded-lg bg-sky-500 px-4 py-2 text-center font-semibold text-slate-950 transition hover:bg-sky-400"
+              >
+                Patrocinar no GitHub
+              </a>
+            </div>
           )}
         </div>
-      </div>
+      )}
+
+      {/*
+        Sem canal de pagamento ativo, a página não fica vazia nem finge: diz o que
+        está acontecendo e oferece as formas que existem hoje — código, divulgação
+        e relato de erro não dependem de configuração nenhuma.
+      */}
+      {!pixKey && !sponsorsUrl && (
+        <div className="mt-10 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+          <h2 className="text-xl font-bold text-slate-100">
+            Doações ainda não estão abertas
+          </h2>
+          <p className="mt-2 max-w-[65ch] text-sm leading-relaxed text-slate-400">
+            Os canais de contribuição financeira estão em configuração. Enquanto
+            isso, as formas abaixo ajudam do mesmo jeito — e algumas ajudam mais.
+          </p>
+          <a
+            href="https://github.com/ENDARTStudios/Curriculo-Politico"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-block rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-300 transition hover:bg-slate-800"
+          >
+            Ver o repositório no GitHub
+          </a>
+        </div>
+      )}
 
       <div className="mt-8 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
         <h3 className="mb-4 text-xl font-bold text-slate-100">
@@ -111,6 +143,59 @@ export default function ApoiePage() {
               </Link>
               .
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/*
+        Patrocínio e parcerias por e-mail.
+
+        Estes dois canais existem independentemente de Pix ou GitHub Sponsors
+        estarem configurados: quem quer patrocinar ou firmar parceria precisa de
+        um endereço, não de um botão de pagamento. Por isso ficam fora do bloco
+        condicional — antes, a página dizia "doações não estão abertas" e não
+        oferecia nenhuma via para quem chega justamente com uma proposta.
+      */}
+      <div className="mt-8 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <h3 className="mb-1 text-xl font-bold text-slate-100">
+          Patrocínio e parcerias
+        </h3>
+        <p className="mb-5 max-w-[65ch] text-sm leading-relaxed text-slate-400">
+          Sustentação institucional não passa por botão: é conversa. Escreva para
+          a caixa certa — as duas são lidas pela mesma equipe, e separá-las é o que
+          evita proposta de patrocínio parar na fila de parceria.
+        </p>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-lg bg-slate-800/60 p-4">
+            <div className="mb-1 text-2xl">🤝</div>
+            <h4 className="font-semibold text-slate-100">Patrocínio</h4>
+            <p className="mt-1 text-xs leading-relaxed text-slate-400">
+              Empresas, fundações e editais que queiram financiar a operação em
+              troca de reconhecimento público.
+            </p>
+            <a
+              href={mailto(CONTATO.patrocinio)}
+              className="mt-3 inline-block break-all text-sm font-medium text-sky-400 hover:underline"
+            >
+              {CONTATO.patrocinio}
+            </a>
+          </div>
+
+          <div className="rounded-lg bg-slate-800/60 p-4">
+            <div className="mb-1 text-2xl">🔗</div>
+            <h4 className="font-semibold text-slate-100">Parcerias</h4>
+            <p className="mt-1 text-xs leading-relaxed text-slate-400">
+              Universidades, veículos de imprensa e organizações que queiram
+              colaborar com dados, revisão técnica ou divulgação — sem
+              transferência de recurso.
+            </p>
+            <a
+              href={mailto(CONTATO.parcerias)}
+              className="mt-3 inline-block break-all text-sm font-medium text-sky-400 hover:underline"
+            >
+              {CONTATO.parcerias}
+            </a>
           </div>
         </div>
       </div>

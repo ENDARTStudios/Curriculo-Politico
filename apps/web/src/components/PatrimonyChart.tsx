@@ -1,17 +1,20 @@
 "use client";
 
 import type { PatrimonyHistory } from "@prisma/client";
+import { formatarDecimal, formatarMoedaCompacta } from "@/lib/formato";
 
 interface PatrimonyChartProps {
   history: PatrimonyHistory[];
 }
 
-const formatBRL = (v: number) =>
-  v >= 1_000_000
-    ? `R$ ${(v / 1_000_000).toFixed(2)}M`
-    : v >= 1000
-      ? `R$ ${(v / 1000).toFixed(0)}k`
-      : `R$ ${v.toFixed(0)}`;
+/**
+ * Rótulo monetário do eixo.
+ *
+ * A versão anterior escrevia `R$ 1.50M`: ponto decimal e sufixo inglês num eixo
+ * que o visitante brasileiro lê como "um real e cinquenta". Delegado ao
+ * formatador, que usa vírgula e "mi"/"mil".
+ */
+const formatBRL = (v: number) => formatarMoedaCompacta(v);
 
 export function PatrimonyChart({ history }: PatrimonyChartProps) {
   if (history.length === 0) return null;
@@ -31,8 +34,10 @@ export function PatrimonyChart({ history }: PatrimonyChartProps) {
   const chartWidth = Math.max(ordered.length * 80, 400);
   const plotWidth = chartWidth - 50;
 
+  // `min-w-0` pelo mesmo motivo do PartyPerformanceChart: item de grid não
+  // encolhe abaixo do conteúdo, e o SVG tem largura mínima fixa.
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+    <div className="min-w-0 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-bold text-slate-100">💎 Evolução Patrimonial</h2>
         <div className="flex gap-4 text-xs">
@@ -49,7 +54,7 @@ export function PatrimonyChart({ history }: PatrimonyChartProps) {
                 }`}
               >
                 {variacao > 0 ? "+" : ""}
-                {variacao.toFixed(1)}%
+                {formatarDecimal(variacao, 1)}%
               </div>
             </div>
           )}

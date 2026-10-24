@@ -1,10 +1,17 @@
 import { redirect } from "next/navigation";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ContaAcoes } from "./ContaAcoes";
 import { CONTATO, mailto } from "@/lib/contato";
+import { listarAcompanhamentos } from "@/lib/acompanhamento";
+import { BotaoMarcarVisto } from "@/components/BotaoMarcarVisto";
+import { novidadesParaUsuario } from "@/lib/novidades";
+import { obterIdioma } from "@/lib/i18n/servidor";
+import { tradutor } from "@/lib/i18n/t";
+import { EIXOS, type Pontuacoes } from "@/lib/espectro";
 
 export const dynamic = "force-dynamic";
 
@@ -58,15 +65,39 @@ export default async function ContaPage() {
   const fmt = (d: Date | null) =>
     d ? d.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "—";
 
+  // Dashboard: acompanhamentos, novidades e último resultado do espectro.
+  // As três consultas são independentes e vão em paralelo.
+  const [acompanhamentos, ultimoEspectro, novidades] = await Promise.all([
+    listarAcompanhamentos(userId),
+    prisma.spectrumResult.findFirst({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      select: { scores: true, versao: true, createdAt: true },
+    }),
+    novidadesParaUsuario(userId),
+  ]);
+
+  /*
+    Traduzir só as seções novas.
+
+    O texto jurídico desta página (consentimento, termos, exclusão de conta)
+    permanece em português: é linguagem legal, e traduzi-la exige revisão humana,
+    não substituição de rótulo. Misturar os dois no mesmo bloco seria pior que
+    manter o bloco jurídico inteiro no idioma de origem.
+  */
+  const tr = tradutor(await obterIdioma());
+
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-100">
-        Minha Conta
-      </h1>
-      <p className="mt-2 text-sm text-slate-400">
-        Transparência total sobre o que guardamos — e controle direto, sem
-        depender de e-mail (Art. 18 da LGPD).
-      </p>
+    <main className="mx-auto max-w-5xl px-6 py-12">
+      <CabecalhoPagina
+        titulo="Minha Conta"
+        lead={
+          <>
+            Transparência total sobre o que guardamos — e controle direto, sem
+            depender de e-mail (Art. 18 da LGPD).
+          </>
+        }
+      />
 
       {/* Dados da conta */}
       <section className="mt-8 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
@@ -93,6 +124,142 @@ export default async function ContaPage() {
           </div>
         </dl>
       </section>
+
+      {/* ── Novidades desde a última visita ────────────────────────────────
+          Fica acima dos acompanhamentos porque responde à pergunta que traz a
+          pessoa de volta ("mudou alguma coisa?"), enquanto a lista de
+          acompanhamentos é o inventário do que ela escolheu seguir. */}
+      <section className="mt-6 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <h2 className="text-lg font-semibold text-slate-100">
+            {tr("novidades.titulo")}
+          </h2>
+          <span className="text-xs text-slate-400">
+            {novidades.desde
+              ? tr("novidades.desde", {
+                  data: novidades.desde.toLocaleDateString("pt-BR"),
+                })
+              : tr("novidades.primeiraVisita")}
+          </span>
+        </div>
+
+        {acompanhamentos.total === 0 ? (
+          <p className="mt-3 text-sm leading-relaxed text-slate-300">
+            {tr("novidades.semAcompanhamento")}
+          </p>
+        ) : novidades.novidades.length === 0 ? (
+          <p className="mt-3 text-sm leading-relaxed text-slate-300">
+            {tr("novidades.vazio")}
+          </p>
+        ) : (
+          <ul className="mt-4 divide-y divide-slate-800">
+            {novidades.novidades.map((n) => (
+              <li key={n.id} className="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-2.5">
+                <Link
+                  href={n.href}
+                  className="min-w-0 flex-1 truncate text-sm font-medium text-slate-200 hover:text-slate-50 hover:underline"
+                >
+                  {n.rotulo}
+                </Link>
+                <span className="text-xs text-slate-400">
+                  {n.tipo === "SCORE" ? tr("novidades.score") : tr("novidades.status")}
+                </span>
+                <span className="font-mono text-sm tabular-nums text-slate-300">
+                  {n.valorAntes ?? "—"} <span aria-hidden="true">→</span>{" "}
+                  <span className="text-slate-100">{n.valorDepois ?? "—"}</span>
+                </span>
+                <time
+                  dateTime={n.ocorridoEm.toISOString()}
+                  className="w-full text-xs text-slate-400 sm:w-auto"
+                >
+                  {n.ocorridoEm.toLocaleDateString("pt-BR")}
+                </time>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <BotaoMarcarVisto desabilitado={novidades.novidades.length === 0} />
+
+        <p className="mt-3 text-xs leading-relaxed text-slate-400">
+          {tr("novidades.cobertura")}
+        </p>
+      </section>
+
+      {/* ── Dashboard: o que a pessoa acompanha ─────────────────────────────
+          No topo da área porque é o que traz a pessoa de volta. Mostra os três
+          tipos juntos: separar em três páginas esconderia que a plataforma
+          acompanha político, partido E projeto. */}
+      <section className="mt-6 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <h2 className="text-lg font-semibold text-slate-100">
+            {tr("acompanhamentos.titulo")}
+          </h2>
+          <span className="text-xs text-slate-400">
+            {tr("acompanhamentos.contagem", { n: acompanhamentos.total })}
+          </span>
+        </div>
+
+        {acompanhamentos.total === 0 ? (
+          <div className="rounded-lg border border-slate-700 bg-slate-950/60 p-4 text-sm leading-relaxed text-slate-300">
+            <p>{tr("acompanhamentos.vazio")}</p>
+            <Link
+              href="/ranking"
+              className="mt-3 inline-block font-medium text-sky-400 hover:text-sky-300"
+            >
+              {tr("acompanhamentos.irParaRanking")} →
+            </Link>
+          </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-3">
+            <BlocoAcompanhamento
+              titulo={tr("acompanhamentos.politicos")}
+              itens={acompanhamentos.politicos.map((p) => ({
+                href: `/politicos/${p.id}`,
+                rotulo: p.politicalName,
+              }))}
+            />
+            <BlocoAcompanhamento
+              titulo={tr("acompanhamentos.partidos")}
+              itens={acompanhamentos.partidos.map((p) => ({
+                href: `/partidos/${encodeURIComponent(p.acronym)}`,
+                rotulo: `${p.acronym} · ${p.name}`,
+              }))}
+            />
+            <BlocoAcompanhamento
+              titulo={tr("acompanhamentos.projetos")}
+              itens={acompanhamentos.projetos.map((p) => ({
+                href: `/projetos/${p.id}`,
+                rotulo: p.title,
+              }))}
+            />
+          </div>
+        )}
+      </section>
+
+      {/* ── Último resultado do espectro ─────────────────────────────────── */}
+      {ultimoEspectro && (
+        <section className="mt-6 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+            <h2 className="text-lg font-semibold text-slate-100">
+              {tr("espectro.ultimoResultado")}
+            </h2>
+            <span className="text-xs text-slate-400">
+              {fmt(ultimoEspectro.createdAt)}
+            </span>
+          </div>
+          <EixosEspectro scores={ultimoEspectro.scores} />
+          <p className="mt-3 text-xs text-slate-400">
+            {tr("espectro.versao", { versao: ultimoEspectro.versao })}
+          </p>
+          <Link
+            href="/espectro"
+            className="mt-4 inline-block rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-800"
+          >
+            {tr("espectro.refazer")}
+          </Link>
+        </section>
+      )}
 
       {/* Consentimento político (dado sensível) */}
       <section className="mt-6 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
@@ -182,5 +349,89 @@ export default async function ContaPage() {
         .
       </p>
     </main>
+  );
+}
+
+
+/**
+ * Lista de acompanhamentos de um tipo.
+ *
+ * Devolve `null` quando a lista está vazia: mostrar três títulos com "nada aqui"
+ * embaixo transforma a ausência em ruído. Com o bloco ausente, a grid mostra só
+ * o que existe.
+ */
+function BlocoAcompanhamento({
+  titulo,
+  itens,
+}: {
+  titulo: string;
+  itens: { href: string; rotulo: string }[];
+}) {
+  if (itens.length === 0) return null;
+
+  return (
+    <div>
+      <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+        {titulo}
+      </h3>
+      <ul className="mt-2 space-y-1.5">
+        {itens.map((item) => (
+          <li key={item.href}>
+            <Link
+              href={item.href}
+              className="block truncate text-sm text-slate-300 transition hover:text-slate-50"
+            >
+              {item.rotulo}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/**
+ * Eixos do espectro salvos, de -100 a +100.
+ *
+ * A barra é centrada no zero: a posição **é** o dado, e uma barra que cresce da
+ * esquerda faria um resultado de −40 e um de +40 parecerem o mesmo tamanho.
+ */
+function EixosEspectro({ scores }: { scores: unknown }) {
+  const p = (scores ?? {}) as Partial<Pontuacoes>;
+
+  return (
+    <ul className="mt-4 space-y-3">
+      {EIXOS.map((eixo) => {
+        const valor = p[eixo.id];
+        if (typeof valor !== "number") return null;
+        // -100..100 → 0..100% de deslocamento a partir do centro.
+        const deslocamento = Math.min(50, Math.abs(valor) / 2);
+
+        return (
+          <li key={eixo.id}>
+            <div className="mb-1 flex items-baseline justify-between gap-3">
+              <span className="text-sm text-slate-300">{eixo.nome}</span>
+              <span className="whitespace-nowrap font-mono text-sm tabular-nums text-slate-400">
+                {valor > 0 ? "+" : ""}
+                {Math.round(valor)}
+              </span>
+            </div>
+            <div
+              aria-hidden="true"
+              className="relative h-2 w-full rounded-full bg-slate-800"
+            >
+              <span className="absolute left-1/2 top-0 h-2 w-px bg-slate-600" />
+              <span
+                className="absolute top-0 h-2 rounded-full bg-sky-500"
+                style={{
+                  left: valor >= 0 ? "50%" : `${50 - deslocamento}%`,
+                  width: `${deslocamento}%`,
+                }}
+              />
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

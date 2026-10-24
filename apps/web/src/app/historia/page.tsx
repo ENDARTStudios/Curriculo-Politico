@@ -1,3 +1,5 @@
+import { formatarInteiro } from "@/lib/formato";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
@@ -30,15 +32,17 @@ export default async function HistoriaPage() {
     n >= 70 ? "text-emerald-400" : n >= 50 ? "text-amber-400" : "text-red-400";
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
-      <h1 className="text-4xl font-bold tracking-tight text-slate-100">
-        Ranking Histórico da Política Brasileira
-      </h1>
-      <p className="mt-3 max-w-3xl text-xl leading-relaxed text-slate-400">
-        Avaliação de figuras históricas com base em legado institucional,
-        estabilidade democrática e fatos documentados. Metodologia adaptada por
-        era.
-      </p>
+    <main className="mx-auto max-w-5xl px-6 py-12">
+      <CabecalhoPagina
+        titulo="Ranking Histórico da Política Brasileira"
+        lead={
+          <>
+            Avaliação de figuras históricas com base em legado institucional,
+            estabilidade democrática e fatos documentados. Metodologia adaptada por
+            era.
+          </>
+        }
+      />
 
       <div className="mt-8 rounded-xl border border-amber-500/30 bg-amber-500/5 p-6">
         <h3 className="mb-2 font-semibold text-slate-100">⚠️ Sobre este ranking</h3>
@@ -70,58 +74,89 @@ export default async function HistoriaPage() {
         </p>
       </div>
 
-      {/* Ranking geral */}
-      <div className="mt-10 grid gap-6 md:grid-cols-2">
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
-          <h2 className="mb-4 flex items-center gap-2 text-2xl font-bold text-slate-100">
-            🏆 Maior Pontuação
-          </h2>
-          <div className="space-y-3">
-            {melhores.map((p, i) => (
-              <div
-                key={p.id}
-                className="flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3"
-              >
-                <span className="text-lg font-bold text-emerald-400">{i + 1}º</span>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-semibold text-slate-100">{p.name}</div>
-                  <div className="text-xs text-slate-400">
-                    {p.office} ({p.startYear}–{p.endYear ?? "atual"})
-                  </div>
-                </div>
-                <div className="text-2xl font-bold text-emerald-400">
-                  {p.historicalScore?.toFixed(0)}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      {/*
+        Sem figura histórica carregada, a página não pode exibir dois cards de
+        ranking VAZIOS: "Maior Pontuação" e "Menor Pontuação" apareciam com título
+        e nada dentro — a página existe para mostrar um ranking e não mostrava
+        nada, o que lê como defeito, não como ausência de dado.
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
-          <h2 className="mb-4 flex items-center gap-2 text-2xl font-bold text-slate-100">
-            ⚠️ Menor Pontuação
+        O estado vazio segue o padrão de `/stf`: diz o que falta, por que falta e
+        o que já está pronto. Critérios e nota metodológica continuam na tela
+        porque eles existem de verdade.
+      */}
+      {allPoliticians.length === 0 ? (
+        <div className="mt-10 rounded-xl border border-amber-500/30 bg-amber-500/5 p-6">
+          <h2 className="flex items-center gap-2 text-lg font-bold text-amber-200">
+            <span aria-hidden="true">⚠️</span> Acervo histórico em construção
           </h2>
-          <div className="space-y-3">
-            {piores.map((p, i) => (
-              <div
-                key={p.id}
-                className="flex items-center gap-3 rounded-lg border border-red-500/20 bg-red-500/5 p-3"
-              >
-                <span className="text-lg font-bold text-red-400">{i + 1}º</span>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-semibold text-slate-100">{p.name}</div>
-                  <div className="text-xs text-slate-400">
-                    {p.office} ({p.startYear}–{p.endYear ?? "atual"})
+          <p className="mt-2 max-w-[65ch] text-sm leading-relaxed text-slate-300">
+            A estrutura está pronta — eras, critérios e a nota histórica — mas as
+            figuras ainda não foram cadastradas. A coleta é qualitativa e exige
+            fonte historiográfica para cada entrada, então não é automatizável como
+            a dos parlamentares em exercício.
+          </p>
+          <p className="mt-2 max-w-[65ch] text-sm leading-relaxed text-slate-400">
+            Enquanto isso, os políticos contemporâneos têm nota auditável em tempo
+            real no{" "}
+            <a href="/ranking" className="font-medium text-sky-400 hover:underline">
+              ranking IDIP
+            </a>
+            .
+          </p>
+        </div>
+      ) : (
+        <div className="mt-10 grid gap-6 md:grid-cols-2">
+          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+            <h2 className="mb-4 flex items-center gap-2 text-2xl font-bold text-slate-100">
+              🏆 Maior Pontuação
+            </h2>
+            <div className="space-y-3">
+              {melhores.map((p, i) => (
+                <div
+                  key={p.id}
+                  className="flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3"
+                >
+                  <span className="text-lg font-bold text-emerald-400">{i + 1}º</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-semibold text-slate-100">{p.name}</div>
+                    <div className="text-xs text-slate-400">
+                      {p.office} ({p.startYear}–{p.endYear ?? "atual"})
+                    </div>
+                  </div>
+                  <div className="text-2xl font-bold text-emerald-400">
+                    {formatarInteiro(p.historicalScore)}
                   </div>
                 </div>
-                <div className="text-2xl font-bold text-red-400">
-                  {p.historicalScore?.toFixed(0)}
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+            <h2 className="mb-4 flex items-center gap-2 text-2xl font-bold text-slate-100">
+              ⚠️ Menor Pontuação
+            </h2>
+            <div className="space-y-3">
+              {piores.map((p, i) => (
+                <div
+                  key={p.id}
+                  className="flex items-center gap-3 rounded-lg border border-red-500/20 bg-red-500/5 p-3"
+                >
+                  <span className="text-lg font-bold text-red-400">{i + 1}º</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-semibold text-slate-100">{p.name}</div>
+                    <div className="text-xs text-slate-400">
+                      {p.office} ({p.startYear}–{p.endYear ?? "atual"})
+                    </div>
+                  </div>
+                  <div className="text-2xl font-bold text-red-400">
+                    {formatarInteiro(p.historicalScore)}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Por era */}
       {eras.map((era) => (
@@ -149,7 +184,7 @@ export default async function HistoriaPage() {
                   </div>
                   {p.historicalScore !== null && (
                     <div className={`text-2xl font-bold ${corNota(p.historicalScore)}`}>
-                      {p.historicalScore.toFixed(0)}
+                      {formatarInteiro(p.historicalScore)}
                     </div>
                   )}
                 </div>

@@ -40,8 +40,14 @@ export function PartyPerformanceChart({
   const cor = partyColor || "#0ea5e9";
   const fmt = (d: string | Date) => mesCurtoSnapshot(d);
 
+  // `min-w-0` é obrigatório aqui: este componente é filho de um grid
+  // (`lg:grid-cols-2`), e item de grid tem `min-width: auto` por padrão — ou
+  // seja, não encolhe abaixo do conteúdo. O SVG tem largura mínima de 400px,
+  // então o card virava 450px dentro de uma viewport de 375px e o documento
+  // inteiro ganhava 99px de rolagem lateral no mobile. O `overflow-x-auto` de
+  // dentro não ajuda se o próprio card já transbordou.
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+    <div className="min-w-0 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
       <h2 className="mb-4 text-xl font-bold text-slate-100">
         Evolução da Nota Média do Partido
       </h2>

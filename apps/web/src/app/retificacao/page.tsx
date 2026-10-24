@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import { CONTATO, mailto } from "@/lib/contato";
 
 /**
@@ -27,6 +28,57 @@ export default function RetificacaoPage() {
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
 
+  /**
+   * Erros por campo.
+   *
+   * ── Por que por campo, e não uma mensagem única ─────────────────────────
+   * Uma mensagem no topo do formulário diz *que* algo está errado e não *onde*.
+   * Para quem usa leitor de tela, a diferença é a diferença entre "corrija o
+   * formulário" e "o campo E-mail, que você acabou de deixar, está inválido".
+   *
+   * O vínculo é feito com `aria-invalid` (o campo está inválido) e
+   * `aria-describedby` (o texto do erro pertence àquele campo) — as duas regras
+   * do §6 do documento de identidade que faltavam.
+   */
+  type CampoValidavel = "solicitante" | "email" | "alvo" | "dado";
+  const [errosCampo, setErrosCampo] = useState<Partial<Record<CampoValidavel, string>>>({});
+
+  /** Limpa o erro do campo assim que a pessoa começa a corrigi-lo. */
+  function limparErro(campo: CampoValidavel) {
+    setErrosCampo((atual) => {
+      if (!atual[campo]) return atual;
+      const copia = { ...atual };
+      delete copia[campo];
+      return copia;
+    });
+  }
+
+  /**
+   * Valida e devolve os erros. Não usa `required` do HTML como única barreira
+   * porque a mensagem nativa não é estilizável nem sempre traduzida — e o
+   * projeto precisa da mesma mensagem para todos os navegadores.
+   */
+  function validar(): Partial<Record<CampoValidavel, string>> {
+    const novos: Partial<Record<CampoValidavel, string>> = {};
+
+    if (solicitante.trim().length < 3) {
+      novos.solicitante = "Informe o nome completo, com pelo menos 3 caracteres.";
+    }
+    // Validação deliberadamente frouxa: o objetivo é pegar erro de digitação
+    // óbvio, não recusar endereços válidos e incomuns.
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) {
+      novos.email = "Informe um e-mail válido — é por ele que respondemos.";
+    }
+    if (tipo === "POLITICO" && alvo.trim().length < 3) {
+      novos.alvo = "Informe o nome de urna do político.";
+    }
+    if (dado.trim().length < 20) {
+      novos.dado = "Descreva o dado incorreto com pelo menos 20 caracteres.";
+    }
+
+    return novos;
+  }
+
   // Consulta de status
   const [consultaProtocolo, setConsultaProtocolo] = useState("");
   const [consultaEmail, setConsultaEmail] = useState("");
@@ -36,6 +88,21 @@ export default function RetificacaoPage() {
   async function enviar(e: React.FormEvent) {
     e.preventDefault();
     setErro(null);
+
+    // Valida antes de chamar a API: subir requisição para receber 400 custa
+    // latência e devolve mensagem genérica em vez de "qual campo".
+    const erros = validar();
+    if (Object.keys(erros).length > 0) {
+      setErrosCampo(erros);
+      // Foca o primeiro campo inválido — teclado e leitor de tela seguem o foco.
+      const primeiro = (["solicitante", "email", "alvo", "dado"] as CampoValidavel[]).find(
+        (c) => erros[c],
+      );
+      if (primeiro) document.getElementById(primeiro)?.focus();
+      return;
+    }
+    setErrosCampo({});
+
     setEnviando(true);
     try {
       const res = await fetch("/api/retificacao", {
@@ -91,15 +158,17 @@ export default function RetificacaoPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-100">
-        Retificação e Direitos do Titular
-      </h1>
-      <p className="mt-2 text-slate-400">
-        Canal para <strong className="text-slate-200">qualquer titular de dados</strong> —
-        agentes públicos e assessorias, usuários cadastrados e terceiros —
-        exercer os direitos do Art. 18 da LGPD: retificação, acesso,
-        eliminação e demais solicitações.
-      </p>
+      <CabecalhoPagina
+        titulo="Retificação e Direitos do Titular"
+        lead={
+          <>
+            Canal para <strong className="text-slate-200">qualquer titular de dados</strong> —
+            agentes públicos e assessorias, usuários cadastrados e terceiros —
+            exercer os direitos do Art. 18 da LGPD: retificação, acesso,
+            eliminação e demais solicitações.
+          </>
+        }
+      />
 
       {protocolo ? (
         <div className="mt-8 rounded-xl border border-emerald-500/40 bg-emerald-500/5 p-6">
@@ -129,7 +198,20 @@ export default function RetificacaoPage() {
           </button>
         </div>
       ) : (
-        <form onSubmit={enviar} className="mt-8 space-y-4 rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <form
+          onSubmit={enviar}
+          noValidate
+          className="mt-8 space-y-4 rounded-xl border border-slate-800 bg-slate-900/60 p-6"
+        >
+          {/*
+            `noValidate` desliga a validação nativa do navegador de propósito.
+            Com ela ligada, o `submit` nunca dispara quando há campo inválido — e
+            era por isso que `aria-invalid` jamais aparecia: a bolha nativa do
+            Chrome bloqueava antes do nosso código. A mensagem nativa também não é
+            estilizável, muda de texto por navegador e não fica ligada ao campo.
+            Os atributos `required`/`minLength` permanecem: eles anunciam ao leitor
+            de tela que o campo é obrigatório.
+          */}
           <div>
             <label htmlFor="tipo" className="mb-1 block text-sm font-medium text-slate-300">
               Quem você é
@@ -157,9 +239,19 @@ export default function RetificacaoPage() {
               required
               minLength={3}
               value={solicitante}
-              onChange={(e) => setSolicitante(e.target.value)}
+              onChange={(e) => {
+                setSolicitante(e.target.value);
+                limparErro("solicitante");
+              }}
+              aria-invalid={errosCampo.solicitante ? true : undefined}
+              aria-describedby={errosCampo.solicitante ? "erro-solicitante" : undefined}
               className={inputClass}
             />
+            {errosCampo.solicitante && (
+              <p id="erro-solicitante" role="alert" className="mt-1 text-xs text-red-300">
+                {errosCampo.solicitante}
+              </p>
+            )}
           </div>
           <div>
             <label htmlFor="email" className="mb-1 block text-sm font-medium text-slate-300">
@@ -170,9 +262,19 @@ export default function RetificacaoPage() {
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                limparErro("email");
+              }}
+              aria-invalid={errosCampo.email ? true : undefined}
+              aria-describedby={errosCampo.email ? "erro-email" : undefined}
               className={inputClass}
             />
+            {errosCampo.email && (
+              <p id="erro-email" role="alert" className="mt-1 text-xs text-red-300">
+                {errosCampo.email}
+              </p>
+            )}
           </div>
           {tipo === "POLITICO" && (
             <div>
@@ -183,10 +285,20 @@ export default function RetificacaoPage() {
                 id="alvo"
                 type="text"
                 value={alvo}
-                onChange={(e) => setAlvo(e.target.value)}
+                onChange={(e) => {
+                  setAlvo(e.target.value);
+                  limparErro("alvo");
+                }}
+                aria-invalid={errosCampo.alvo ? true : undefined}
+                aria-describedby={errosCampo.alvo ? "erro-alvo" : undefined}
                 className={inputClass}
                 placeholder="Ex.: nome como aparece no perfil"
               />
+              {errosCampo.alvo && (
+                <p id="erro-alvo" role="alert" className="mt-1 text-xs text-red-300">
+                  {errosCampo.alvo}
+                </p>
+              )}
             </div>
           )}
           <div>
@@ -199,10 +311,20 @@ export default function RetificacaoPage() {
               required
               minLength={20}
               value={dado}
-              onChange={(e) => setDado(e.target.value)}
+              onChange={(e) => {
+                setDado(e.target.value);
+                limparErro("dado");
+              }}
+              aria-invalid={errosCampo.dado ? true : undefined}
+              aria-describedby={errosCampo.dado ? "erro-dado" : undefined}
               className={inputClass}
               placeholder="Descreva a solicitação e o motivo"
             />
+            {errosCampo.dado && (
+              <p id="erro-dado" role="alert" className="mt-1 text-xs text-red-300">
+                {errosCampo.dado}
+              </p>
+            )}
           </div>
           <div>
             <label htmlFor="fonte" className="mb-1 block text-sm font-medium text-slate-300">

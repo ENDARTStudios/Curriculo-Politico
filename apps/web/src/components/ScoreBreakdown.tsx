@@ -1,3 +1,4 @@
+import { formatarNota } from "@/lib/formato";
 import type { Score } from "@prisma/client";
 
 /**
@@ -46,7 +47,7 @@ export function ScoreBreakdown({
                   )}
                 </span>
                 <span className={`font-semibold ${real ? "text-slate-200" : "text-slate-400"}`}>
-                  {d.value.toFixed(1)}
+                  {formatarNota(d.value)}
                 </span>
               </div>
               <div className="h-2 w-full rounded-full bg-slate-800">

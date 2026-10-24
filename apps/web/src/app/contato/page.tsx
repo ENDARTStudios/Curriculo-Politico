@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import Link from "next/link";
 import { CONTATO, mailto } from "@/lib/contato";
 
@@ -10,13 +11,15 @@ export const metadata: Metadata = {
 
 export default function ContatoPage() {
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-100">
-        Fale Conosco
-      </h1>
-      <p className="mt-2 text-slate-400">
-        Canais oficiais de comunicação do Currículo Político.
-      </p>
+    <main className="mx-auto max-w-5xl px-6 py-12">
+      <CabecalhoPagina
+        titulo="Fale Conosco"
+        lead={
+          <>
+            Canais oficiais de comunicação do Currículo Político.
+          </>
+        }
+      />
 
       <div className="mt-8 space-y-6">
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
@@ -74,6 +77,37 @@ export default function ContatoPage() {
           >
             {CONTATO.geral}
           </a>
+        </div>
+
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+          <h2 className="mb-2 text-xl font-bold text-slate-100">
+            🤝 Patrocínio e Parcerias
+          </h2>
+          <p className="mb-3 text-sm leading-relaxed text-slate-400">
+            Sustentação institucional e colaboração com dados, revisão técnica ou
+            divulgação. As duas caixas são lidas pela mesma equipe; separá-las evita
+            proposta de patrocínio parar na fila de parceria. Mais contexto em{" "}
+            <Link href="/apoie" className="text-sky-400 hover:underline">
+              Apoie o projeto
+            </Link>
+            .
+          </p>
+          <p className="text-sm text-slate-400">
+            patrocínio:{" "}
+            <a
+              href={mailto(CONTATO.patrocinio)}
+              className="break-all text-sky-400 hover:underline"
+            >
+              {CONTATO.patrocinio}
+            </a>{" "}
+            · parcerias:{" "}
+            <a
+              href={mailto(CONTATO.parcerias)}
+              className="break-all text-sky-400 hover:underline"
+            >
+              {CONTATO.parcerias}
+            </a>
+          </p>
         </div>
 
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">

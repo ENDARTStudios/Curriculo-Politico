@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 
 export const metadata: Metadata = {
   title: "Calendário Eleitoral",
@@ -58,25 +59,35 @@ export default function CalendarioEleitoralPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="text-4xl font-bold tracking-tight text-slate-100">
-        Calendário Eleitoral Brasileiro
-      </h1>
-      <p className="mt-3 max-w-3xl text-xl leading-relaxed text-slate-400">
-        Eleições ocorrem a cada 2 anos, alternando entre gerais (Federais +
-        Estaduais) e municipais. Sempre no primeiro domingo de outubro, com
-        eventual 2º turno no último domingo do mês.
-      </p>
+      <CabecalhoPagina
+        titulo="Calendário Eleitoral Brasileiro"
+        lead={
+          <>
+            Eleições ocorrem a cada 2 anos, alternando entre gerais (Federais +
+            Estaduais) e municipais. Sempre no primeiro domingo de outubro, com
+            eventual 2º turno no último domingo do mês.
+          </>
+        }
+      />
 
       {proxima && (
-        <div className="mt-10 rounded-xl bg-gradient-to-br from-sky-600 to-blue-800 p-6 text-white">
-          <div className="mb-1 text-sm opacity-80">Próxima eleição</div>
-          <div className="mb-2 text-3xl font-bold">{proxima.ano}</div>
-          <div className="text-lg">
+        /*
+          Era `bg-gradient-to-br from-sky-600 to-blue-800 text-white`. Gradiente
+          como destaque é uma das coisas que o conceito recusa: azul aqui é ação,
+          não decoração. E `text-white` sobre sky-600 fica em 3,7:1, abaixo de AA
+          para o texto pequeno que havia embaixo.
+          O destaque agora é um painel sólido com borda de ação — o mesmo
+          vocabulário do resto do sistema.
+        */
+        <div className="mt-10 rounded-xl border border-sky-500/60 bg-slate-900 p-6">
+          <div className="mb-1 text-sm text-slate-300">Próxima eleição</div>
+          <div className="mb-2 text-3xl font-bold tracking-tight text-slate-50">{proxima.ano}</div>
+          <div className="text-lg text-slate-100">
             <strong>
               {proxima.tipo === "Geral" ? "Eleição Geral" : "Eleição Municipal"}
             </strong>
           </div>
-          <div className="mt-3 text-sm">
+          <div className="mt-3 text-sm text-slate-300">
             Cargos em disputa: {proxima.cargos.join(", ")}
           </div>
         </div>

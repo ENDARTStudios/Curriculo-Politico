@@ -29,10 +29,18 @@ __pycache__/
 supabase/.temp/
 supabase/.branches/
 
-# Artefatos locais de revisão de UI (capturas do @.design-review/capture.cjs).
-# O script de captura é versionado; as imagens geradas, não — são pesadas e
-# reproduzíveis a qualquer momento pelo próprio script.
+# Artefatos locais de revisão de UI (capturas do @.design-review/capture.cjs e
+# da auditoria de rotas). O script é versionado; as imagens geradas, não — são
+# pesadas (28 capturas ≈ 6,5 MB) e reproduzíveis pelo próprio script.
+#
+# `**` é obrigatório: `.design-review/*.png` cobre só o primeiro nível, e a
+# auditoria grava em `.design-review/auditoria/`. Foi assim que 28 PNGs entraram
+# num commit.
+.design-review/**/*.png
 .design-review/*.png
+
+# Relatório da auditoria de rotas: saída de execução, não fonte.
+auditoria-visual.json
 
 # Renders do documento de identidade (design/construir-identidade.mjs).
 # Mesma regra: o gerador e o `.figcraft` são versionados; os PNGs saem do build.

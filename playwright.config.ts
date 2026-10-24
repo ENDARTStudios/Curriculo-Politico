@@ -25,6 +25,12 @@ import { defineConfig, devices } from "@playwright/test";
 
 const PORTA_LOCAL = 3033;
 
+/**
+ * Servidor de teste com o banco fora, usado só para exercitar `app/error.tsx`.
+ * Ver o comentário do `webServer` abaixo.
+ */
+export const PORTA_SEM_BANCO = 3034;
+
 // O `baseURL` precisa apontar para a MESMA porta que o `webServer` sobe.
 //
 // Estava em 3000 enquanto o servidor subia na 3033: os testes navegavam para uma
@@ -79,14 +85,34 @@ export default defineConfig({
         // faz o `next dev` trocar de porta sozinho ("Port 3000 is in use, using
         // 3001") e derruba a suíte com ERR_CONNECTION_REFUSED no meio da
         // execução. Uma porta improvável elimina a disputa.
-        command: `npm run dev --workspace @cp/web -- -p ${PORTA_LOCAL}`,
+        //
+        // A fronteira de erro (`app/error.tsx`) precisa de um servidor com o
+        // banco fora, que não convive com esta suíte: ver `playwright.erro.config.ts`
+        // e `npm run e2e:erro`.
+        //
+        // ── Produção, não `next dev` ──────────────────────────────────────────
+        // A suíte rodava contra `next dev`. Em três execuções desta sessão o
+        // servidor **morreu no meio** — uma com `destination stream errored`, duas
+        // com `net::ERR_CONNECTION_REFUSED` — e as falhas resultantes (26 numa
+        // delas) não tinham relação alguma com o código que estava sendo testado.
+        // Cheguei a acusar uma atualização de dependências antes de ver a causa.
+        //
+        // `next dev` compila rotas sob demanda enquanto os testes navegam, e no
+        // Windows essa combinação não se mostrou estável. Produção elimina a
+        // classe inteira do problema: o build acontece **antes** da suíte, e
+        // nenhuma compilação disputa recursos durante os testes.
+        //
+        // Custo: um build por execução (~1,5 min), que o `webServer` já cobre com
+        // timeout maior. Ganho: a suíte mede o artefato que vai para a Vercel, não
+        // um modo de desenvolvimento com semântica diferente.
+        command: `npm run build --workspace @cp/web && npm run start --workspace @cp/web -- -p ${PORTA_LOCAL}`,
         url: `http://localhost:${PORTA_LOCAL}`,
         // Sem reuso: o objetivo é testar o código atual, não um servidor
         // antigo que por acaso ficou de pé.
         reuseExistingServer: false,
-        // O primeiro `next dev` compila middleware e instrumentation: 12s é
-        // pouco e produzia falso negativo. 180s cobre máquina fria.
-        timeout: 180_000,
+        // Build + primeiro boot em máquina fria. O `prebuild` recusa rodar com
+        // `next dev` ativo, então o pior caso é build limpo do zero.
+        timeout: 420_000,
         stdout: "pipe",
         stderr: "pipe",
       },

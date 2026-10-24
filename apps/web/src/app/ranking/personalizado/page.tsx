@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CabecalhoPagina } from "@/components/CabecalhoPagina";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { computeAuthorshipAffinity, type Stance } from "@/lib/affinity";
@@ -38,15 +39,17 @@ export default async function RankingPersonalizadoPage({
       : null;
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-100">
-        Ranking Personalizado por Afinidade
-      </h1>
-      <p className="mt-2 max-w-3xl text-slate-400">
-        Camada pessoal do Currículo Político: escolha temas e veja quem mais
-        <strong className="text-slate-200"> apresentou proposições</strong>{" "}
-        neles. O ranking de autorias usa as 50 mil autorias coletadas.
-      </p>
+    <main className="mx-auto max-w-5xl px-6 py-12">
+      <CabecalhoPagina
+        titulo="Ranking Personalizado por Afinidade"
+        lead={
+          <>
+            Camada pessoal do Currículo Político: escolha temas e veja quem mais
+            <strong className="text-slate-200"> apresentou proposições</strong>{" "}
+            neles. O ranking de autorias usa as 50 mil autorias coletadas.
+          </>
+        }
+      />
 
       <div className="mt-8">
         <AffinityFilter />

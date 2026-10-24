@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { AcoesEspectro } from "@/components/AcoesEspectro";
+import { PartidosAfinidade } from "@/components/PartidosAfinidade";
+import type { PartidoAcervo } from "@/lib/afinidade-partidaria";
 import {
   EIXOS,
   FAIXAS_CLASSICAS,
@@ -14,6 +17,7 @@ import {
 interface EspectroResultadoProps {
   respostas: Record<number, Resposta>;
   aoRefazer: () => void;
+  partidos: PartidoAcervo[];
 }
 
 /**
@@ -28,6 +32,7 @@ interface EspectroResultadoProps {
 export function EspectroResultado({
   respostas,
   aoRefazer,
+  partidos,
 }: EspectroResultadoProps) {
   const pontuacoes = pontuar(respostas);
   const q = quadrante(pontuacoes.economico, pontuacoes.sociocultural);
@@ -184,7 +189,14 @@ export function EspectroResultado({
             Responder novamente
           </button>
         </div>
+
+        <AcoesEspectro pontuacoes={pontuacoes} />
       </section>
+
+      {/* Partidos afins — depois do resultado e das ações, porque a pergunta
+          "quais partidos combinam comigo" só faz sentido depois que a pessoa viu
+          onde ela mesma ficou. */}
+      <PartidosAfinidade pontuacoes={pontuacoes} partidos={partidos} />
     </div>
   );
 }

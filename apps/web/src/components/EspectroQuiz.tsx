@@ -9,6 +9,7 @@ import {
   type Resposta,
 } from "@/lib/espectro";
 import { EspectroResultado } from "@/components/EspectroResultado";
+import type { PartidoAcervo } from "@/lib/afinidade-partidaria";
 
 type Etapa = "intro" | "perguntas" | "resultado";
 
@@ -24,7 +25,7 @@ const PAUSA_AVANCO_MS = 350;
  * estado do React — nada é enviado, salvo ou logado. Nem localStorage: a
  * aba fechada, o dado some.
  */
-export function EspectroQuiz() {
+export function EspectroQuiz({ partidos }: { partidos: PartidoAcervo[] }) {
   const [etapa, setEtapa] = useState<Etapa>("intro");
   const [indice, setIndice] = useState(0);
   const [respostas, setRespostas] = useState<Record<number, Resposta>>({});
@@ -62,7 +63,13 @@ export function EspectroQuiz() {
   }
 
   if (etapa === "resultado") {
-    return <EspectroResultado respostas={respostas} aoRefazer={aoRefazer} />;
+    return (
+      <EspectroResultado
+        respostas={respostas}
+        aoRefazer={aoRefazer}
+        partidos={partidos}
+      />
+    );
   }
 
   if (etapa === "intro") {

@@ -44,6 +44,7 @@ em vez de inventar um.
 | **11 · Conta** | `/conta`, `/auth/signin` |
 | **12 · Retificação** | `/retificacao`, `/contato`, `/apoie` |
 | **13 · Status** | `/status`, `/sobre` |
+| **14 · Mobile** | O sistema em 375px: hero, linha do ranking como card, formulário com erro por campo — e as regras do layout estreito |
 
 Somadas a `/` (página 03), são as 28 rotas do `apps/web/src/app`.
 
@@ -131,6 +132,186 @@ por erro **meu**, não do documento:
 A versão correta conta as referências **dentro dos blocos `bound`**. O episódio
 vale registrar: uma verificação que nunca falha não verifica nada, e a primeira
 reação natural diante de uma divergência é culpar o artefato.
+
+## 1.6 Arquitetura de informação
+
+O documento de identidade cuidava de cor, tipo e espaçamento — e a **estrutura**
+nunca foi desenhada. O sintoma mais visível: a barra superior.
+
+### 1.6.1 O que havia
+
+Doze links planos num `flex-wrap`: Ranking, Partidos, Projetos, Comparar, Meu
+Espectro, História, Como Funciona, Calendário, STF, FAQ, Metodologia, Sobre.
+
+| Defeito | Consequência |
+|---|---|
+| 12 itens no mesmo nível, sem agrupamento | Nenhum destino se destacava; era preciso ler doze rótulos para achar um |
+| `flex-wrap` sem hierarquia | Quebrava em **duas linhas** no desktop |
+| Todos `<a>`, não `<Link>` | Cada clique recarregava a página inteira |
+| Sem estado ativo | Nada indicava onde a pessoa estava |
+| Conta só no rodapé | Login era o 11º link, entre Cookies e Retificação |
+
+O problema não era o número de destinos — eram 28 no site. Era a **falta de
+modelo**: cada rota tinha o mesmo peso, então o menu não ajudava a decidir.
+
+### 1.6.2 O modelo atual
+
+Cinco grupos, agrupados por **intenção de quem chega**, não por tipo de dado:
+
+| Grupo | Itens | Intenção |
+|---|---|---|
+| **Ranking** ▾ | Ranking IDIP · personalizado · Meu Espectro · STF | "quero ver quem presta" |
+| **Partidos** ▾ | Todos · Comparar partidos | "quero ver por agremiação" |
+| **Projetos** | — | "quero ver o que foi proposto" |
+| **Comparar** | — | "quero decidir entre dois" |
+| **Metodologia** ▾ | IDIP · como funciona · História · Calendário · FAQ · Sobre | "posso confiar no número?" |
+
+A fonte única é `apps/web/src/lib/navegacao.ts`. Header, drawer mobile e rodapé
+leem dela — e é por isso que não podem divergir. A barra chegou a doze itens
+porque cada rota nova era acrescentada num lugar e esquecida nos outros.
+
+### 1.6.3 Decisões
+
+**A conta subiu para o header.** Login é ação de topo de página em qualquer
+produto. No rodapé, era preciso rolar a página inteira e saber de antemão que o
+acesso morava ali.
+
+**Disclosure, não `role="menu"`.** `role="menu"` promete ao leitor de tela
+navegação por setas, `aria-activedescendant` e foco gerenciado. Sem implementar
+tudo isso, o papel mente — foi o erro que cometi no dropdown de busca. O padrão
+disclosure (botão com `aria-expanded` + painel de links comuns) é honesto.
+
+**Abre por clique, não por hover.** Hover aciona sem intenção ao passar o mouse a
+caminho de outro item, e é inacessível a teclado e a toque.
+
+**Drawer mobile com os mesmos grupos**, mais os institucionais — no desktop eles
+vivem no rodapé. Escape fecha; clicar fora fecha; a rolagem do fundo trava.
+
+**Rodapé em quatro colunas por finalidade** (Explorar, Entender, Projeto,
+Jurídico). Antes eram onze links numa fileira, misturando produto e política de
+privacidade com o mesmo peso.
+
+### 1.6.4 Largura: cinco containers, nenhum alinhado
+
+O header usava `max-w-6xl`; as páginas de dados, `max-w-5xl`; metodologia e as
+legais, `max-w-4xl`; conta e contato, `max-w-3xl`. Como todos são centralizados,
+**cada largura tem uma borda esquerda diferente** — a logo nunca alinhava com o
+título, e o desalinhamento mudava de tela para tela.
+
+Normalizado para `max-w-5xl` em 26 rotas. Ficaram estreitos só os formulários
+(`max-w-2xl` na retificação, `max-w-md` no login): campo largo é pior de digitar,
+e um cartão de login centrado não precisa alinhar. Parágrafos seguem em
+`max-w-3xl` — é o que garante linha legível, independente do container.
+
+### 1.6.5 A home: mostrar o produto, não descrevê-lo
+
+A home anterior era um funil de texto — título, parágrafo, CTA — seguido de
+quatro cartões do Termômetro e **três cartões de pesos da metodologia**. Não
+exibia nenhum dado da plataforma acima da dobra.
+
+A regra do conceito é "o dado é o herói", e a home a violava: o herói era o texto.
+
+| Antes | Depois |
+|---|---|
+| Herói só de texto | Herói dividido: promessa à esquerda, **ranking real** à direita |
+| Busca só no header | Busca no herói — é a tarefa nº 1 |
+| 3 cartões de pesos | Movidos para `/metodologia`, onde pertencem |
+| 4 cartões grandes do Termômetro | Faixa horizontal de 4 estados (reconhecer, não estudar) |
+| Fecho pedindo ação sem oferecer porta | "Por onde começar": 3 caminhos explícitos |
+
+Os pesos não foram apagados, foram **movidos**: a soma visível é garantia
+metodológica (pesos que não fecham em 100% são defeito), e o teste de e2e foi
+movido junto. Se ele continuasse apontando para a home, exigiria que a duplicação
+voltasse.
+
+### 1.6.6 O que a verificação pegou
+
+Nenhum destes apareceu por leitura — todos por teste ou captura:
+
+- **Nome acessível duplicado**: a logo do rodapé repetia o `aria-label` do header,
+  e o leitor de tela passava a listar dois destinos idênticos. O teste de
+  navegação quebrou em modo estrito.
+- **`id` duplicado no DOM**: duas buscas na home emitiam `#busca-resultados`.
+  Corrigido com `idLista` configurável.
+- **Dois campos com o mesmo nome acessível**: mesma causa, corrigido com
+  `rotuloBusca`. Nomes distintos também melhoram a navegação por formulário.
+- **Logo reduzida a um emoji em 375px** (`hidden sm:inline` no nome) — parecia
+  ícone quebrado.
+- **Placeholder truncado** em duas larguras diferentes: "(Ctrl+" no mobile e
+  "partido o" no desktop.
+- **Variável `preenchido` órfã** e **comentário JSX inválido** (`{/* */}` onde se
+  espera um filho), pegos pelo `typecheck`.
+
+## 1.7 Escala do título de página
+
+Metade das rotas usava `text-3xl` no `<h1>` e a outra metade `text-4xl`, com
+`text-slate-100` em vez do `slate-50` do resto do sistema. Como a pessoa
+atravessa várias telas, o título mudava de tamanho sem motivo — a inconsistência
+que faz um site parecer montado em vez de desenhado.
+
+Escala canônica, aplicada em 25 `<h1>`:
+
+```
+text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl
+```
+
+Duas exceções deliberadas: o herói da home (`sm:text-5xl`, escala editorial) e o
+título do cartão de login (`text-2xl`, centrado).
+
+## 1.8 A lista de campos era o defeito
+
+O PR #6 corrigiu `70.0` → `70,0` em catorze pontos e criou um guard que procurava
+`toFixed` em "campos de domínio". A lista era `finalScore`, `confidenceScore`,
+`avgScore`, `nota`… e **ficou incompleta**.
+
+O que passou:
+
+| Tela | Exibia | Deveria |
+|---|---|---|
+| `/partidos` | `62.6` | `62,6` |
+| Perfil, composição da nota | `50.0` | `50,0` |
+| `/historia` | média com ponto | vírgula |
+| Gráfico patrimonial | `R$ 1.50M` | `R$ 1,5 mi` |
+
+O eixo patrimonial era o pior: ponto decimal **e** sufixo inglês (`M`) num número
+que o visitante brasileiro lê como "um real e cinquenta".
+
+**A lição:** qualquer lista de exceções é incompleta por construção. O guard
+passou a proibir `.toFixed(` em **todo** `.tsx` — não restou nenhum uso legítimo
+(coordenada de SVG é calculada direto em número). `.ts` de script continua livre.
+
+Formatadores novos em `@/lib/formato`: `formatarDecimal` (casas configuráveis,
+para média de presença e variação) e `formatarMoedaCompacta` (eixo monetário em
+pt-BR). `formatarNota` não serve para esses casos — o nome diz "nota", e usar o
+formatador de nota para variação de patrimônio mente sobre o que o número é.
+
+## 1.9 Uma armadilha que eu criei, e o guard que a pega
+
+Ao inserir os imports dos formatadores com um script, dois arquivos receberam o
+`import` na **linha 1** e a diretiva `"use client"` caiu para a linha 2:
+`PatrimonyChart` (gráfico de patrimônio) e `BillVote` (botão de voto).
+
+O Next só reconhece a diretiva se ela for a primeira instrução do módulo. Com um
+`import` antes, o arquivo vira **Server Component em silêncio** — `typecheck`
+passa, build passa, e o defeito aparece só em runtime, quando `useState` lança ou
+a interatividade simplesmente não existe.
+
+`npm run verify:diretivas` passou a checar isso. A primeira versão da checagem deu
+**falso positivo** em `app/faq/layout.tsx`, que apenas *menciona* `"use client"`
+num comentário — o guard só conta a diretiva quando ela é uma linha real, fora de
+comentário e de string.
+
+## 1.10 O retângulo cinza no header
+
+Durante a revisão de `/metodologia` a captura mostrou um **bloco cinza vazio** no
+canto superior direito, onde deveria estar `Entrar`.
+
+Era o placeholder anti-salto de layout: enquanto a sessão carregava, renderizávamos
+um retângulo do tamanho do botão. Na prática o visitante vê um bloco sem
+significado — e a maioria absoluta de quem chega é anônima, então o estado correto
+para quase todo mundo é simplesmente `Entrar`. O usuário autenticado vê o próprio
+nome trocar em milissegundos. Um flash de "Entrar" incomoda muito menos que um
+retângulo mudo.
 
 ## 2. Por que o documento é gerado, e não desenhado
 
@@ -291,17 +472,56 @@ Medido no código, não suposto:
 |---|---|---|
 | `<label htmlFor>` | 9 ocorrências (só `signin` e `retificacao`) | todos os controles |
 | `aria-label` onde não há rótulo visual | 0 | busca, link de compartilhamento |
-| `aria-expanded`/`aria-controls` no combobox de busca | 0 | presentes, apontando para `#busca-resultados` |
-| `role="alert"` | **0** | erro de `/retificacao` e de `/auth/signin` |
+| anúncio do resultado da busca | 0 | `role="status"` com a contagem (`N resultados para "x"`) |
+| `role="alert"` | **0** | erro de `/retificacao` (por campo) e de `/auth/signin` |
+| `aria-invalid` + `aria-describedby` por campo | **0** | `/retificacao`: cada campo aponta para o próprio erro |
 | `role="status"` | **0** | resultado da consulta de protocolo |
 | `aria-busy` | **0** | botão de envio da retificação |
-| Envio desabilitado preventivamente | **sim** (`!preenchido`) | não — validação nativa explica o campo |
+| Envio desabilitado preventivamente | **sim** (`!preenchido`) | não — a validação explica o campo |
 
 O caso mais grave era o **envio desabilitado preventivamente**. `disabled` remove o
 controle da árvore de acessibilidade: o leitor de tela não anuncia o botão nem a
-razão do bloqueio, e a pessoa fica sem saber o que falta preencher. A validação
-nativa (`required`, `minLength`, `type="email"`) já impede o envio e diz qual campo
-está errado.
+razão do bloqueio, e a pessoa fica sem saber o que falta preencher.
+
+### 6.1.1 Por que `noValidate`
+
+A validação por campo só passou a existir depois de **desligar** a validação
+nativa. Com `required`/`minLength` ativos, o evento `submit` **nunca dispara**
+quando há campo inválido — a bolha do navegador o intercepta antes — e
+`aria-invalid` jamais chegava ao DOM.
+
+O teste de e2e pegou isso: o campo continuava com `aria-invalid` nulo depois do
+clique. Três razões para assumir a validação no cliente:
+
+1. A mensagem nativa **não é estilizável** e muda de texto por navegador.
+2. Ela **não é ligada ao campo** por `aria-describedby`, então o leitor anuncia o
+   campo sem dizer o que está errado nele.
+3. O projeto precisa da mesma mensagem em todos os navegadores.
+
+Os atributos `required`/`minLength` **permanecem** no HTML: eles anunciam ao
+leitor de tela que o campo é obrigatório. O que saiu foi só a interceptação.
+
+Ao falhar, o foco vai para o **primeiro campo inválido** — teclado e leitor
+seguem o foco, e a pessoa não precisa procurar onde está o problema.
+
+### 6.1.2 O combobox que não era combobox
+
+A busca recebeu `role="combobox"` no campo e `role="listbox"` no painel. Era
+**inválido**, e o axe só pegou quando o teste passou a abrir o painel:
+`aria-required-children`.
+
+Um `listbox` só aceita `option` ou `group` como filhos. Este painel contém seções
+com título e `<a>` — são **links de navegação**, não opções selecionáveis. Declarar
+`combobox` prometia ao leitor de tela um comportamento (navegação por setas,
+`aria-activedescendant`, seleção) que o componente não tem.
+
+O padrão correto para uma lista de atalhos agrupada é: **links nativos** (já
+alcançáveis por teclado) + uma região viva que anuncia quantos resultados existem.
+O `role="status"` cumpre o que o `aria-expanded` prometia, sem mentir sobre o
+controle.
+
+Converter o painel em listbox de verdade exigiria lista plana de opções e perderia
+os agrupamentos, que são informação útil. Não valia o custo.
 
 Também havia **rótulo visível sem associação** em `ProjetoFilters` e
 `ComparacaoCards`: o `<label>` existia na tela e não existia para o leitor de tela,
@@ -373,13 +593,142 @@ registros) e capturadas em 1440px. Confirmado: `70,0` no ranking e no perfil,
 `Confiança: 95%`, barras de magnitude. O aviso do React sobre `<title>` apareceu
 só nessa execução — nenhum teste de unidade o pegaria.
 
-## 8. O que não está coberto
+## 8. Estados de sistema
 
-- **Responsivo**: os artboards são 1440. O comportamento em 375px está verificado
-  por Playwright, não desenhado.
+Três estados que o usuário encontra e que não estavam desenhados nem
+implementados: 404, erro de rota e carregamento.
+
+| Arquivo | Estado | Decisão |
+|---|---|---|
+| `app/not-found.tsx` | 404 | A saída principal é o **ranking**, não a home: quem buscava um político e caiu aqui ainda quer o político |
+| `app/error.tsx` | erro de rota | Mantém a moldura do site; a `global-error` substitui o layout inteiro e deixa a pessoa sem caminho de volta |
+| `app/loading.tsx` | carregamento | Esqueleto com a forma do conteúdo, não spinner |
+
+### 8.1 Por que esqueleto e não spinner
+
+A auditoria de produção mediu **3,1 s** de resposta no ranking. Nesse tempo, um
+spinner informa apenas "espere"; um esqueleto informa **o que está vindo** e faz a
+espera parecer menor, porque a atenção já está no lugar certo quando o dado chega.
+
+O esqueleto é genérico de propósito: `app/loading.tsx` cobre todas as rotas, e
+desenhar a forma de uma página mentiria nas outras.
+
+### 8.2 Acessibilidade destes estados
+
+- O 404 e o erro mantêm `<h1>` e a navegação — não são telas isoladas.
+- O erro mostra o `digest` do Next: sem ele um relato de problema não é acionável.
+  Não é stack trace, é um identificador curto.
+- O esqueleto usa `role="status"` com texto oculto ("Carregando o conteúdo…") e
+  `motion-reduce:animate-none`: a animação é desligada por `prefers-reduced-motion`,
+  e quem a desliga precisa continuar sabendo que algo está em andamento — por isso
+  o texto existe no DOM.
+- O 404 é auditado junto com as 28 rotas (`npm run audit:visual`), porque é uma
+  página que o usuário vê.
+
+### 8.3 Como o carregamento passou a ser testado
+
+`audit:visual` roda axe nas 28 rotas, mas sempre no estado **final**. O esqueleto
+existe por milissegundos e nunca era visto por teste nenhum.
+
+`tests/e2e/estados.spec.ts` captura com **navegação dura** e `waitUntil: "commit"`:
+o Next transmite o shell com o `loading.tsx` antes de a página resolver, então o
+esqueleto está no DOM desde o primeiro instante. Medido: visível já na primeira
+sonda, estável em três execuções seguidas.
+
+A abordagem óbvia — atrasar a requisição RSC numa navegação cliente — **não
+funciona**: o header pré-carrega os links, a navegação é instantânea e o esqueleto
+nunca aparece. Foi a primeira tentativa, e ela falhava em silêncio: o teste passaria
+sem verificar nada.
+
+O teste guarda o contrato de acessibilidade do esqueleto: `role="status"`,
+`aria-live="polite"` e o texto de anúncio. **Não** usa `toHaveAccessibleName` —
+`role="status"` não deriva nome acessível dos filhos (contents-based naming não se
+aplica ao papel), e a primeira versão do teste falhou com string vazia. O teste
+estava errado sobre ARIA; o componente não.
+
+### 8.4 A fronteira de erro, agora exercitada
+
+`app/error.tsx` só renderiza quando um Server Component lança, e não há rota que
+lance de propósito — nem deve haver.
+
+A saída foi um **segundo servidor** com o banco deliberadamente inacessível
+(`playwright.erro.config.ts`, porta 3034, `DATABASE_URL` numa porta sem listener).
+Toda página que consulta o banco lança, e a fronteira entra em ação. É
+determinístico: não depende de tempo nem de derrubar conexão real. O log do
+servidor confirma `PrismaClientInitializationError`.
+
+**Por que em configuração separada, e não na suíte principal.** A primeira versão
+colocou um segundo `webServer` no mesmo arquivo. Dois efeitos medidos:
+
+| | Antes | Com dois servidores |
+|---|---|---|
+| Duração da suíte | 2,3 min | 5,3 min |
+| Falhas | 0 | 2 (contenção; passam isoladas) |
+
+E um risco maior: o workflow `a11y.yml` roda o diretório principal com
+`--grep @readonly` **contra produção**, com `E2E_NO_SERVER=1`. Um teste que espera
+a página de erro rodaria lá — onde `/ranking` funciona — e falharia por motivo
+errado.
+
+Separado: `npm run e2e` (72 testes, 2,3 min) e `npm run e2e:erro` (4 testes, 28 s).
+
+O que **não** funciona, verificado antes de escrever o teste: abortar a requisição
+RSC numa navegação cliente. O Next detecta a falha, cai para navegação dura, e a
+página resolve normalmente — a fronteira nunca é chamada.
+
+### 8.4.1 Um diagnóstico errado, corrigido
+
+Ao ver 10 falhas na home depois de adicionar o segundo servidor, atribuí a causa à
+disputa pelo mesmo `.next`. **Era falso**: a causa real era o túnel do banco
+fechado, que deixava a faixa de destaques vazia.
+
+A separação de `distDir` (`NEXT_DIST_DIR`) continua no código como **prevenção** —
+dois `next dev` não devem dividir o mesmo diretório — mas o registro importa:
+prevenção não é diagnóstico, e gravar a causa errada envenenaria a próxima
+investigação.
+
+## 9. Responsivo — página 14
+
+O responsivo era a última lacuna declarada: todos os artboards eram 1440, e o
+comportamento em 375px estava **verificado** por teste, não **desenhado**.
+
+Verificação não é decisão. Sem artboard, cada ajuste de mobile vira improviso na
+hora de codar, e as decisões ficam implícitas no CSS — difíceis de revisar e
+fáceis de contradizer depois.
+
+| Regra | Desktop | 375px |
+|---|---|---|
+| Gutter | 80px | 16px, uma coluna |
+| h1 | 72px | 30px |
+| Alvo de toque | — | 44px de altura mínima |
+| Ranking | tabela de 6 colunas | card |
+
+### 9.1 A tabela que vira card
+
+Em 375px seis colunas não cabem. A tabela vira região de rolagem horizontal — que
+**funciona** e passa em acessibilidade, mas esconde a **nota**, que é o motivo de a
+pessoa estar ali.
+
+O documento passou a pedir card, e o card foi implementado em `/ranking`
+(`CartaoRanking`, visível abaixo de `md`; a tabela fica `hidden md:block`). Ele
+mantém na primeira dobra: posição, nome, partido/UF, nota, termômetro, confiança e
+a barra de magnitude.
+
+### 9.2 O defeito que só o render mostrou
+
+A primeira versão da página 14 tinha dois problemas invisíveis para o gerador,
+porque ele não mede altura de texto:
+
+1. O rótulo de cada tela encostava na segunda linha do parágrafo de apoio do
+   cabeçalho.
+2. As quatro regras do layout caíam fora do canvas de 1240px e não apareciam.
+
+Corrigidos com `mobTopo = yMob + 64` e canvas de 1430px. É o mesmo padrão de
+defeito das páginas 00–13: sobreposição só se vê no PNG.
+
+## 10. O que não está coberto
+
 - **Modo claro**: o tema é dark fixo por decisão de produto, então não há variante.
-- **Estados de carregamento de página inteira** (skeleton, erro de rota) — a
-  página 04 cobre o carregamento **de ação**, não o de tela.
 - **Tokens exportados para CSS**: o FigCraft sabe exportar as variables como
   custom properties (`variable.export --format css`). Não foi feito porque o
   `@theme` do Tailwind já é a fonte que o app consome — ter as duas seria criar

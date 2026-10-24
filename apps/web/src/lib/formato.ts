@@ -54,3 +54,46 @@ export function formatarInteiro(valor: number | null | undefined): string {
   if (valor === null || valor === undefined || Number.isNaN(valor)) return SEM_VALOR;
   return INTEIRO.format(valor);
 }
+
+/**
+ * Decimal genérico, com a quantidade de casas pedida: `12,5` ou `3,42`.
+ *
+ * Existe porque havia telas formatando média de presença e variação patrimonial
+ * com `toFixed(1)` — que devolve `12.5`, com ponto. `formatarNota` não serve
+ * nesses casos: o nome diz "nota", e usar o formatador de nota para uma
+ * variação de patrimônio mente sobre o que o número é.
+ *
+ * Casas negativas ou não finitas caem em 0, para nunca produzir `NaN` na tela.
+ */
+export function formatarDecimal(
+  valor: number | null | undefined,
+  casas = 1,
+): string {
+  if (valor === null || valor === undefined || Number.isNaN(valor)) return SEM_VALOR;
+  const n = Math.max(0, Math.min(6, Math.trunc(casas)));
+  return new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: n,
+    maximumFractionDigits: n,
+  }).format(valor);
+}
+
+/**
+ * Valor monetário compacto em pt-BR, para eixos de gráfico: `R$ 1,5 mi`.
+ *
+ * ── Por que não `Intl` com `style: "currency"` ─────────────────────────────
+ * Num eixo de gráfico, `R$ 1.500.000,00` não cabe e não ajuda: o leitor quer a
+ * ordem de grandeza. Mas o sufixo também precisa ser português — a versão
+ * anterior escrevia `R$ 1.50M`, com ponto decimal e sufixo inglês, num eixo que
+ * o visitante brasileiro lê como "um real e cinquenta".
+ *
+ * `entrada` é o valor em reais.
+ */
+export function formatarMoedaCompacta(entrada: number | null | undefined): string {
+  if (entrada === null || entrada === undefined || Number.isNaN(entrada)) return SEM_VALOR;
+  const v = Math.abs(entrada);
+  const sinal = entrada < 0 ? "-" : "";
+
+  if (v >= 1_000_000) return `${sinal}R$ ${formatarDecimal(v / 1_000_000, 1)} mi`;
+  if (v >= 1_000) return `${sinal}R$ ${formatarDecimal(v / 1_000, 0)} mil`;
+  return `${sinal}R$ ${formatarDecimal(v, 0)}`;
+}

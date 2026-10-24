@@ -39,7 +39,14 @@ export function BillDetails({ bill, authorships }: BillDetailsProps) {
         )}
       </div>
 
-      <h1 className="text-2xl font-bold leading-snug text-slate-100">
+      {/*
+        Título do projeto — é o `<h1>` da página de detalhe.
+        Estava em `text-2xl text-slate-100`, uma TERCEIRA escala de título no site
+        (as outras duas eram `text-3xl` e `text-4xl`). Fica na escala canônica;
+        `leading-snug` permanece porque título de proposição é longo e precisa de
+        entrelinha menor que a padrão.
+      */}
+      <h1 className="text-3xl font-bold leading-snug tracking-tight text-slate-50 sm:text-4xl">
         {bill.title}
       </h1>
 

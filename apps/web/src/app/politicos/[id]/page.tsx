@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { BotaoAcompanhar } from "@/components/BotaoAcompanhar";
+import { estadoAcompanhamento } from "@/lib/acompanhamento";
+import { chaveTipoJuridico, chaveStatusJuridico } from "@/lib/juridico";
+import { tradutor } from "@/lib/i18n/t";
+import { obterIdioma } from "@/lib/i18n/servidor";
 import { formatarNota, formatarPercentual } from "@/lib/formato";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -117,6 +122,9 @@ export default async function PoliticoPage({ params }: Props) {
 
   if (!politician) notFound();
 
+  const acompanhamento = await estadoAcompanhamento("POLITICIAN", politician.id);
+  const tr = tradutor(await obterIdioma());
+
   const currentTerm = politician.terms[0];
   const score = currentTerm?.scores[0];
   const finance = currentTerm?.finances[0];
@@ -174,6 +182,17 @@ export default async function PoliticoPage({ params }: Props) {
         ← Voltar ao ranking
       </Link>
 
+      {/* Acompanhar — fica acima do cartão de identidade porque é a ação da
+          página, não um detalhe do perfil. */}
+      <div className="mb-4">
+        <BotaoAcompanhar
+          tipo="POLITICIAN"
+          alvoId={politician.id}
+          inicial={acompanhamento.seguindo}
+          logado={acompanhamento.logado}
+        />
+      </div>
+
       {/* Header do político */}
       <div className="mb-6 flex flex-col items-start gap-6 rounded-2xl border border-slate-800 bg-slate-900/60 p-6 md:flex-row">
         <Image
@@ -186,7 +205,7 @@ export default async function PoliticoPage({ params }: Props) {
         />
 
         <div className="flex-1">
-          <h1 className="text-3xl font-bold tracking-tight text-slate-100">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-50 sm:text-4xl">
             {politician.politicalName}
           </h1>
           {politician.civilName !== politician.politicalName && (
@@ -282,10 +301,23 @@ export default async function PoliticoPage({ params }: Props) {
               {politician.legalRecords.map((rec) => (
                 <li key={rec.id} className="border-l-4 border-red-500/60 py-1 pl-3">
                   <div className="text-sm font-medium text-slate-200">
-                    {rec.type.replace("_", " ")}
+                    {/* Rótulo humano e juridicamente preciso. O valor cru do
+                        enum aparecia como "ACCOUNTS REJECTED" — inglês, em
+                        maiúsculas de banco de dados, num site em português. */}
+                    {(() => {
+                      const chave = chaveTipoJuridico(rec.type);
+                      return chave ? tr(chave) : rec.type.replace(/_/g, " ").toLowerCase();
+                    })()}
                   </div>
                   <div className="text-xs text-slate-400">
-                    {rec.court ?? "órgão não informado"} · {rec.status.replace(/_/g, " ").toLowerCase()}
+                    {rec.court ?? "—"}
+                    {" · "}
+                    {(() => {
+                      const chave = chaveStatusJuridico(rec.status);
+                      return chave
+                        ? tr(chave)
+                        : rec.status.replace(/_/g, " ").toLowerCase();
+                    })()}
                   </div>
                   {rec.sourceUrl && (
                     <a
@@ -313,9 +345,19 @@ export default async function PoliticoPage({ params }: Props) {
             <h2 className="mb-4 text-xl font-bold text-slate-100">
               Financiamento de Campanha ({finance.year})
             </h2>
+            {/*
+              Dois números de naturezas diferentes, e o rótulo antigo os fazia
+              parecer contraditórios: "Total arrecadado R$ 2.925.148,19" ao lado de
+              "Receitas registradas 0" lê como dado quebrado.
+
+              Não é: o total vem do **resumo** que o TSE publica por candidato, e a
+              contagem se refere às **receitas itemizadas**, que ainda não estão
+              integradas. O projeto trata ausência de dado como ausência — `—`, não
+              `0` —, porque zero é um resultado e "não temos a lista" é outro.
+            */}
             <div className="mb-5 grid grid-cols-2 gap-4">
               <div>
-                <div className="text-sm text-slate-400">Total arrecadado</div>
+                <div className="text-sm text-slate-400">Total declarado ao TSE</div>
                 <div className="text-2xl font-bold text-slate-100">
                   R${" "}
                   {finance.totalReceived.toLocaleString("pt-BR", {
@@ -324,10 +366,16 @@ export default async function PoliticoPage({ params }: Props) {
                 </div>
               </div>
               <div>
-                <div className="text-sm text-slate-400">Receitas registradas</div>
+                <div className="text-sm text-slate-400">Receitas itemizadas</div>
                 <div className="text-2xl font-bold text-slate-100">
-                  {finance.donorCount}
+                  {finance.donorCount > 0 ? finance.donorCount : "—"}
                 </div>
+                {finance.donorCount === 0 && (
+                  <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                    O TSE publica o total por candidato; a lista de receitas
+                    individuais ainda não está integrada.
+                  </p>
+                )}
               </div>
             </div>
             {topDonors.length > 0 && (

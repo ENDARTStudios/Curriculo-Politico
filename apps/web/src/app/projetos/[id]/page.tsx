@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { BotaoAcompanhar } from "@/components/BotaoAcompanhar";
+import { estadoAcompanhamento } from "@/lib/acompanhamento";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BillVote } from "@/components/BillVote";
@@ -64,14 +66,28 @@ export default async function ProjetoPage({ params }: Props) {
 
   if (!bill) notFound();
 
+  const acompanhamento = await estadoAcompanhamento("BILL", bill.id);
+
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
+    <main className="mx-auto max-w-5xl px-6 py-12">
+      {/* O pai de um projeto de lei é a lista de projetos, não o ranking: quem
+          estava em `/projetos` e abriu um item precisa voltar para os filtros que
+          aplicou, não recomeçar do ranking. */}
       <Link
-        href="/ranking"
+        href="/projetos"
         className="mb-6 inline-block text-sm text-slate-400 transition hover:text-slate-100"
       >
-        ← Voltar ao ranking
+        ← Voltar aos projetos
       </Link>
+
+      <div className="mb-4">
+        <BotaoAcompanhar
+          tipo="BILL"
+          alvoId={bill.id}
+          inicial={acompanhamento.seguindo}
+          logado={acompanhamento.logado}
+        />
+      </div>
 
       <BillDetails bill={bill} authorships={bill.authorships} />
 
