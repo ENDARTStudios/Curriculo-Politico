@@ -36,7 +36,7 @@ const PARES_ETL: { raw: string; etl: string; carga: string }[] = [
   { raw: "camara_proposicoes_raw.json", etl: "etl:proposicoes", carga: "db:load-proposicoes" },
   { raw: "camara_presenca_raw.json", etl: "etl:presenca", carga: "db:load-presenca" },
   { raw: "camara_despesas_bulk_raw.json", etl: "", carga: "db:load-ceap-bulk" },
-  { raw: "tse_bens_raw.json", etl: "etl:bens", carga: "db:load-patrimony" },
+  { raw: "tse_bens_2022_raw.json", etl: "etl:bens", carga: "db:load-patrimony" },
   { raw: "camara_receitas_2022_agg.json", etl: "etl:receitas", carga: "db:load-receitas" },
   { raw: "fact_checking_raw.json", etl: "etl:fact-checking", carga: "db:load-fact-checking" },
 ];
@@ -83,32 +83,42 @@ async function escanear() {
     prisma.person.count({ where: { tseId: null } }),
     prisma.person.count({ where: { photoUrl: null } }),
   ]);
-  add({ id: "pessoas-sem-tseid", area: "identidade", severidade: "media", descricao: "Parlamentares sem tseId (afiliação TSE não resolvida)", qtd: semTse, correcao: "bot:fix (resolve-identity)" });
+  add({ id: "pessoas-sem-tseid", area: "identidade", severidade: "media", descricao: "Parlamentares sem match no TSE (suplentes/senadores 2018 — revisão manual de identidade, não automatizável)", qtd: semTse, correcao: null });
   add({ id: "pessoas-sem-foto", area: "conteúdo", severidade: "baixa", descricao: "Parlamentares sem foto", qtd: semFoto, correcao: null });
 
-  // 2. Termos ativos sem cobertura de dimensão
+  // 2. Termos ativos sem cobertura de dimensão.
+  //    CEAP e presença em sessões são fontes da CÂMARA — senadores (81) ficam
+  //    sem essas dimensões por estrutura, não por falta de execução do bot.
   const [semPresenca, semVotacao, semCeap, semFinance] = await Promise.all([
     prisma.term.count({ where: { ...mandatoAtual, sessionAttendances: { none: {} } } }),
     prisma.term.count({ where: { ...mandatoAtual, actions: { none: {} } } }),
     prisma.term.count({ where: { ...mandatoAtual, costs: { none: { category: { not: "PATRIMONY" } } } } }),
     prisma.term.count({ where: { ...mandatoAtual, finances: { none: {} } } }),
   ]);
-  add({ id: "termos-sem-presenca", area: "presença", severidade: "media", descricao: "Mandatos ativos sem registros de presença", qtd: semPresenca, correcao: "bot:fix" });
-  add({ id: "termos-sem-votacao", area: "presença", severidade: "media", descricao: "Mandatos ativos sem votos nominais", qtd: semVotacao, correcao: "bot:fix" });
-  add({ id: "termos-sem-ceap", area: "custo", severidade: "media", descricao: "Mandatos ativos sem CEAP (custo parlamentar)", qtd: semCeap, correcao: "bot:fix:etl" });
+  add({ id: "termos-sem-presenca", area: "presença", severidade: "media", descricao: `Mandatos ativos sem registros de presença (maioria = senadores: API de presença do Senado não coletada)`, qtd: semPresenca, correcao: null });
+  add({ id: "termos-sem-votacao", area: "presença", severidade: "media", descricao: "Mandatos ativos sem votos nominais (senadores + deputados sem votação no período coletado — nova coleta pode ajudar deputados)", qtd: semVotacao, correcao: "bot:fix:etl" });
+  add({ id: "termos-sem-ceap", area: "custo", severidade: "media", descricao: "Mandatos ativos sem CEAP (81 senadores: CEAP é fonte da Câmara; precisa coleta da cota do Senado)", qtd: semCeap, correcao: null });
   add({ id: "termos-sem-receitas", area: "campanha", severidade: "media", descricao: "Mandatos ativos sem prestação de contas (afeta Campanha 5% e confiança +5)", qtd: semFinance, correcao: null });
 
-  // 3. Bills (tags é Json — filtro via SQL)
-  const [semResumo, resumoVazio, semTagRaw, bills] = await Promise.all([
+  // 3. Bills (tags é Json — filtro via SQL). Duas condições distintas:
+  //    NULL = nunca processada (fechável pelo tag-bills incremental);
+  //    [] = processada mas sem keyword match no título (exige classificador
+  //    mais esperto — keywords expandidas ou LLM; não é fechável pelo bot).
+  const [semResumo, resumoVazio, tagStats, bills] = await Promise.all([
     prisma.bill.count({ where: { simpleSummary: null } }),
     prisma.bill.count({ where: { simpleSummary: "" } }),
-    prisma.$queryRaw<{ n: number }[]>`SELECT COUNT(*)::int AS n FROM "Bill" WHERE "tags" IS NULL OR "tags" = '[]'::jsonb`,
+    prisma.$queryRaw<{ nunca: number; vazio: number }[]>`SELECT
+      COUNT(*) FILTER (WHERE "tags" IS NULL)::int AS nunca,
+      COUNT(*) FILTER (WHERE "tags" = '[]'::jsonb)::int AS vazio
+      FROM "Bill"`,
     prisma.bill.count(),
   ]);
-  const semTag = semTagRaw[0]?.n ?? 0;
+  const nuncaTaggadas = tagStats[0]?.nunca ?? 0;
+  const semCategoria = tagStats[0]?.vazio ?? 0;
   add({ id: "bills-sem-resumo", area: "conteúdo", severidade: "alta", descricao: "Projetos sem resumo em linguagem simples (null = nunca processados)", qtd: semResumo, correcao: "bot:fix (tag + resumos)" });
   add({ id: "bills-resumo-vazio", area: "conteúdo", severidade: "baixa", descricao: "Projetos processados sem categoria conhecida (marcados '')", qtd: resumoVazio, correcao: null });
-  add({ id: "bills-sem-tag", area: "conteúdo", severidade: "media", descricao: `Projetos sem tags temáticas (de ${bills})`, qtd: semTag, correcao: "bot:fix (tag)" });
+  add({ id: "bills-nunca-taggadas", area: "conteúdo", severidade: "media", descricao: "Projetos nunca processados pelo tagger (tags NULL)", qtd: nuncaTaggadas, correcao: "bot:fix (tag)" });
+  add({ id: "bills-sem-categoria", area: "conteúdo", severidade: "baixa", descricao: `Projetos sem keyword match no título (de ${bills}) — requer classificador mais esperto (keywords expandidas/LLM)`, qtd: semCategoria, correcao: null });
 
   // 4. Patrimônio
   const semPatrimonio = await prisma.person.count({ where: { patrimonyHistory: { none: {} } } });
@@ -127,13 +137,16 @@ async function escanear() {
   const status = porStatus.map((s) => `${s.reliabilityStatus}:${s._count}`).join(" ");
   console.log(`📊 Scores: ${status} | snapshot do mês: ${snapshotMes > 0 ? "OK" : "AUSENTE"}`);
 
-  // 6. Raws (existência e frescor)
+  // 6. Raws (existência e frescor). Datasets HISTÓRICOS (eleições passadas,
+  //    prestação de contas encerrada) não mudam na origem — isentos do check
+  //    de idade; só ausência é gap.
+  const HISTORICOS = new Set(["tse_bens_raw.json", "camara_receitas_2022_agg.json"]);
   for (const par of PARES_ETL) {
     const p = join(RAIZ, "data", "raw", par.raw);
     const idade = idadeDias(p);
     if (idade === null) {
       gaps.push({ id: `raw-ausente-${par.raw}`, area: "pipeline", severidade: "media", descricao: `Raw ausente: data/raw/${par.raw}`, qtd: 1, correcao: par.etl ? `bot:fix:etl (${par.etl})` : null });
-    } else if (idade > 7) {
+    } else if (idade > 7 && !HISTORICOS.has(par.raw)) {
       gaps.push({ id: `raw-velho-${par.raw}`, area: "pipeline", severidade: "baixa", descricao: `Raw desatualizado (${idade} dias): data/raw/${par.raw}`, qtd: 1, correcao: par.etl ? `bot:fix:etl (${par.etl})` : null });
     }
   }
