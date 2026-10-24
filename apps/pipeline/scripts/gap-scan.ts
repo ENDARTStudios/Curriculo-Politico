@@ -65,7 +65,6 @@ function pendenciasExternas(): Gap[] {
   add("externa-sccs", "jurídico", "media", "Contratos Vercel/Sentry com SCCs (Res. ANPD 19/2024) não assinados");
   add("externa-tse-bulk", "dados", "media", "Bulk prestação de contas TSE (500MB) pendente — bloqueia doadores PF/PJ na dimensão Campanha");
   add("externa-consulta-2020", "dados", "baixa", "consulta_cand 2020 não carregada; sub-votações pré-2023 ausentes");
-  add("externa-rootdir", "deploy", "media", "Vercel Root Directory = apps/web pendente no dashboard (deploy git-based)");
   return gaps;
 }
 
