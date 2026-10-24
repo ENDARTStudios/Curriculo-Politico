@@ -36,6 +36,8 @@ export const CONTATO = {
   patrocinio: "endart.studios+patrocinio@gmail.com",
   /** Parcerias institucionais e acadêmicas (sem transferência de recurso). */
   parcerias: "endart.studios+parcerias@gmail.com",
+  /** Sugestões e críticas sobre a plataforma, os dados e a metodologia. */
+  feedback: "endart.studios+feedback@gmail.com",
 } as const;
 
 /** Endereço pronto para `href` de e-mail. */
