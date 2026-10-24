@@ -140,7 +140,7 @@ async function escanear() {
   // 6. Raws (existência e frescor). Datasets HISTÓRICOS (eleições passadas,
   //    prestação de contas encerrada) não mudam na origem — isentos do check
   //    de idade; só ausência é gap.
-  const HISTORICOS = new Set(["tse_bens_raw.json", "camara_receitas_2022_agg.json"]);
+  const HISTORICOS = new Set(["tse_bens_2022_raw.json", "camara_receitas_2022_agg.json"]);
   for (const par of PARES_ETL) {
     const p = join(RAIZ, "data", "raw", par.raw);
     const idade = idadeDias(p);
