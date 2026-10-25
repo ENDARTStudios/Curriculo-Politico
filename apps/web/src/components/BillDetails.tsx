@@ -22,6 +22,19 @@ export function BillDetails({ bill, authorships }: BillDetailsProps) {
             {bill.type}
           </span>
         )}
+        {/*
+          Situação atual da tramitação (Câmara API, capturada pelo
+          atualizar-tramitacao). É contexto factual, sem estado de
+          confiabilidade — por isso slate/sky, nunca as cores do Termômetro.
+        */}
+        {bill.status && (
+          <span
+            title="Situação atual na tramitação, segundo a Câmara dos Deputados"
+            className="rounded border border-sky-500/40 bg-sky-500/10 px-2 py-0.5 text-xs text-sky-300"
+          >
+            {bill.status}
+          </span>
+        )}
         {bill.date && (
           <span className="text-xs text-slate-400">
             Apresentado em {new Date(bill.date).toLocaleDateString("pt-BR")}
