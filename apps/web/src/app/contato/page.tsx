@@ -6,7 +6,7 @@ import { CONTATO, mailto } from "@/lib/contato";
 export const metadata: Metadata = {
   title: "Contato",
   description:
-    "Canais oficiais do Currículo Político: retificação de dados, privacidade e DPO, imprensa, suporte, colaboração open source e segurança.",
+    "Canais oficiais do Currículo Político: retificação de dados, privacidade e DPO, imprensa, suporte, feedback, colaboração open source e segurança.",
 };
 
 export default function ContatoPage() {
@@ -133,6 +133,21 @@ export default function ContatoPage() {
               {CONTATO.reembolso}
             </a>
           </p>
+        </div>
+
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+          <h2 className="mb-2 text-xl font-bold text-slate-100">💬 Feedback</h2>
+          <p className="mb-3 text-sm leading-relaxed text-slate-400">
+            Sugestões e críticas sobre a plataforma, a qualidade dos dados ou a
+            metodologia — o cálculo do IDIP é aberto e qualquer apontamento é
+            bem-vindo.
+          </p>
+          <a
+            href={mailto(CONTATO.feedback)}
+            className="break-all text-sky-400 hover:underline"
+          >
+            {CONTATO.feedback}
+          </a>
         </div>
 
         <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
