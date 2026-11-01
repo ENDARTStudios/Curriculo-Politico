@@ -4,12 +4,12 @@
  * com dedupe por id determinístico. LGPD: nunca grava CPF.
  *   npm run db:load-legal
  */
-import { PrismaClient, LegalStatus } from "@prisma/client";
+import { LegalStatus } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { normalizeName } from "@cp/idip";
 
-const prisma = new PrismaClient();
 
 interface TcuRecord {
   nome: string;

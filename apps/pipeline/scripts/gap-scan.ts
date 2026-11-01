@@ -8,11 +8,10 @@
  * Saída: data/gaps/<data>-gaps.json e .md; o caminho do relatório é
  * impresso como "RELATORIO=<path>" (consumido pelo auto-fix).
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "fs";
 import { join, resolve } from "path";
 
-const prisma = new PrismaClient();
 const RAIZ = resolve(__dirname, "..", "..", "..");
 const DIR_GAPS = join(RAIZ, "data", "gaps");
 

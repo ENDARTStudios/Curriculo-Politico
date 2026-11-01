@@ -4,12 +4,11 @@
  * (baseline 50, confiança 30). Idempotente — atualiza os 10 antigos in-place.
  *   npm run db:load-camara-completa
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { calculateIDIP, type LegislativeMetrics } from "@cp/idip";
 
-const prisma = new PrismaClient();
 
 interface RawDeputy {
   id: number;

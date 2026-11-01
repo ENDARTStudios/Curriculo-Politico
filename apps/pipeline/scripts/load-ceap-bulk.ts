@@ -3,11 +3,11 @@
  * ideCadastro do bulk = mesmo id exposto pela API v2 (externalId).
  *   npm run db:load-ceap-bulk
  */
-import { PrismaClient, CostCategory } from "@prisma/client";
+import { CostCategory } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 
-const prisma = new PrismaClient();
 
 interface BulkRecord {
   ideCadastro: string;

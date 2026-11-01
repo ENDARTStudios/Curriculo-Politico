@@ -24,10 +24,9 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { CADEIA } from "./lib/cadeia";
 
-const prisma = new PrismaClient();
 const RAIZ = resolve(__dirname, "..", "..", "..");
 const DIR_RAW = join(RAIZ, "data", "raw");
 

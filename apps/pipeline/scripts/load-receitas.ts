@@ -3,11 +3,11 @@
  * Casamento por Person.tseId = SQ_CANDIDATO do dataset de receitas.
  *   npm run db:load-receitas
  */
-import { PrismaClient, CostCategory } from "@prisma/client";
+import { CostCategory } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 
-const prisma = new PrismaClient();
 
 interface ReceitaAgg {
   tse_id: string;

@@ -7,12 +7,11 @@
  * "Moraes") NÃO vinculam — alto risco de homônimo.
  *   npm run db:load-fact-checking
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { normalizeName } from "@cp/idip";
 
-const prisma = new PrismaClient();
 
 interface Claim {
   title: string;

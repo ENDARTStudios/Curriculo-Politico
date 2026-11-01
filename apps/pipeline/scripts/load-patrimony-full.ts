@@ -3,11 +3,11 @@
  * Casamento por tseId (SQ_CANDIDATO da eleição) — mesmo formato das duas fontes.
  *   npm run db:load-patrimony
  */
-import { PrismaClient, CostCategory } from "@prisma/client";
+import { CostCategory } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { readFileSync } from "fs";
 import { join } from "path";
 
-const prisma = new PrismaClient();
 
 interface BemRaw {
   tse_id: string;

@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    // Espelha o runtime real: `tsx` transpila estes scripts para CommonJS
+    // (foi o que produziu o erro "Top-level await is currently not supported
+    // with the cjs output format"). Declarar ESM aqui daria tipos que o
+    // runtime não tem — `__dirname` existe, `import.meta` não.
+    // `node16` em vez de `CommonJS`/`Node`: o TypeScript 7 removeu o resolver
+    // `node10`, e `node16` é o que descreve um pacote sem `"type": "module"`.
+    "target": "ES2022",
+    "module": "node16",
+    "moduleResolution": "node16",
+    "lib": ["ES2022"],
+
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+
+    "types": ["node"],
+    "noEmit": true
+  },
+  "include": ["scripts/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

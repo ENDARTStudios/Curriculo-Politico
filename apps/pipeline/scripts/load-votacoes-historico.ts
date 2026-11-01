@@ -3,12 +3,11 @@
  * Denominador = sessões nominais do período (metadata do crawl).
  *   npm run db:load-votacoes-historico
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { calculateIDIP, type LegislativeMetrics } from "@cp/idip";
 
-const prisma = new PrismaClient();
 
 interface RawVote {
   votacao_id: string;

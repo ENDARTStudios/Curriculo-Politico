@@ -8,12 +8,11 @@
  * Idempotente: pode rodar quantas vezes quiser.
  *   npm run db:load-camara
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { calculateIDIP, type LegislativeMetrics } from "@cp/idip";
 
-const prisma = new PrismaClient();
 
 interface RawDeputy {
   id: number;

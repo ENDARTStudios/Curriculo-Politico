@@ -2,11 +2,11 @@
  * Load do CEAP coletado da Câmara → PoliticianCost (CEAP).
  *   npm run db:load-ceap
  */
-import { PrismaClient, CostCategory } from "@prisma/client";
+import { CostCategory } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 
-const prisma = new PrismaClient();
 
 interface CeapRaw {
   deputado_id: string;

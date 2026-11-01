@@ -24,9 +24,9 @@
  * A chave única `(entidade, entidadeId, campo, ocorridoEm)` faz `skipDuplicates`
  * resolver reprocessamento. Rodar dez vezes produz o mesmo resultado de rodar uma.
  */
-import { PrismaClient, type ChangeEntity, type ChangeType } from "@prisma/client";
+import { type ChangeEntity, type ChangeType } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 
-const prisma = new PrismaClient();
 const DRY = process.argv.includes("--dry");
 
 interface Mudanca {

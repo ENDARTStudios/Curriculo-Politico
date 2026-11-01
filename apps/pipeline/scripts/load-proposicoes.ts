@@ -2,11 +2,10 @@
  * Load das proposições de autoria (raw → Bill + BillAuthorship).
  *   npm run db:load-proposicoes
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { readFileSync } from "fs";
 import { join } from "path";
 
-const prisma = new PrismaClient();
 
 interface BillRecord {
   deputado_id: string;

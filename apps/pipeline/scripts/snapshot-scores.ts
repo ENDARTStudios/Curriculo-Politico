@@ -6,10 +6,9 @@
  * A data do snapshot vem de `monthSnapshotDate()` — ver snapshot-date.ts para
  * o motivo de não usar mais o último dia do mês no fuso do executor.
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { isoUtcDay, monthSnapshotDate } from "./snapshot-date";
 
-const prisma = new PrismaClient();
 
 async function snapshot() {
   const snapshotDate = monthSnapshotDate();

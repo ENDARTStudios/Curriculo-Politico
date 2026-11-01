@@ -6,12 +6,11 @@
  * Casos que não atendem nenhum critério ficam para revisão manual.
  *   npm run review-medium
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { normalizeName } from "@cp/idip";
 
-const prisma = new PrismaClient();
 
 interface ReportDetalhe {
   politicalName: string;

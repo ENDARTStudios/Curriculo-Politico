@@ -3,9 +3,8 @@
  * Heurística v1: 1 termo na base + sem tseId de eleição anterior = estreante.
  *   npm run mark-first-terms
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 
-const prisma = new PrismaClient();
 
 async function markFirstTerms() {
   console.log("🔍 Marcando primeiros mandatos...\n");

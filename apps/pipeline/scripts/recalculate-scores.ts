@@ -4,7 +4,8 @@
  * Usa groupBy no banco (não carrega ações na memória).
  *   npm run recalculate-scores
  */
-import { PrismaClient, ReliabilityStatus } from "@prisma/client";
+import { ReliabilityStatus } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { readFileSync } from "fs";
 import { join } from "path";
 import {
@@ -14,7 +15,6 @@ import {
 } from "@cp/idip";
 import { CostCategory } from "@prisma/client";
 
-const prisma = new PrismaClient();
 
 async function recalculate() {
   const metaPath = join(process.cwd(), "data", "raw", "camara_votacoes_historico_meta.json");
