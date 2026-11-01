@@ -4,9 +4,8 @@
  * (registro TSE + ciência política brasileira consolidada).
  *   npm run db:seed-parties
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 
-const prisma = new PrismaClient();
 
 const PARTY_DATA: Array<{
   acronym: string;

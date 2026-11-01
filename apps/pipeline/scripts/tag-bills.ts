@@ -9,9 +9,8 @@
  * por execução (~1h no Gap Bot semanal). Para re-rotular tudo após mudar
  * as regras: UPDATE "Bill" SET tags = NULL; e reexecutar.
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 
-const prisma = new PrismaClient();
 
 // Mapeamento de keywords → tags (temas legislativos reais)
 const TAG_KEYWORDS: Record<string, string[]> = {

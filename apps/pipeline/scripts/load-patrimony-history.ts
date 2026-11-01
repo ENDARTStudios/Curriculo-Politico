@@ -7,12 +7,11 @@
  *    (substring NÃO vale — homônimos são reais)
  *   npm run db:load-patrimony-history
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { normalizeName } from "@cp/idip";
 
-const prisma = new PrismaClient();
 
 interface PatrimonyRecord {
   sq: string;

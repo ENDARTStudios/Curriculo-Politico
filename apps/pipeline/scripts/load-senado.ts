@@ -4,12 +4,11 @@
  * Office por UF (jurisdição = estado). Score inicial GRAY (só cadastro).
  *   npm run db:load-senado
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { calculateIDIP, type LegislativeMetrics } from "@cp/idip";
 
-const prisma = new PrismaClient();
 
 interface RawSenator {
   id_senado: string;

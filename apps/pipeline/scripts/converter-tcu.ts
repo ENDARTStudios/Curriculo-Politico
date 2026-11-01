@@ -23,7 +23,7 @@
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 
 const RAIZ = resolve(__dirname, "..", "..", "..");
 const CSV = join(RAIZ, "data", "raw", "tcu", "responsaveis-contas-irregulares.csv");
@@ -208,8 +208,9 @@ async function main() {
 
   /* ── Casamento com o acervo ───────────────────────────────────────────────
      A pergunta que decide se vale carregar: quantos destes nomes existem no
-     banco, e quantos são ambíguos. Sem isso, carregar seria apostar. */
-  const prisma = new PrismaClient();
+     banco, e quantos são ambíguos. Sem isso, carregar seria apostar.
+
+     O cliente vem do singleton (`lib/prisma`): antes, cada script abria o seu. */
 
   // Declarados fora do `try` porque são usados depois do `finally`, na gravação
   // dos candidatos — dentro do bloco, sairiam de escopo.

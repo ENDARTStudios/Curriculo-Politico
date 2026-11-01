@@ -5,9 +5,8 @@
  * prepara o flag para quando a fonte existir.
  *   npm run detect-secret-votes
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 
-const prisma = new PrismaClient();
 
 const SIGILOSOS = ["Sigiloso", "Secreto", "Não divulgado"];
 

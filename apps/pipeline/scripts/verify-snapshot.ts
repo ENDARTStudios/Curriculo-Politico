@@ -3,10 +3,9 @@
  * Falha (exit 1) se o snapshot do mês não for criado.
  *   npx tsx scripts/verify-snapshot.ts
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { isoUtcDay, monthSnapshotDate } from "./snapshot-date";
 
-const prisma = new PrismaClient();
 
 async function verify() {
   const snapshotDate = monthSnapshotDate();

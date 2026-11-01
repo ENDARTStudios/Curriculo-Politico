@@ -3,10 +3,9 @@
  * um RED) com notas calculadas pelo motor IDIP real. Idempotente.
  *   npm run db:seed
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { calculateIDIP, type LegislativeMetrics } from "@cp/idip";
 
-const prisma = new PrismaClient();
 
 const PARTY = { acronym: "EXM", name: "Partido Exemplo (seed)", ideology: "Nenhuma — dados fictícios" };
 const OFFICE = { id: "dep-federal-br", type: "LEGISLATIVE", name: "Deputado Federal", jurisdiction: "BR" };

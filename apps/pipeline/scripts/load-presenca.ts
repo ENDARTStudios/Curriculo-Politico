@@ -4,11 +4,10 @@
  * contagem de participação, nunca como taxa de assiduidade.
  *   npm run db:load-presenca
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { readFileSync } from "fs";
 import { join } from "path";
 
-const prisma = new PrismaClient();
 
 interface AttendanceRecord {
   deputado_id: string;

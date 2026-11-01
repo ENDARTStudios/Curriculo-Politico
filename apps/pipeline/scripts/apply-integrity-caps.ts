@@ -4,10 +4,9 @@
  * recalculate-scores. Exclui seeds.
  *   npm run apply-integrity-caps
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { calculateIDIP, type LegislativeMetrics } from "@cp/idip";
 
-const prisma = new PrismaClient();
 
 async function applyCaps() {
   console.log("🔒 Aplicando travas de integridade...\n");

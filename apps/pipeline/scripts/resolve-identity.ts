@@ -12,7 +12,7 @@
  *
  *   npm run resolve-identity
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import {
@@ -22,7 +22,6 @@ import {
   type TSECandidate,
 } from "@cp/idip";
 
-const prisma = new PrismaClient();
 
 function cargoDoOffice(officeName: string): string | null {
   const n = officeName.toLowerCase();

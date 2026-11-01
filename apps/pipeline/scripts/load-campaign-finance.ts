@@ -3,11 +3,10 @@
  * casa por Person.tseId (SQ_CANDIDATO) — requer resolve-identity antes.
  *   npm run db:load-finance [-- --ano 2022]
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 
-const prisma = new PrismaClient();
 
 interface Receita {
   tse_id: string;

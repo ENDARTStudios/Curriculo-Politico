@@ -3,11 +3,11 @@
  * Patrimônio NÃO entra no custo anual — é exibido como contexto.
  *   npm run db:load-patrimony
  */
-import { PrismaClient, CostCategory } from "@prisma/client";
+import { CostCategory } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 
-const prisma = new PrismaClient();
 
 interface BemRaw {
   tse_id: string;

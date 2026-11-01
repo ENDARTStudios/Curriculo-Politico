@@ -4,12 +4,11 @@
  * aparece no trecho; caso contrário grava sem vínculo.
  *   npm run db:load-municipal
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { normalizeName } from "@cp/idip";
 
-const prisma = new PrismaClient();
 
 interface Mention {
   municipality: string;

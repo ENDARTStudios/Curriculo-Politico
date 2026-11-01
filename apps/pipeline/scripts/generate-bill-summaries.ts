@@ -5,9 +5,8 @@
  * isso explícito. Quando houver LLM no pipeline, substitui este gerador.
  *   npm run generate-summaries
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 
-const prisma = new PrismaClient();
 
 const TEMPLATES: Record<string, { summary: string; impact: string }> = {
   saude: {

@@ -8,6 +8,7 @@
     "@cp/idip": "*"
   },
   "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
     "snapshot": "tsx --env-file-if-exists=../../apps/web/.env scripts/snapshot-scores.ts",
     "recalculate-scores": "tsx --env-file-if-exists=../../apps/web/.env scripts/recalculate-scores.ts",
     "seed:production": "tsx --env-file-if-exists=../../apps/web/.env scripts/seed-all-production.ts"

@@ -3,9 +3,9 @@
  * notórios, legislatura 2023–2027). Médias quando o valor varia por UF.
  *   npm run db:seed-benefits
  */
-import { PrismaClient, CostCategory } from "@prisma/client";
+import { CostCategory } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 
-const prisma = new PrismaClient();
 
 const FIXED_BENEFITS: Array<{
   officeType: string;

@@ -37,7 +37,12 @@ import { Prisma, PrismaClient } from "@prisma/client";
 
 const token = process.env.SUPABASE_ACCESS_TOKEN;
 const ref = process.env.SUPABASE_PROJECT_REF;
-const destinoUrl = process.env.TARGET_DATABASE_URL;
+// `?? ""` em vez de deixar `string | undefined`: o estreitamento do guard abaixo
+// não atravessa a fronteira de função, então `destinoUrl` continuava
+// "possivelmente undefined" dentro de `main()` — e a versão só compilava porque
+// o pipeline nunca passou por typecheck. String vazia é falsa no guard, então o
+// comportamento em caso de ausência é o mesmo.
+const destinoUrl = process.env.TARGET_DATABASE_URL ?? "";
 
 if (!token || !ref || !destinoUrl) {
   console.error(

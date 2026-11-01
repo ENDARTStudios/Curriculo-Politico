@@ -4,9 +4,8 @@
  * (FGV/CPDOC, Senado, Presidência). Critérios adaptados por era.
  *   npm run db:seed-historical
  */
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma";
 
-const prisma = new PrismaClient();
 
 const ERAS = [
   {
