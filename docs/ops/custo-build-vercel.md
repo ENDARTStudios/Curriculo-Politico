@@ -115,10 +115,9 @@ alto.
 
 ## O que ainda não foi medido
 
-Não há número de duração de build neste registro — seria preciso ler o histórico
-de deployments na Vercel (`vercel ls --meta` ou o painel). Sem esse dado, os
-ganhos acima estão expressos em **proporção de builds**, que é o que o repositório
-permite afirmar.
+Não há número de CPU por build neste registro. A CLI expõe **duração em segundos**
+(`vercel ls`), que é o que permitiu afirmar "26–33 s por build". Minutos de CPU
+podem diferir da duração de parede — não inventei o número.
 
 ## Achado posterior: o consumo é do TIME, não só deste projeto
 
@@ -137,3 +136,42 @@ certa é olhar o consumo por projeto em *Team Settings → Usage → Builds* e a
 
 Deste projeto, o que se sabe: builds levam **26–33 s** (medido em `vercel ls`), e
 44% dos commits históricos não tocavam o app.
+
+## O limite foi atualizado — e o site continuou fora do ar
+
+Depois de o limite ser ajustado, a produção seguia em **HTTP 503**:
+
+```
+X-Vercel-Error: DEPLOYMENT_PAUSED
+The deployment is currently unavailable
+```
+
+O time aparecia `status: active`, `limited: false`, plano `pro`. O que estava
+pausado era **o projeto**, não a conta:
+
+```bash
+vercel api "/v9/projects/prj_.../pause"    # consulta → paused: true
+vercel api "/v1/projects/prj_.../unpause" -X POST
+```
+
+Depois do unpause, `www.curriculopolitico.org` voltou a **HTTP 200**.
+
+**Lição operacional:** atualizar o limite de gastos não despausa o projeto. São
+dois estados diferentes, e a mensagem `DEPLOYMENT_PAUSED` não distingue os dois
+para quem lê o site.
+
+Cinco deployments do período pausado ficaram em `BLOCKED` e **não são canceláveis**
+(HTTP 400 — estado terminal). São inertes: não consomem minutos.
+
+## O `ignoreCommand` foi confirmado em produção
+
+Push de um commit que só alterava `docs/`:
+
+| | Antes (sem ignoreCommand) | Depois |
+|---|---|---|
+| Resultado | build completo | **Canceled** |
+| Tempo | 26–33 s | **4,6 s** |
+
+Os 4,6 s são checkout + execução do script; a compilação do Next não aconteceu. A
+economia estimada por proporção histórica (25–44% dos builds) passa a ter
+confirmação empírica.
