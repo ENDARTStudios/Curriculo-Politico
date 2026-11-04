@@ -68,24 +68,23 @@ HEAD    (package.json)                        → CONSTRUIR (exit 1)
 Ganho estimado: 25–44% dos builds, pela proporção histórica. Risco: baixo.
 Não resolve o caso de muitos PRs que mexem em `apps/web`.
 
-### B. Construir no GitHub Actions e enviar pronto (`vercel deploy --prebuilt`)
+### B. Construir no GitHub Actions e enviar pronto (`vercel deploy --prebuilt`) — **workflow pronto**
 
 O repositório é **público**, e GitHub Actions é **gratuito e sem limite de minutos
 para repositórios públicos**. A Vercel passaria a apenas servir o artefato — custo
 de Build CPU Minutes vai a **zero**.
 
-Esboço:
+Implementado em `.github/workflows/deploy-vercel-prebuilt.yml`, com disparo
+**manual** de propósito: ligá-lo a `push` antes de validar significaria publicar sem
+rede — se o build no Actions falhar, produção continua na versão anterior sem
+ninguém perceber.
 
-```yaml
-# .github/workflows/deploy.yml (não criado — depende de VERCEL_TOKEN)
-- run: npm ci
-- run: npm run build --workspace @cp/web   # gera .next
-- run: npx vercel build --prod --token $VERCEL_TOKEN
-- run: npx vercel deploy --prebuilt --prod --token $VERCEL_TOKEN
-```
+Requisitos: secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`; e desligar
+o build automático da Vercel (Project → Settings → Git → *Ignored Build Step* =
+`exit 0`), senão ela constrói de novo e o custo continua. As variáveis da aplicação
+(`DATABASE_URL`, `NEXTAUTH_SECRET`…) não precisam ser duplicadas: `vercel pull` as
+traz do projeto.
 
-Requisitos: secret `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`; e desligar
-o build automático da Vercel (Git → *Ignored Build Step* ou desconectar o Git).
 Custo: um workflow novo, e o deploy passa a depender do Actions estar verde.
 Risco: médio (muda o caminho de publicação).
 
@@ -120,3 +119,21 @@ Não há número de duração de build neste registro — seria preciso ler o hi
 de deployments na Vercel (`vercel ls --meta` ou o painel). Sem esse dado, os
 ganhos acima estão expressos em **proporção de builds**, que é o que o repositório
 permite afirmar.
+
+## Achado posterior: o consumo é do TIME, não só deste projeto
+
+A conta `end-art-studios` hospeda **7 projetos** e Build CPU Minutes é um pool
+**compartilhado**:
+
+```
+curriculo-politico · auto-trader · shop-finder · nexus-alpha
+tank-wallet · almanaque-dos-clubes · media-rate
+```
+
+Os outros seis tinham deploys recentes no momento da investigação. Ou seja:
+otimizar só o Currículo Político **não resolve** um estouro de conta. A ordem
+certa é olhar o consumo por projeto em *Team Settings → Usage → Builds* e aplicar
+`ignoreCommand`/filtro de branch nos que mais publicam.
+
+Deste projeto, o que se sabe: builds levam **26–33 s** (medido em `vercel ls`), e
+44% dos commits históricos não tocavam o app.

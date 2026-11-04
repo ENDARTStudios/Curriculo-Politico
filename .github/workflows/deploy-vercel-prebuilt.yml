@@ -1,0 +1,101 @@
+name: Deploy Vercel (prebuilt)
+
+# ── Por que este workflow existe ──────────────────────────────────────────────
+# No plano PRO, quem consome "Build CPU Minutes" é o **deploy**, não o acesso ao
+# site. Quando o limite estoura, a Vercel bloqueia deployments antes mesmo de
+# compilar (status "blocked", build de 0ms) — foi o que aconteceu.
+#
+# Aqui o build roda no GitHub Actions, que é **gratuito e ilimitado para
+# repositórios públicos**, e a Vercel recebe apenas o artefato pronto
+# (`vercel deploy --prebuilt`). Resultado: Build CPU Minutes na Vercel = 0.
+#
+# ── Pré-requisitos (uma vez) ─────────────────────────────────────────────────
+# 1. Secrets no repositório:
+#      VERCEL_TOKEN        → https://vercel.com/account/tokens
+#      VERCEL_ORG_ID       → team_5RWuK4Qt0MCv81w2zGY0UPub
+#      VERCEL_PROJECT_ID   → prj_FcfxuXToOrt2ZGSmNIXSgMHqnRFY
+#    As variáveis de ambiente da aplicação (DATABASE_URL, NEXTAUTH_SECRET…)
+#    NÃO precisam ser duplicadas aqui: `vercel pull` as traz do próprio projeto.
+#
+# 2. Desligar o deploy automático da Vercel, senão ela constrói de novo:
+#      Project → Settings → Git → "Ignored Build Step" = `exit 0`
+#    (ou desconectar o repositório em Settings → Git).
+#
+# ── Por que só `workflow_dispatch` ──────────────────────────────────────────
+# Este caminho substitui o deploy automático. Ligá-lo a `push` antes de validar
+# significaria publicar sem rede: se o build no Actions falhar, produção continua
+# na versão anterior sem ninguém perceber. Começa manual, e vira automático
+# quando o primeiro deploy prebuilt estiver confirmado.
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Ambiente de destino"
+        type: choice
+        options: [preview, production]
+        default: preview
+
+concurrency:
+  # Um deploy por ambiente por vez; os outros esperam em vez de competir.
+  group: deploy-vercel-${{ inputs.target }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    # O diretório raiz do projeto na Vercel é `apps/web`; o CLI grava `.vercel/`
+    # relativo ao cwd, então tudo roda de lá.
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+        working-directory: .
+
+      - name: Gerar cliente Prisma
+        run: npx prisma generate --schema=apps/web/prisma/schema.prisma
+        working-directory: .
+
+      - name: Puxar configuração e variáveis do projeto
+        run: |
+          npx vercel pull --yes \
+            --environment=${{ inputs.target == 'production' && 'production' || 'preview' }} \
+            --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Build (roda no Actions, não na Vercel)
+        run: |
+          if [ "${{ inputs.target }}" = "production" ]; then
+            npx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          else
+            npx vercel build --token=${{ secrets.VERCEL_TOKEN }}
+          fi
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Enviar artefato pronto
+        run: |
+          if [ "${{ inputs.target }}" = "production" ]; then
+            npx vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+          else
+            npx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+          fi
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
