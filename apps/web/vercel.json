@@ -6,5 +6,6 @@
       "path": "/api/health",
       "schedule": "0 */6 * * *"
     }
-  ]
+  ],
+  "ignoreCommand": "cd \"$(git rev-parse --show-toplevel)\" && node scripts/vercel-ignorar-build.mjs"
 }
